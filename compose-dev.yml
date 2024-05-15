@@ -1,0 +1,12 @@
+services:
+  backend:
+    image: cosmtrek/air
+    working_dir: /app
+    command: ["-c", "./scripts/.air.toml"]
+    volumes:
+      - .:/app
+    ports:
+      - ${PORT}:${PORT}
+
+    environment:
+      - PORT=${PORT}
