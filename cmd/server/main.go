@@ -4,11 +4,11 @@ import (
 	"log"
 	"optitech/initialize"
 	"os"
+	"strconv"
 
 	"optitech/internal/repository"
+	"optitech/internal/router"
 	sq "optitech/internal/sqlc"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
@@ -17,13 +17,19 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
+	port, err := strconv.ParseUint(os.Getenv("PORT"), 10, 16)
+	if err != nil {
+		log.Fatalf("You must provide positive port number: %v", err)
+	}
+
 	repository.Queries = *sq.New(db)
 
-	app := fiber.New()
+	s := &router.Server{
+		Port: uint16(port),
+	}
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Optitech API running with hot reload...")
-	})
-
-	app.Listen(":" + os.Getenv("PORT"))
+	s.New()
+	if err := s.ListenAndServe(); err != nil {
+		log.Fatalf("%v", err)
+	}
 }
