@@ -11,7 +11,7 @@ SELECT email, password, given_name, surname
 FROM client
 WHERE email = $1;
 
--- name: CreateClient :execresult
+-- name: CreateClient :one
 INSERT INTO client (email, password, given_name, surname, created_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;

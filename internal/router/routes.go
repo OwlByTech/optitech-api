@@ -7,5 +7,6 @@ import (
 func (s Server) AttachRoutes() {
 	r := s.app
 
-	r.Get("/", handler.GetClientHandler)
+	r.Post("/api/client", handler.CreateClientHandler)
+	r.Get("/api/client/:id", handler.GetClientHandler)
 }

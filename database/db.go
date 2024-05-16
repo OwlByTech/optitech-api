@@ -2,8 +2,8 @@ package database
 
 import (
 	"database/sql"
-	_ "github.com/lib/pq"
 	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 )

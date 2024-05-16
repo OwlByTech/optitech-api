@@ -22,13 +22,7 @@ func ClientUp() error {
 		CreatedAt: curTime,
 	}
 
-	r, err := repository.Queries.CreateClient(ctx, client)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.RowsAffected()
-
+	_, err := repository.Queries.CreateClient(ctx, client)
 	if err != nil {
 		return err
 	}

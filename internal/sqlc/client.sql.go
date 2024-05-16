@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const createClient = `-- name: CreateClient :execresult
+const createClient = `-- name: CreateClient :one
 INSERT INTO client (email, password, given_name, surname, created_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING client_id, email, password, given_name, surname, created_at, updated_at, deleted_at
@@ -25,14 +25,26 @@ type CreateClientParams struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createClient,
+func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Client, error) {
+	row := q.db.QueryRowContext(ctx, createClient,
 		arg.Email,
 		arg.Password,
 		arg.GivenName,
 		arg.Surname,
 		arg.CreatedAt,
 	)
+	var i Client
+	err := row.Scan(
+		&i.ClientID,
+		&i.Email,
+		&i.Password,
+		&i.GivenName,
+		&i.Surname,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const deleteAllClients = `-- name: DeleteAllClients :execresult
