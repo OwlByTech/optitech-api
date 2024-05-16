@@ -18,12 +18,12 @@ func Seeder(arg string) error {
 
 	switch arg {
 	case "up":
-		if err := SeederUp(); err != nil {
+		if err := seederUp(); err != nil {
 			return err
 		}
 
 	case "down":
-		if err := SeederDown(); err != nil {
+		if err := seederDown(); err != nil {
 			return err
 		}
 
@@ -34,10 +34,10 @@ func Seeder(arg string) error {
 	return nil
 }
 
-func SeederUp() error {
+func seederUp() error {
 	return seeders.ClientUp()
 }
 
-func SeederDown() error {
+func seederDown() error {
 	return seeders.ClientDown()
 }
