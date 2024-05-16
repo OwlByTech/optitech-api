@@ -2,17 +2,17 @@ package main
 
 import (
 	"log"
-	"optitech/initialize"
 	"os"
 	"strconv"
 
+	"optitech/database"
 	"optitech/internal/repository"
 	"optitech/internal/router"
 	sq "optitech/internal/sqlc"
 )
 
 func main() {
-	db, err := initialize.Connect()
+	db, err := database.Connect()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

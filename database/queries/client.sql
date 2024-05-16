@@ -24,3 +24,6 @@ WHERE client_id = $1;
 -- name: DeleteClient :exec
 DELETE FROM client
 WHERE client_id = $1;
+
+-- name: DeleteAllClients :execresult
+DELETE FROM client;

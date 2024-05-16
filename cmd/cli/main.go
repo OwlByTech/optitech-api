@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"optitech/initialize"
+	"optitech/database"
 	"os"
 	"path/filepath"
 
@@ -19,7 +19,10 @@ var help = `Usage:
 The commands are:
 migrate         Run the migrations
       up		  Run the Up migrations files
-	  	down      Run the Down migrations files`
+	  	down      Run the Down migrations files
+seed        Run the migrations
+      up		  Run the Up seeders files
+	  	down      Run the Down seeders files`
 
 func main() {
 
@@ -34,6 +37,17 @@ func main() {
 			log.Fatal(help)
 		}
 		migrateCommand(os.Args[2])
+	case "seed":
+		if len(os.Args) < 3 {
+			log.Printf("You must specify the argument to seed command")
+			log.Fatal(help)
+		}
+
+		err := database.Seeder(os.Args[2])
+
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
 
 	default:
 		log.Fatal(help)
@@ -43,15 +57,15 @@ func main() {
 
 var m *migrate.Migrate
 
-func migrateCommand(argument string) {
+func migrateCommand(arg string) {
 	wd, err := os.Getwd()
 	if err != nil {
 		log.Fatal("Error getting current directory")
 	}
 
-	p := fmt.Sprintf("file://%s", filepath.ToSlash(filepath.Join(wd, "database", "schema")))
+	p := fmt.Sprintf("file://%s", filepath.ToSlash(filepath.Join(wd, "database", "schemas")))
 
-	db, err := initialize.Connect()
+	db, err := database.Connect()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -63,13 +77,13 @@ func migrateCommand(argument string) {
 
 	m, err = migrate.NewWithDatabaseInstance(
 		p,
-		"postgres", driver) 
+		"postgres", driver)
 
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	switch argument {
+	switch arg {
 	case "up":
 		migrateUp()
 	case "down":
