@@ -9,13 +9,34 @@ import (
 	"time"
 )
 
+type Asesor struct {
+	AsesorID int64        `json:"asesor_id"`
+	Username string       `json:"username"`
+	Photo    string       `json:"photo"`
+	About    string       `json:"about"`
+	CreateAt time.Time    `json:"create_at"`
+	UpdateAt sql.NullTime `json:"update_at"`
+}
+
 type Client struct {
-	ClientID  int64        `json:"client_id"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
-	GivenName string       `json:"given_name"`
-	Surname   string       `json:"surname"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
+	ClientID      int64         `json:"client_id"`
+	GivenName     string        `json:"given_name"`
+	Surname       string        `json:"surname"`
+	Email         string        `json:"email"`
+	Pass          string        `json:"pass"`
+	AsesorID      sql.NullInt32 `json:"asesor_id"`
+	InstitutionID sql.NullInt32 `json:"institution_id"`
+	CreatedAt     time.Time     `json:"created_at"`
+	UpdatedAt     sql.NullTime  `json:"updated_at"`
+}
+
+type Institution struct {
+	InstitutionID   int64          `json:"institution_id"`
+	AsesorID        sql.NullInt32  `json:"asesor_id"`
+	InstitutionName string         `json:"institution_name"`
+	Logo            sql.NullString `json:"logo"`
+	Descrip         string         `json:"descrip"`
+	Services        []string       `json:"services"`
+	CreateAt        time.Time      `json:"create_at"`
+	UpdateAt        sql.NullTime   `json:"update_at"`
 }

@@ -17,7 +17,7 @@ func ClientUp() error {
 	client := sq.CreateClientParams{
 		Email:     "developers@owlbytech.com",
 		GivenName: "Developers",
-		Password:  "password",
+		Pass:      "password",
 		Surname:   "Enjoy",
 		CreatedAt: curTime,
 	}

@@ -12,37 +12,38 @@ import (
 )
 
 const createClient = `-- name: CreateClient :one
-INSERT INTO client (email, password, given_name, surname, created_at)
+INSERT INTO client (given_name, surname, email, pass, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING client_id, email, password, given_name, surname, created_at, updated_at, deleted_at
+RETURNING client_id, given_name, surname, email, pass, asesor_id, institution_id, created_at, updated_at
 `
 
 type CreateClientParams struct {
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
 	GivenName string    `json:"given_name"`
 	Surname   string    `json:"surname"`
+	Email     string    `json:"email"`
+	Pass      string    `json:"pass"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Client, error) {
 	row := q.db.QueryRowContext(ctx, createClient,
-		arg.Email,
-		arg.Password,
 		arg.GivenName,
 		arg.Surname,
+		arg.Email,
+		arg.Pass,
 		arg.CreatedAt,
 	)
 	var i Client
 	err := row.Scan(
 		&i.ClientID,
-		&i.Email,
-		&i.Password,
 		&i.GivenName,
 		&i.Surname,
+		&i.Email,
+		&i.Pass,
+		&i.AsesorID,
+		&i.InstitutionID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -66,7 +67,7 @@ func (q *Queries) DeleteClient(ctx context.Context, clientID int64) error {
 }
 
 const getClient = `-- name: GetClient :one
-SELECT client_id, email, password, given_name, surname, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, pass, asesor_id, institution_id, created_at, updated_at FROM client
 WHERE client_id = $1 LIMIT 1
 `
 
@@ -75,44 +76,49 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 	var i Client
 	err := row.Scan(
 		&i.ClientID,
-		&i.Email,
-		&i.Password,
 		&i.GivenName,
 		&i.Surname,
+		&i.Email,
+		&i.Pass,
+		&i.AsesorID,
+		&i.InstitutionID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getClientByEmail = `-- name: GetClientByEmail :one
-SELECT email, password, given_name, surname
+SELECT given_name, surname, email, pass, asesor_id, institution_id
 FROM client
 WHERE email = $1
 `
 
 type GetClientByEmailRow struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	GivenName string `json:"given_name"`
-	Surname   string `json:"surname"`
+	GivenName     string        `json:"given_name"`
+	Surname       string        `json:"surname"`
+	Email         string        `json:"email"`
+	Pass          string        `json:"pass"`
+	AsesorID      sql.NullInt32 `json:"asesor_id"`
+	InstitutionID sql.NullInt32 `json:"institution_id"`
 }
 
 func (q *Queries) GetClientByEmail(ctx context.Context, email string) (GetClientByEmailRow, error) {
 	row := q.db.QueryRowContext(ctx, getClientByEmail, email)
 	var i GetClientByEmailRow
 	err := row.Scan(
-		&i.Email,
-		&i.Password,
 		&i.GivenName,
 		&i.Surname,
+		&i.Email,
+		&i.Pass,
+		&i.AsesorID,
+		&i.InstitutionID,
 	)
 	return i, err
 }
 
 const listClients = `-- name: ListClients :many
-SELECT client_id, email, password, given_name, surname, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, pass, asesor_id, institution_id, created_at, updated_at FROM client
 ORDER BY given_name
 `
 
@@ -127,13 +133,14 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 		var i Client
 		if err := rows.Scan(
 			&i.ClientID,
-			&i.Email,
-			&i.Password,
 			&i.GivenName,
 			&i.Surname,
+			&i.Email,
+			&i.Pass,
+			&i.AsesorID,
+			&i.InstitutionID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -150,26 +157,30 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 
 const updateClientById = `-- name: UpdateClientById :exec
 UPDATE client
-SET email = $2, password = $3, given_name = $4, surname = $5, updated_at = $6
+SET given_name = $2, pass = $3, surname = $4, email = $5, asesor_id=$6, institution_id=$7, updated_at = $8
 WHERE client_id = $1
 `
 
 type UpdateClientByIdParams struct {
-	ClientID  int64        `json:"client_id"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
-	GivenName string       `json:"given_name"`
-	Surname   string       `json:"surname"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
+	ClientID      int64         `json:"client_id"`
+	GivenName     string        `json:"given_name"`
+	Pass          string        `json:"pass"`
+	Surname       string        `json:"surname"`
+	Email         string        `json:"email"`
+	AsesorID      sql.NullInt32 `json:"asesor_id"`
+	InstitutionID sql.NullInt32 `json:"institution_id"`
+	UpdatedAt     sql.NullTime  `json:"updated_at"`
 }
 
 func (q *Queries) UpdateClientById(ctx context.Context, arg UpdateClientByIdParams) error {
 	_, err := q.db.ExecContext(ctx, updateClientById,
 		arg.ClientID,
-		arg.Email,
-		arg.Password,
 		arg.GivenName,
+		arg.Pass,
 		arg.Surname,
+		arg.Email,
+		arg.AsesorID,
+		arg.InstitutionID,
 		arg.UpdatedAt,
 	)
 	return err

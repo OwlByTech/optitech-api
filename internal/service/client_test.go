@@ -26,7 +26,7 @@ func TestClientServices(t *testing.T) {
 			GivenName: "test",
 			Surname:   "test",
 			Email:     "test@gmail.com",
-			Password:  "password",
+			Pass:      "password",
 		}
 		client, err = CreateClientService(req)
 		assert.NotNil(t, client)
