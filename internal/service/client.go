@@ -31,7 +31,7 @@ func CreateClientService(req dto.CreateClientReq) (*sq.Client, error) {
 		GivenName: req.GivenName,
 		Surname:   req.Surname,
 		Email:     req.Email,
-		Pass:      req.Pass,
+		Password:  req.Password,
 	}
 
 	// TODO: after save get the id of inserted using sqlc because

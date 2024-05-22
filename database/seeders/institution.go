@@ -16,7 +16,7 @@ func InstitutionUp() error {
 	curTime := time.Now()
 	institution := sq.CreateInstitutionParams{
 		InstitutionName: "nombre institucion",
-		Descrip:         "Soy una institucion",
+		Description:     "Soy una institucion",
 		Services:        []string{"medicina", "otro"},
 		CreateAt:        curTime,
 	}

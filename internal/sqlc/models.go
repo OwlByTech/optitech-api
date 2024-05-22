@@ -23,7 +23,7 @@ type Client struct {
 	GivenName     string        `json:"given_name"`
 	Surname       string        `json:"surname"`
 	Email         string        `json:"email"`
-	Pass          string        `json:"pass"`
+	Password      string        `json:"password"`
 	AsesorID      sql.NullInt32 `json:"asesor_id"`
 	InstitutionID sql.NullInt32 `json:"institution_id"`
 	CreatedAt     time.Time     `json:"created_at"`
@@ -35,7 +35,7 @@ type Institution struct {
 	AsesorID        sql.NullInt32  `json:"asesor_id"`
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
-	Descrip         string         `json:"descrip"`
+	Description     string         `json:"description"`
 	Services        []string       `json:"services"`
 	CreateAt        time.Time      `json:"create_at"`
 	UpdateAt        sql.NullTime   `json:"update_at"`

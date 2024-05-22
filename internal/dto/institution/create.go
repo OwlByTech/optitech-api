@@ -2,7 +2,7 @@ package dto
 
 type CreateInstitutionReq struct {
 	InstitutionName string   `json:"institutionName" validate:"required,institutionName"`
-	Description     string   `json:"descrip" validate:"required"`
+	Description     string   `json:"description" validate:"required"`
 	Services        []string `json:"services" validate:"required"`
 }
 

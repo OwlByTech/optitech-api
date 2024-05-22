@@ -12,16 +12,16 @@ import (
 )
 
 const createClient = `-- name: CreateClient :one
-INSERT INTO client (given_name, surname, email, pass, created_at)
+INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING client_id, given_name, surname, email, pass, asesor_id, institution_id, created_at, updated_at
+RETURNING client_id, given_name, surname, email, password, asesor_id, institution_id, created_at, updated_at
 `
 
 type CreateClientParams struct {
 	GivenName string    `json:"given_name"`
 	Surname   string    `json:"surname"`
 	Email     string    `json:"email"`
-	Pass      string    `json:"pass"`
+	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -30,7 +30,7 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 		arg.GivenName,
 		arg.Surname,
 		arg.Email,
-		arg.Pass,
+		arg.Password,
 		arg.CreatedAt,
 	)
 	var i Client
@@ -39,7 +39,7 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 		&i.GivenName,
 		&i.Surname,
 		&i.Email,
-		&i.Pass,
+		&i.Password,
 		&i.AsesorID,
 		&i.InstitutionID,
 		&i.CreatedAt,
@@ -67,7 +67,7 @@ func (q *Queries) DeleteClient(ctx context.Context, clientID int64) error {
 }
 
 const getClient = `-- name: GetClient :one
-SELECT client_id, given_name, surname, email, pass, asesor_id, institution_id, created_at, updated_at FROM client
+SELECT client_id, given_name, surname, email, password, asesor_id, institution_id, created_at, updated_at FROM client
 WHERE client_id = $1 LIMIT 1
 `
 
@@ -79,7 +79,7 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 		&i.GivenName,
 		&i.Surname,
 		&i.Email,
-		&i.Pass,
+		&i.Password,
 		&i.AsesorID,
 		&i.InstitutionID,
 		&i.CreatedAt,
@@ -89,7 +89,7 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 }
 
 const getClientByEmail = `-- name: GetClientByEmail :one
-SELECT given_name, surname, email, pass, asesor_id, institution_id
+SELECT given_name, surname, email, password, asesor_id, institution_id
 FROM client
 WHERE email = $1
 `
@@ -98,7 +98,7 @@ type GetClientByEmailRow struct {
 	GivenName     string        `json:"given_name"`
 	Surname       string        `json:"surname"`
 	Email         string        `json:"email"`
-	Pass          string        `json:"pass"`
+	Password      string        `json:"password"`
 	AsesorID      sql.NullInt32 `json:"asesor_id"`
 	InstitutionID sql.NullInt32 `json:"institution_id"`
 }
@@ -110,7 +110,7 @@ func (q *Queries) GetClientByEmail(ctx context.Context, email string) (GetClient
 		&i.GivenName,
 		&i.Surname,
 		&i.Email,
-		&i.Pass,
+		&i.Password,
 		&i.AsesorID,
 		&i.InstitutionID,
 	)
@@ -118,7 +118,7 @@ func (q *Queries) GetClientByEmail(ctx context.Context, email string) (GetClient
 }
 
 const listClients = `-- name: ListClients :many
-SELECT client_id, given_name, surname, email, pass, asesor_id, institution_id, created_at, updated_at FROM client
+SELECT client_id, given_name, surname, email, password, asesor_id, institution_id, created_at, updated_at FROM client
 ORDER BY given_name
 `
 
@@ -136,7 +136,7 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 			&i.GivenName,
 			&i.Surname,
 			&i.Email,
-			&i.Pass,
+			&i.Password,
 			&i.AsesorID,
 			&i.InstitutionID,
 			&i.CreatedAt,
@@ -157,14 +157,14 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 
 const updateClientById = `-- name: UpdateClientById :exec
 UPDATE client
-SET given_name = $2, pass = $3, surname = $4, email = $5, asesor_id=$6, institution_id=$7, updated_at = $8
+SET given_name = $2, password = $3, surname = $4, email = $5, asesor_id=$6, institution_id=$7, updated_at = $8
 WHERE client_id = $1
 `
 
 type UpdateClientByIdParams struct {
 	ClientID      int64         `json:"client_id"`
 	GivenName     string        `json:"given_name"`
-	Pass          string        `json:"pass"`
+	Password      string        `json:"password"`
 	Surname       string        `json:"surname"`
 	Email         string        `json:"email"`
 	AsesorID      sql.NullInt32 `json:"asesor_id"`
@@ -176,7 +176,7 @@ func (q *Queries) UpdateClientById(ctx context.Context, arg UpdateClientByIdPara
 	_, err := q.db.ExecContext(ctx, updateClientById,
 		arg.ClientID,
 		arg.GivenName,
-		arg.Pass,
+		arg.Password,
 		arg.Surname,
 		arg.Email,
 		arg.AsesorID,

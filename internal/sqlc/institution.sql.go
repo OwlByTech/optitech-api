@@ -14,15 +14,15 @@ import (
 )
 
 const createInstitution = `-- name: CreateInstitution :one
-INSERT INTO institution (institution_name, logo, descrip, services, create_at)
+INSERT INTO institution (institution_name, logo, description, services, create_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING institution_id, asesor_id, institution_name, logo, descrip, services, create_at, update_at
+RETURNING institution_id, asesor_id, institution_name, logo, description, services, create_at, update_at
 `
 
 type CreateInstitutionParams struct {
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
-	Descrip         string         `json:"descrip"`
+	Description     string         `json:"description"`
 	Services        []string       `json:"services"`
 	CreateAt        time.Time      `json:"create_at"`
 }
@@ -31,7 +31,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 	row := q.db.QueryRowContext(ctx, createInstitution,
 		arg.InstitutionName,
 		arg.Logo,
-		arg.Descrip,
+		arg.Description,
 		pq.Array(arg.Services),
 		arg.CreateAt,
 	)
@@ -41,7 +41,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.AsesorID,
 		&i.InstitutionName,
 		&i.Logo,
-		&i.Descrip,
+		&i.Description,
 		pq.Array(&i.Services),
 		&i.CreateAt,
 		&i.UpdateAt,
@@ -68,7 +68,7 @@ func (q *Queries) DeleteInstitution(ctx context.Context, institutionID int64) er
 }
 
 const getInstitution = `-- name: GetInstitution :one
-SELECT institution_id, asesor_id, institution_name, logo, descrip, services, create_at, update_at FROM institution
+SELECT institution_id, asesor_id, institution_name, logo, description, services, create_at, update_at FROM institution
 WHERE institution_id = $1 LIMIT 1
 `
 
@@ -80,7 +80,7 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int64) (Inst
 		&i.AsesorID,
 		&i.InstitutionName,
 		&i.Logo,
-		&i.Descrip,
+		&i.Description,
 		pq.Array(&i.Services),
 		&i.CreateAt,
 		&i.UpdateAt,
@@ -89,7 +89,7 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int64) (Inst
 }
 
 const getInstitutionByName = `-- name: GetInstitutionByName :one
-SELECT  institution_name, logo, descrip, services
+SELECT  institution_name, logo, description, services
 FROM institution
 WHERE institution_name = $1
 `
@@ -97,7 +97,7 @@ WHERE institution_name = $1
 type GetInstitutionByNameRow struct {
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
-	Descrip         string         `json:"descrip"`
+	Description     string         `json:"description"`
 	Services        []string       `json:"services"`
 }
 
@@ -107,14 +107,14 @@ func (q *Queries) GetInstitutionByName(ctx context.Context, institutionName stri
 	err := row.Scan(
 		&i.InstitutionName,
 		&i.Logo,
-		&i.Descrip,
+		&i.Description,
 		pq.Array(&i.Services),
 	)
 	return i, err
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
-SELECT institution_id, asesor_id, institution_name, logo, descrip, services, create_at, update_at FROM institution
+SELECT institution_id, asesor_id, institution_name, logo, description, services, create_at, update_at FROM institution
 ORDER BY institution_name
 `
 
@@ -132,7 +132,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 			&i.AsesorID,
 			&i.InstitutionName,
 			&i.Logo,
-			&i.Descrip,
+			&i.Description,
 			pq.Array(&i.Services),
 			&i.CreateAt,
 			&i.UpdateAt,
@@ -152,7 +152,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 
 const updateInstitutionById = `-- name: UpdateInstitutionById :exec
 UPDATE institution
-SET institution_name = $2, logo = $3, descrip = $4, services = $5, update_at=$6
+SET institution_name = $2, logo = $3, description = $4, services = $5, update_at=$6
 WHERE institution_id = $1
 `
 
@@ -160,7 +160,7 @@ type UpdateInstitutionByIdParams struct {
 	InstitutionID   int64          `json:"institution_id"`
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
-	Descrip         string         `json:"descrip"`
+	Description     string         `json:"description"`
 	Services        []string       `json:"services"`
 	UpdateAt        sql.NullTime   `json:"update_at"`
 }
@@ -170,7 +170,7 @@ func (q *Queries) UpdateInstitutionById(ctx context.Context, arg UpdateInstituti
 		arg.InstitutionID,
 		arg.InstitutionName,
 		arg.Logo,
-		arg.Descrip,
+		arg.Description,
 		pq.Array(arg.Services),
 		arg.UpdateAt,
 	)
