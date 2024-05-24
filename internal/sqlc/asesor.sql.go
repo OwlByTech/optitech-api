@@ -12,12 +12,13 @@ import (
 )
 
 const createAsesor = `-- name: CreateAsesor :one
-INSERT INTO asesor (username, photo, about, create_at)
-VALUES ($1, $2, $3, $4)
-RETURNING asesor_id, username, photo, about, create_at, update_at
+INSERT INTO asesor (client_id, username, photo, about, create_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING asesor_id, client_id, username, photo, about, create_at, update_at
 `
 
 type CreateAsesorParams struct {
+	ClientID int32     `json:"client_id"`
 	Username string    `json:"username"`
 	Photo    string    `json:"photo"`
 	About    string    `json:"about"`
@@ -26,6 +27,7 @@ type CreateAsesorParams struct {
 
 func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Asesor, error) {
 	row := q.db.QueryRowContext(ctx, createAsesor,
+		arg.ClientID,
 		arg.Username,
 		arg.Photo,
 		arg.About,
@@ -34,6 +36,7 @@ func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Ase
 	var i Asesor
 	err := row.Scan(
 		&i.AsesorID,
+		&i.ClientID,
 		&i.Username,
 		&i.Photo,
 		&i.About,
@@ -62,7 +65,7 @@ func (q *Queries) DeleteAsesor(ctx context.Context, asesorID int64) error {
 }
 
 const getAsesor = `-- name: GetAsesor :one
-SELECT asesor_id, username, photo, about, create_at, update_at FROM asesor
+SELECT asesor_id, client_id, username, photo, about, create_at, update_at FROM asesor
 WHERE asesor_id = $1 LIMIT 1
 `
 
@@ -71,6 +74,7 @@ func (q *Queries) GetAsesor(ctx context.Context, asesorID int64) (Asesor, error)
 	var i Asesor
 	err := row.Scan(
 		&i.AsesorID,
+		&i.ClientID,
 		&i.Username,
 		&i.Photo,
 		&i.About,
@@ -99,7 +103,7 @@ func (q *Queries) GetAsesorByUsername(ctx context.Context, username string) (Get
 }
 
 const listAsesors = `-- name: ListAsesors :many
-SELECT asesor_id, username, photo, about, create_at, update_at FROM asesor
+SELECT asesor_id, client_id, username, photo, about, create_at, update_at FROM asesor
 ORDER BY username
 `
 
@@ -114,6 +118,7 @@ func (q *Queries) ListAsesors(ctx context.Context) ([]Asesor, error) {
 		var i Asesor
 		if err := rows.Scan(
 			&i.AsesorID,
+			&i.ClientID,
 			&i.Username,
 			&i.Photo,
 			&i.About,

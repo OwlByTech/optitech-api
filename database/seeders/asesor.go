@@ -15,6 +15,7 @@ func AsesorUp() error {
 	ctx := context.Background()
 	curTime := time.Now()
 	asesor := sq.CreateAsesorParams{
+		ClientID: 1,
 		Username: "JosephSC0121",
 		About:    "Hola mundo ",
 		CreateAt: curTime,

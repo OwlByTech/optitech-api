@@ -11,6 +11,7 @@ import (
 
 type Asesor struct {
 	AsesorID int64        `json:"asesor_id"`
+	ClientID int32        `json:"client_id"`
 	Username string       `json:"username"`
 	Photo    string       `json:"photo"`
 	About    string       `json:"about"`
@@ -19,15 +20,13 @@ type Asesor struct {
 }
 
 type Client struct {
-	ClientID      int64         `json:"client_id"`
-	GivenName     string        `json:"given_name"`
-	Surname       string        `json:"surname"`
-	Email         string        `json:"email"`
-	Password      string        `json:"password"`
-	AsesorID      sql.NullInt32 `json:"asesor_id"`
-	InstitutionID sql.NullInt32 `json:"institution_id"`
-	CreatedAt     time.Time     `json:"created_at"`
-	UpdatedAt     sql.NullTime  `json:"updated_at"`
+	ClientID  int64        `json:"client_id"`
+	GivenName string       `json:"given_name"`
+	Surname   string       `json:"surname"`
+	Email     string       `json:"email"`
+	Password  string       `json:"password"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 type Institution struct {

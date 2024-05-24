@@ -12,8 +12,8 @@ FROM asesor
 WHERE username = $1;
 
 -- name: CreateAsesor :one
-INSERT INTO asesor (username, photo, about, create_at)
-VALUES ($1, $2, $3, $4)
+INSERT INTO asesor (client_id, username, photo, about, create_at)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: UpdateAsesorById :exec

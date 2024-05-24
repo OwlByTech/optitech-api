@@ -14,15 +14,26 @@ import (
 func ClientUp() error {
 	ctx := context.Background()
 	curTime := time.Now()
-	client := sq.CreateClientParams{
-		Email:     "developers@owlbytech.com",
-		GivenName: "Developers",
+	client_asesor := sq.CreateClientParams{
+		Email:     "asesor@owlbytech.com",
+		GivenName: "asesor",
 		Password:  "password",
-		Surname:   "Enjoy",
+		Surname:   "asesor",
+		CreatedAt: curTime,
+	}
+	client_institution := sq.CreateClientParams{
+		Email:     "institution@owlbytech.com",
+		GivenName: "institution",
+		Password:  "password",
+		Surname:   "ips",
 		CreatedAt: curTime,
 	}
 
-	_, err := repository.Queries.CreateClient(ctx, client)
+	_, err := repository.Queries.CreateClient(ctx, client_asesor)
+	if err != nil {
+		return err
+	}
+	_, err = repository.Queries.CreateClient(ctx, client_institution)
 	if err != nil {
 		return err
 	}
