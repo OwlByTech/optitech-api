@@ -44,18 +44,25 @@ func seederUp() error {
 	if err := seeders.InstitutionUp(); err != nil {
 		return err
 	}
+	if err := seeders.FormatUp(); err != nil {
+		return err
+	}
 	return nil
 }
 
 func seederDown() error {
-	if err := seeders.ClientDown(); err != nil {
+	if err := seeders.FormatDown(); err != nil {
 		return err
 	}
 	if err := seeders.AsesorDown(); err != nil {
 		return err
 	}
+	if err := seeders.ClientDown(); err != nil {
+		return err
+	}
 	if err := seeders.InstitutionDown(); err != nil {
 		return err
 	}
+
 	return nil
 }

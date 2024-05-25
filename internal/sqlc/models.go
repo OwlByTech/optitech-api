@@ -6,8 +6,53 @@ package sqlc
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 )
+
+type Extensions string
+
+const (
+	ExtensionsPdf  Extensions = ".pdf"
+	ExtensionsDoc  Extensions = ".doc"
+	ExtensionsDocx Extensions = ".docx"
+)
+
+func (e *Extensions) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Extensions(s)
+	case string:
+		*e = Extensions(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Extensions: %T", src)
+	}
+	return nil
+}
+
+type NullExtensions struct {
+	Extensions Extensions `json:"extensions"`
+	Valid      bool       `json:"valid"` // Valid is true if Extensions is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullExtensions) Scan(value interface{}) error {
+	if value == nil {
+		ns.Extensions, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Extensions.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullExtensions) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Extensions), nil
+}
 
 type Asesor struct {
 	AsesorID int64        `json:"asesor_id"`
@@ -27,6 +72,19 @@ type Client struct {
 	Password  string       `json:"password"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+}
+
+type Format struct {
+	FormatID        int64         `json:"format_id"`
+	UpdatedFormatID sql.NullInt32 `json:"updated_format_id"`
+	AsesorID        int32         `json:"asesor_id"`
+	FormatName      string        `json:"format_name"`
+	Description     string        `json:"description"`
+	Items           []string      `json:"items"`
+	Extension       Extensions    `json:"extension"`
+	Version         string        `json:"version"`
+	CreateAt        time.Time     `json:"create_at"`
+	UpdateAt        sql.NullTime  `json:"update_at"`
 }
 
 type Institution struct {
