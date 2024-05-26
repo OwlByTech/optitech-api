@@ -18,10 +18,10 @@ RETURNING document_client_id, client_id, document_id, action, create_at
 `
 
 type CreateDocumentClientParams struct {
-	ClientID   sql.NullInt32 `json:"client_id"`
-	DocumentID sql.NullInt32 `json:"document_id"`
-	Action     Action        `json:"action"`
-	CreateAt   time.Time     `json:"create_at"`
+	ClientID   int32     `json:"client_id"`
+	DocumentID int32     `json:"document_id"`
+	Action     Action    `json:"action"`
+	CreateAt   time.Time `json:"create_at"`
 }
 
 func (q *Queries) CreateDocumentClient(ctx context.Context, arg CreateDocumentClientParams) (DocumentClient, error) {
@@ -85,9 +85,9 @@ WHERE document_client_id = $1
 `
 
 type GetDocumentClientByNameRow struct {
-	ClientID   sql.NullInt32 `json:"client_id"`
-	DocumentID sql.NullInt32 `json:"document_id"`
-	Action     Action        `json:"action"`
+	ClientID   int32  `json:"client_id"`
+	DocumentID int32  `json:"document_id"`
+	Action     Action `json:"action"`
 }
 
 func (q *Queries) GetDocumentClientByName(ctx context.Context, documentClientID int64) (GetDocumentClientByNameRow, error) {

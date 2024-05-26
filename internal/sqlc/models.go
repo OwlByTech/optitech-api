@@ -172,11 +172,11 @@ type Document struct {
 }
 
 type DocumentClient struct {
-	DocumentClientID int64         `json:"document_client_id"`
-	ClientID         sql.NullInt32 `json:"client_id"`
-	DocumentID       sql.NullInt32 `json:"document_id"`
-	Action           Action        `json:"action"`
-	CreateAt         time.Time     `json:"create_at"`
+	DocumentClientID int64     `json:"document_client_id"`
+	ClientID         int32     `json:"client_id"`
+	DocumentID       int32     `json:"document_id"`
+	Action           Action    `json:"action"`
+	CreateAt         time.Time `json:"create_at"`
 }
 
 type Format struct {
