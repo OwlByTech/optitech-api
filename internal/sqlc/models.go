@@ -11,6 +11,49 @@ import (
 	"time"
 )
 
+type Action string
+
+const (
+	ActionBorrado     Action = "borrado"
+	ActionActualizado Action = "actualizado"
+	ActionCreado      Action = "creado"
+)
+
+func (e *Action) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Action(s)
+	case string:
+		*e = Action(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Action: %T", src)
+	}
+	return nil
+}
+
+type NullAction struct {
+	Action Action `json:"action"`
+	Valid  bool   `json:"valid"` // Valid is true if Action is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAction) Scan(value interface{}) error {
+	if value == nil {
+		ns.Action, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Action.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAction) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Action), nil
+}
+
 type Extensions string
 
 const (
@@ -54,6 +97,49 @@ func (ns NullExtensions) Value() (driver.Value, error) {
 	return string(ns.Extensions), nil
 }
 
+type Status string
+
+const (
+	StatusAprobado   Status = "aprobado"
+	StatusEnrevision Status = "en revision"
+	StatusRechazado  Status = "rechazado"
+)
+
+func (e *Status) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Status(s)
+	case string:
+		*e = Status(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Status: %T", src)
+	}
+	return nil
+}
+
+type NullStatus struct {
+	Status Status `json:"status"`
+	Valid  bool   `json:"valid"` // Valid is true if Status is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.Status, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Status.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Status), nil
+}
+
 type Asesor struct {
 	AsesorID int64        `json:"asesor_id"`
 	ClientID int32        `json:"client_id"`
@@ -72,6 +158,25 @@ type Client struct {
 	Password  string       `json:"password"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
+}
+
+type Document struct {
+	DocumentID    int64        `json:"document_id"`
+	FormatID      int32        `json:"format_id"`
+	InstitutionID int32        `json:"institution_id"`
+	ClientID      int32        `json:"client_id"`
+	FileRute      string       `json:"file_rute"`
+	Status        NullStatus   `json:"status"`
+	CreateAt      time.Time    `json:"create_at"`
+	UpdateAt      sql.NullTime `json:"update_at"`
+}
+
+type DocumentClient struct {
+	DocumentClientID int64         `json:"document_client_id"`
+	ClientID         sql.NullInt32 `json:"client_id"`
+	DocumentID       sql.NullInt32 `json:"document_id"`
+	Action           Action        `json:"action"`
+	CreateAt         time.Time     `json:"create_at"`
 }
 
 type Format struct {
@@ -96,4 +201,12 @@ type Institution struct {
 	Services        []string       `json:"services"`
 	CreateAt        time.Time      `json:"create_at"`
 	UpdateAt        sql.NullTime   `json:"update_at"`
+}
+
+type InstitutionClient struct {
+	InstitutionClientID int64        `json:"institution_client_id"`
+	ClientID            int32        `json:"client_id"`
+	InstitutionID       int32        `json:"institution_id"`
+	VinculatedAt        time.Time    `json:"vinculated_at"`
+	UpdateAt            sql.NullTime `json:"update_at"`
 }
