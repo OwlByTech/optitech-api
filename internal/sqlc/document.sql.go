@@ -18,12 +18,12 @@ RETURNING document_id, format_id, institution_id, client_id, file_rute, status, 
 `
 
 type CreateDocumentParams struct {
-	FormatID      int32      `json:"format_id"`
-	InstitutionID int32      `json:"institution_id"`
-	ClientID      int32      `json:"client_id"`
-	FileRute      string     `json:"file_rute"`
-	Status        NullStatus `json:"status"`
-	CreateAt      time.Time  `json:"create_at"`
+	FormatID      int32     `json:"format_id"`
+	InstitutionID int32     `json:"institution_id"`
+	ClientID      int32     `json:"client_id"`
+	FileRute      string    `json:"file_rute"`
+	Status        Status    `json:"status"`
+	CreateAt      time.Time `json:"create_at"`
 }
 
 func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) (Document, error) {
@@ -95,11 +95,11 @@ WHERE document_id = $1
 `
 
 type GetDocumentByNameRow struct {
-	FormatID      int32      `json:"format_id"`
-	InstitutionID int32      `json:"institution_id"`
-	ClientID      int32      `json:"client_id"`
-	FileRute      string     `json:"file_rute"`
-	Status        NullStatus `json:"status"`
+	FormatID      int32  `json:"format_id"`
+	InstitutionID int32  `json:"institution_id"`
+	ClientID      int32  `json:"client_id"`
+	FileRute      string `json:"file_rute"`
+	Status        Status `json:"status"`
 }
 
 func (q *Queries) GetDocumentByName(ctx context.Context, documentID int64) (GetDocumentByNameRow, error) {
@@ -161,7 +161,7 @@ WHERE document_id = $1
 type UpdateDocumentByIdParams struct {
 	DocumentID int64        `json:"document_id"`
 	FileRute   string       `json:"file_rute"`
-	Status     NullStatus   `json:"status"`
+	Status     Status       `json:"status"`
 	UpdateAt   sql.NullTime `json:"update_at"`
 }
 
