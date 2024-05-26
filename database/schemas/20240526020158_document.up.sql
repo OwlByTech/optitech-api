@@ -6,7 +6,7 @@ CREATE TABLE document(
     institution_id INT REFERENCES institution(institution_id) NOT NULL,
     client_id INT REFERENCES client(client_id) NOT NULL,
     file_rute VARCHAR(255) NOT NULL,
-    status status, 
+    status status NOT NULL, 
     create_at TIMESTAMP NOT NULL,
     update_at TIMESTAMP
 );

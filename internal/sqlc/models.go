@@ -166,7 +166,7 @@ type Document struct {
 	InstitutionID int32        `json:"institution_id"`
 	ClientID      int32        `json:"client_id"`
 	FileRute      string       `json:"file_rute"`
-	Status        NullStatus   `json:"status"`
+	Status        Status       `json:"status"`
 	CreateAt      time.Time    `json:"create_at"`
 	UpdateAt      sql.NullTime `json:"update_at"`
 }
