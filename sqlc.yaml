@@ -3,7 +3,6 @@ sql:
   - engine: "postgresql"
     queries: "database/queries"
     schema: "database/schemas"
-    strict_order_by: false
     gen:
       go:
         package: "sqlc"
