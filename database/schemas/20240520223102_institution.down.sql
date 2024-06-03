@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS institution;
+DROP TABLE IF EXISTS institution CASCADE;

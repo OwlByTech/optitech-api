@@ -1,1 +1,2 @@
-DROP TABLE IF EXISTS document_client;
+DROP TYPE action CASCADE;
+DROP TABLE IF EXISTS document_client CASCADE;
