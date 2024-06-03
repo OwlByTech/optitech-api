@@ -13,45 +13,34 @@ import (
 )
 
 func CreateMailingService(send dto.MailingReq) error {
-	// Read .env
 	err := godotenv.Load()
 	if err != nil {
 		panic("Error loading .env file")
 	}
 
-	html, err := ReadMJML(send.Email, send.PasswordMessage)
-	if err != nil {
-		return fmt.Errorf("could not read MJML: %w", err)
-	}
+	for _, email := range send.Emails {
+		html, err := ReadMJML(email, send.PasswordMessage)
+		if err != nil {
+			return fmt.Errorf("could not read MJML: %w", err)
+		}
 
-	// Send Mail
-	m := gomail.NewMessage()
-	m.SetHeader("From", os.Getenv("EMAIL_FROM"))
-	m.SetHeader("To", send.Email)
-	m.SetHeader("Subject", send.Subject)
-	m.SetBody("text/html", html)
-
-	port, err := strconv.Atoi(os.Getenv("EMAIL_SMTP_PORT"))
-	if err != nil {
-		panic(err)
-	}
-
-	d := gomail.NewDialer(os.Getenv("EMAIL_SMTP_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_SMTP_PASSWORD")) // Send mail
-
-	if err := d.DialAndSend(m); err != nil {
-		return fmt.Errorf("could not send email: %w", err)
+		// Enviar correo
+		err = SendEmail(email, send.Subject, html)
+		if err != nil {
+			return fmt.Errorf("could not send email: %w", err)
+		}
 	}
 
 	return nil
 }
 
 func ReadMJML(email string, password string) (string, error) {
-	mjmlContent, err := os.ReadFile("template.mjml")
+	mjmlContent, err := os.ReadFile("./internal/service/mailing/template.mjml")
 	if err != nil {
 		return "", fmt.Errorf("error reading MJML file: %w", err)
 	}
 
-	// Change variables
+	// Change variable
 	mjmlTemplate := string(mjmlContent)
 	mjmlTemplate = strings.ReplaceAll(mjmlTemplate, "{{user}}", email)
 	mjmlTemplate = strings.ReplaceAll(mjmlTemplate, "{{password}}", password)
@@ -69,11 +58,43 @@ func ReadMJML(email string, password string) (string, error) {
 		return "", fmt.Errorf("error converting MJML to HTML: %w", err)
 	}
 
-	// Read html
+	// Read
 	htmlContent, err := os.ReadFile("temp.html")
 	if err != nil {
 		return "", fmt.Errorf("error reading HTML file: %w", err)
 	}
 
+	// Deleite temporal
+	err = os.Remove(tempMJMLFile)
+	if err != nil {
+		return "", fmt.Errorf("error removing temporary MJML file: %w", err)
+	}
+
+	err = os.Remove("temp.html")
+	if err != nil {
+		return "", fmt.Errorf("error removing temporary HTML file: %w", err)
+	}
+
 	return string(htmlContent), nil
+}
+
+func SendEmail(email string, subject string, html string) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", os.Getenv("EMAIL_FROM"))
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", html)
+
+	port, err := strconv.Atoi(os.Getenv("EMAIL_SMTP_PORT"))
+	if err != nil {
+		return fmt.Errorf("invalid SMTP port: %w", err)
+	}
+
+	d := gomail.NewDialer(os.Getenv("EMAIL_SMTP_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_SMTP_PASSWORD"))
+
+	if err := d.DialAndSend(m); err != nil {
+		return fmt.Errorf("could not send email: %w", err)
+	}
+
+	return nil
 }
