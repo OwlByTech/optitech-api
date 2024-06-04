@@ -6,7 +6,8 @@ CREATE TABLE document(
     format_id INT REFERENCES format(format_id),
     client_id INT REFERENCES client(client_id) NOT NULL,
     url VARCHAR(255) NOT NULL,
-    status status NOT NULL, 
-    create_at TIMESTAMP NOT NULL,
-    update_at TIMESTAMP
+    status status NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP,
 );

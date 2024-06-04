@@ -4,6 +4,7 @@ CREATE TABLE asesor (
   username VARCHAR(50) NOT NULL,
   photo VARCHAR(255) NOT NULL,
   about VARCHAR(255) NOT NULL,
-  create_at TIMESTAMP NOT NULL,
-  update_at TIMESTAMP
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP,  
+  deleted_at TIMESTAMP,
 );

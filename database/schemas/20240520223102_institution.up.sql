@@ -5,6 +5,7 @@ CREATE TABLE institution (
   logo VARCHAR(255),
   description  VARCHAR(255) NOT NULL,
   services text[] NOT NULL,
-  create_at TIMESTAMP NOT NULL,
-  update_at TIMESTAMP
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP,  
+  deleted_at TIMESTAMP,
 );

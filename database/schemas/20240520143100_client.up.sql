@@ -5,5 +5,6 @@ CREATE TABLE client (
   email VARCHAR(50) UNIQUE NOT NULL,
   password VARCHAR(30) NOT NULL,
   created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP
+  updated_at TIMESTAMP,
+  deleted_at TIMESTAMP
 );

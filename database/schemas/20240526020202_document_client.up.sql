@@ -5,5 +5,7 @@ CREATE TABLE document_client(
     client_id INT REFERENCES client(client_id) NOT NULL,
     document_id INT REFERENCES document(document_id) NOT NULL,
     action action NOT NULL,
-    create_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP,
 );
