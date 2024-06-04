@@ -12,13 +12,13 @@ FROM asesor
 WHERE username = $1;
 
 -- name: CreateAsesor :one
-INSERT INTO asesor (client_id, username, photo, about, create_at)
+INSERT INTO asesor (client_id, username, photo, about, created_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: UpdateAsesorById :exec
 UPDATE asesor
-SET username = $2, photo = $3, about = $4, update_at = $5
+SET username = $2, photo = $3, about = $4, updated_at = $5
 WHERE asesor_id = $1;
 
 -- name: DeleteAsesor :exec

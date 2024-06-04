@@ -12,13 +12,13 @@ FROM format
 WHERE format_name = $1;
 
 -- name: CreateFormat :one
-INSERT INTO format(asesor_id, format_name, description, items, extension, version, create_at)
+INSERT INTO format(asesor_id, format_name, description, items, extension, version, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 
 -- name: UpdateFormatById :exec
 UPDATE format
-SET format_name = $2, description = $3, items = $4, extension=$5, version=$6, update_at=$7
+SET format_name = $2, description = $3, items = $4, extension=$5, version=$6, updated_at=$7
 WHERE format_id = $1;
 
 -- name: DeleteFormat :exec

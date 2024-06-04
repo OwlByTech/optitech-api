@@ -12,7 +12,7 @@ FROM document_client
 WHERE document_client_id = $1;
 
 -- name: CreateDocumentClient :one
-INSERT INTO document_client(client_id, document_id, action, create_at)
+INSERT INTO document_client(client_id, document_id, action, created_at)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 

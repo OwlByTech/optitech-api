@@ -18,7 +18,7 @@ RETURNING *;
 
 -- name: UpdateInstitutionClientById :exec
 UPDATE institution_client
-SET client_id = $2, institution_id = $3, update_at = $4
+SET client_id = $2, institution_id = $3, updated_at = $4
 WHERE institution_client_id = $1;
 
 -- name: DeleteInstitutionClient :exec
