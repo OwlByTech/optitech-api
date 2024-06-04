@@ -21,9 +21,12 @@ UPDATE document
 SET  = $2, status = $3, updated_at = $4
 WHERE document_id = $1;
 
--- name: DeleteDocument :exec
-DELETE FROM document
-WHERE document_id = $1;
+-- name: DeleteDocumentById :exec
+UPDATE document
+SET deleted_at = $2
+WHERE document = $1
 
 -- name: DeleteAllDocuments :execresult
-DELETE FROM document;
+UPDATE document;
+SET deleted_at = $1
+WHERE deleted_at IS NULL;

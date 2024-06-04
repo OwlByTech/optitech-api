@@ -16,9 +16,14 @@ INSERT INTO document_client(client_id, document_id, action, created_at)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
--- name: DeleteDocumentClient :exec
-DELETE FROM document_client
-WHERE document_client_id = $1;
+-- name: DeleteDocumentClientById :exec
+UPDATE document_client
+SET deleted_at = $2
+WHERE document_client = $1
 
 -- name: DeleteAllDocumentClients :execresult
-DELETE FROM document_client;
+UPDATE document_client;
+SET deleted_at = $1
+WHERE deleted_at IS NULL;
+
+

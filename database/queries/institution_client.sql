@@ -21,9 +21,12 @@ UPDATE institution_client
 SET client_id = $2, institution_id = $3, updated_at = $4
 WHERE institution_client_id = $1;
 
--- name: DeleteInstitutionClient :exec
-DELETE FROM institution_client
-WHERE institution_client_id = $1;
+-- name: DeleteinstInstitutionClientById :exec
+UPDATE institution_client
+SET deleted_at = $2
+WHERE institution_client = $1
 
--- name: DeleteAllInstitutionClients :execresult
-DELETE FROM institution_client;
+-- name: DeleteAllInstitutionClient :execresult
+UPDATE institution_client;
+SET deleted_at = $1
+WHERE deleted_at IS NULL;

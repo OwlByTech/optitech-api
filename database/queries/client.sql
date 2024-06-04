@@ -21,9 +21,12 @@ UPDATE client
 SET given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
 WHERE client_id = $1;
 
--- name: DeleteClient :exec
-DELETE FROM client
+-- name: DeleteClientById :exec
+UPDATE client
+SET deleted_at = $2 
 WHERE client_id = $1;
 
 -- name: DeleteAllClients :execresult
-DELETE FROM client;
+UPDATE client
+SET deleted_at = $1 
+WHERE deleted_at IS NULL;

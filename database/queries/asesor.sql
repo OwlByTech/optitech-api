@@ -21,9 +21,12 @@ UPDATE asesor
 SET username = $2, photo = $3, about = $4, updated_at = $5
 WHERE asesor_id = $1;
 
--- name: DeleteAsesor :exec
-DELETE FROM asesor
+-- name: DeleteAsesorById :exec
+UPDATE asesor
+SET deleted_at = $2
 WHERE asesor_id = $1;
 
 -- name: DeleteAllAsesors :execresult
-DELETE FROM asesor;
+UPDATE asesor
+SET deleted_at = $1
+WHERE deleted_at is NULL;
