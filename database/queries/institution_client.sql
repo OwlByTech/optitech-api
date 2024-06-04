@@ -12,7 +12,7 @@ FROM institution_client
 WHERE institution_client_id = $1;
 
 -- name: CreateInstitutionClient :one
-INSERT INTO institution_client(client_id, institution_id, vinculated_at)
+INSERT INTO institution_client(client_id, institution_id, created_at)
 VALUES ($1, $2, $3)
 RETURNING *;
 
@@ -24,9 +24,9 @@ WHERE institution_client_id = $1;
 -- name: DeleteinstInstitutionClientById :exec
 UPDATE institution_client
 SET deleted_at = $2
-WHERE institution_client = $1
+WHERE institution_client_id = $1;
 
 -- name: DeleteAllInstitutionClient :execresult
-UPDATE institution_client;
+UPDATE institution_client
 SET deleted_at = $1
-WHERE deleted_at IS NULL;
+WHERE institution_client_id IS NULL;

@@ -12,63 +12,69 @@ import (
 )
 
 const createDocument = `-- name: CreateDocument :one
-INSERT INTO document(format_id, institution_id, client_id, file_rute, status, create_at)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING document_id, format_id, institution_id, client_id, file_rute, status, create_at, update_at
+INSERT INTO document(directory_id, format_id, url, status, created_at)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING document_id, directory_id, format_id, url, status, created_at, updated_at, deleted_at
 `
 
 type CreateDocumentParams struct {
-	FormatID      int32     `json:"format_id"`
-	InstitutionID int32     `json:"institution_id"`
-	ClientID      int32     `json:"client_id"`
-	FileRute      string    `json:"file_rute"`
-	Status        Status    `json:"status"`
-	CreateAt      time.Time `json:"create_at"`
+	DirectoryID int32         `json:"directory_id"`
+	FormatID    sql.NullInt32 `json:"format_id"`
+	Url         string        `json:"url"`
+	Status      Status        `json:"status"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) (Document, error) {
 	row := q.db.QueryRowContext(ctx, createDocument,
+		arg.DirectoryID,
 		arg.FormatID,
-		arg.InstitutionID,
-		arg.ClientID,
-		arg.FileRute,
+		arg.Url,
 		arg.Status,
-		arg.CreateAt,
+		arg.CreatedAt,
 	)
 	var i Document
 	err := row.Scan(
 		&i.DocumentID,
+		&i.DirectoryID,
 		&i.FormatID,
-		&i.InstitutionID,
-		&i.ClientID,
-		&i.FileRute,
+		&i.Url,
 		&i.Status,
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteAllDocuments = `-- name: DeleteAllDocuments :execresult
-DELETE FROM document
+UPDATE document
+SET deleted_at = $1
+WHERE document_id IS NULL
 `
 
-func (q *Queries) DeleteAllDocuments(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllDocuments)
+func (q *Queries) DeleteAllDocuments(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllDocuments, deletedAt)
 }
 
-const deleteDocument = `-- name: DeleteDocument :exec
-DELETE FROM document
+const deleteDocumentById = `-- name: DeleteDocumentById :exec
+UPDATE document
+SET deleted_at = $2
 WHERE document_id = $1
 `
 
-func (q *Queries) DeleteDocument(ctx context.Context, documentID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteDocument, documentID)
+type DeleteDocumentByIdParams struct {
+	DocumentID int64        `json:"document_id"`
+	DeletedAt  sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteDocumentById, arg.DocumentID, arg.DeletedAt)
 	return err
 }
 
 const getDocument = `-- name: GetDocument :one
-SELECT document_id, format_id, institution_id, client_id, file_rute, status, create_at, update_at FROM document
+SELECT document_id, directory_id, format_id, url, status, created_at, updated_at, deleted_at FROM document
 WHERE document_id = $1 LIMIT 1
 `
 
@@ -77,46 +83,44 @@ func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, 
 	var i Document
 	err := row.Scan(
 		&i.DocumentID,
+		&i.DirectoryID,
 		&i.FormatID,
-		&i.InstitutionID,
-		&i.ClientID,
-		&i.FileRute,
+		&i.Url,
 		&i.Status,
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getDocumentByName = `-- name: GetDocumentByName :one
-SELECT format_id, institution_id, client_id, file_rute, status
+SELECT directory_id, format_id, url, status
 FROM document
 WHERE document_id = $1
 `
 
 type GetDocumentByNameRow struct {
-	FormatID      int32  `json:"format_id"`
-	InstitutionID int32  `json:"institution_id"`
-	ClientID      int32  `json:"client_id"`
-	FileRute      string `json:"file_rute"`
-	Status        Status `json:"status"`
+	DirectoryID int32         `json:"directory_id"`
+	FormatID    sql.NullInt32 `json:"format_id"`
+	Url         string        `json:"url"`
+	Status      Status        `json:"status"`
 }
 
 func (q *Queries) GetDocumentByName(ctx context.Context, documentID int64) (GetDocumentByNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getDocumentByName, documentID)
 	var i GetDocumentByNameRow
 	err := row.Scan(
+		&i.DirectoryID,
 		&i.FormatID,
-		&i.InstitutionID,
-		&i.ClientID,
-		&i.FileRute,
+		&i.Url,
 		&i.Status,
 	)
 	return i, err
 }
 
 const listDocuments = `-- name: ListDocuments :many
-SELECT document_id, format_id, institution_id, client_id, file_rute, status, create_at, update_at FROM document
+SELECT document_id, directory_id, format_id, url, status, created_at, updated_at, deleted_at FROM document
 ORDER BY document_id
 `
 
@@ -131,13 +135,13 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 		var i Document
 		if err := rows.Scan(
 			&i.DocumentID,
+			&i.DirectoryID,
 			&i.FormatID,
-			&i.InstitutionID,
-			&i.ClientID,
-			&i.FileRute,
+			&i.Url,
 			&i.Status,
-			&i.CreateAt,
-			&i.UpdateAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -154,23 +158,27 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 
 const updateDocumentById = `-- name: UpdateDocumentById :exec
 UPDATE document
-SET file_rute = $2, status = $3, update_at = $4
+SET  directory_id = $2, format_id = $3, url = $4, status = $5, updated_at = $6
 WHERE document_id = $1
 `
 
 type UpdateDocumentByIdParams struct {
-	DocumentID int64        `json:"document_id"`
-	FileRute   string       `json:"file_rute"`
-	Status     Status       `json:"status"`
-	UpdateAt   sql.NullTime `json:"update_at"`
+	DocumentID  int64         `json:"document_id"`
+	DirectoryID int32         `json:"directory_id"`
+	FormatID    sql.NullInt32 `json:"format_id"`
+	Url         string        `json:"url"`
+	Status      Status        `json:"status"`
+	UpdatedAt   sql.NullTime  `json:"updated_at"`
 }
 
 func (q *Queries) UpdateDocumentById(ctx context.Context, arg UpdateDocumentByIdParams) error {
 	_, err := q.db.ExecContext(ctx, updateDocumentById,
 		arg.DocumentID,
-		arg.FileRute,
+		arg.DirectoryID,
+		arg.FormatID,
+		arg.Url,
 		arg.Status,
-		arg.UpdateAt,
+		arg.UpdatedAt,
 	)
 	return err
 }

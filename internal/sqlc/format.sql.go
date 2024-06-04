@@ -9,24 +9,21 @@ import (
 	"context"
 	"database/sql"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 const createFormat = `-- name: CreateFormat :one
-INSERT INTO format(asesor_id, format_name, description, items, extension, version, create_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING format_id, updated_format_id, asesor_id, format_name, description, items, extension, version, create_at, update_at
+INSERT INTO format(asesor_id, format_name, description, extension, version, created_at)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at
 `
 
 type CreateFormatParams struct {
 	AsesorID    int32      `json:"asesor_id"`
 	FormatName  string     `json:"format_name"`
 	Description string     `json:"description"`
-	Items       []string   `json:"items"`
 	Extension   Extensions `json:"extension"`
 	Version     string     `json:"version"`
-	CreateAt    time.Time  `json:"create_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }
 
 func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (Format, error) {
@@ -34,10 +31,9 @@ func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (For
 		arg.AsesorID,
 		arg.FormatName,
 		arg.Description,
-		pq.Array(arg.Items),
 		arg.Extension,
 		arg.Version,
-		arg.CreateAt,
+		arg.CreatedAt,
 	)
 	var i Format
 	err := row.Scan(
@@ -46,35 +42,43 @@ func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (For
 		&i.AsesorID,
 		&i.FormatName,
 		&i.Description,
-		pq.Array(&i.Items),
 		&i.Extension,
 		&i.Version,
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteAllFormats = `-- name: DeleteAllFormats :execresult
-DELETE FROM format
+UPDATE format
+SET deleted_at = $1
+WHERE format_id IS NULL
 `
 
-func (q *Queries) DeleteAllFormats(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllFormats)
+func (q *Queries) DeleteAllFormats(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllFormats, deletedAt)
 }
 
-const deleteFormat = `-- name: DeleteFormat :exec
-DELETE FROM format
+const deleteFormatById = `-- name: DeleteFormatById :exec
+UPDATE format
+SET deleted_at = $2
 WHERE format_id = $1
 `
 
-func (q *Queries) DeleteFormat(ctx context.Context, formatID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteFormat, formatID)
+type DeleteFormatByIdParams struct {
+	FormatID  int64        `json:"format_id"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteFormatById(ctx context.Context, arg DeleteFormatByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteFormatById, arg.FormatID, arg.DeletedAt)
 	return err
 }
 
 const getFormat = `-- name: GetFormat :one
-SELECT format_id, updated_format_id, asesor_id, format_name, description, items, extension, version, create_at, update_at FROM format
+SELECT format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
 WHERE format_id = $1 LIMIT 1
 `
 
@@ -87,24 +91,23 @@ func (q *Queries) GetFormat(ctx context.Context, formatID int64) (Format, error)
 		&i.AsesorID,
 		&i.FormatName,
 		&i.Description,
-		pq.Array(&i.Items),
 		&i.Extension,
 		&i.Version,
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getFormatByName = `-- name: GetFormatByName :one
-SELECT description, items, extension, version
+SELECT description, extension, version
 FROM format
 WHERE format_name = $1
 `
 
 type GetFormatByNameRow struct {
 	Description string     `json:"description"`
-	Items       []string   `json:"items"`
 	Extension   Extensions `json:"extension"`
 	Version     string     `json:"version"`
 }
@@ -112,17 +115,12 @@ type GetFormatByNameRow struct {
 func (q *Queries) GetFormatByName(ctx context.Context, formatName string) (GetFormatByNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getFormatByName, formatName)
 	var i GetFormatByNameRow
-	err := row.Scan(
-		&i.Description,
-		pq.Array(&i.Items),
-		&i.Extension,
-		&i.Version,
-	)
+	err := row.Scan(&i.Description, &i.Extension, &i.Version)
 	return i, err
 }
 
 const listFormats = `-- name: ListFormats :many
-SELECT format_id, updated_format_id, asesor_id, format_name, description, items, extension, version, create_at, update_at FROM format
+SELECT format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
 ORDER BY format_name
 `
 
@@ -141,11 +139,11 @@ func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 			&i.AsesorID,
 			&i.FormatName,
 			&i.Description,
-			pq.Array(&i.Items),
 			&i.Extension,
 			&i.Version,
-			&i.CreateAt,
-			&i.UpdateAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -162,7 +160,7 @@ func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 
 const updateFormatById = `-- name: UpdateFormatById :exec
 UPDATE format
-SET format_name = $2, description = $3, items = $4, extension=$5, version=$6, update_at=$7
+SET format_name = $2, description = $3, extension=$4, version=$5, updated_at=$6
 WHERE format_id = $1
 `
 
@@ -170,10 +168,9 @@ type UpdateFormatByIdParams struct {
 	FormatID    int64        `json:"format_id"`
 	FormatName  string       `json:"format_name"`
 	Description string       `json:"description"`
-	Items       []string     `json:"items"`
 	Extension   Extensions   `json:"extension"`
 	Version     string       `json:"version"`
-	UpdateAt    sql.NullTime `json:"update_at"`
+	UpdatedAt   sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdateFormatById(ctx context.Context, arg UpdateFormatByIdParams) error {
@@ -181,10 +178,9 @@ func (q *Queries) UpdateFormatById(ctx context.Context, arg UpdateFormatByIdPara
 		arg.FormatID,
 		arg.FormatName,
 		arg.Description,
-		pq.Array(arg.Items),
 		arg.Extension,
 		arg.Version,
-		arg.UpdateAt,
+		arg.UpdatedAt,
 	)
 	return err
 }

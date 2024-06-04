@@ -12,17 +12,17 @@ import (
 )
 
 const createAsesor = `-- name: CreateAsesor :one
-INSERT INTO asesor (client_id, username, photo, about, create_at)
+INSERT INTO asesor (client_id, username, photo, about, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING asesor_id, client_id, username, photo, about, create_at, update_at
+RETURNING asesor_id, client_id, username, photo, about, created_at, updated_at, deleted_at
 `
 
 type CreateAsesorParams struct {
-	ClientID int32     `json:"client_id"`
-	Username string    `json:"username"`
-	Photo    string    `json:"photo"`
-	About    string    `json:"about"`
-	CreateAt time.Time `json:"create_at"`
+	ClientID  int32     `json:"client_id"`
+	Username  string    `json:"username"`
+	Photo     string    `json:"photo"`
+	About     string    `json:"about"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Asesor, error) {
@@ -31,7 +31,7 @@ func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Ase
 		arg.Username,
 		arg.Photo,
 		arg.About,
-		arg.CreateAt,
+		arg.CreatedAt,
 	)
 	var i Asesor
 	err := row.Scan(
@@ -40,32 +40,41 @@ func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Ase
 		&i.Username,
 		&i.Photo,
 		&i.About,
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteAllAsesors = `-- name: DeleteAllAsesors :execresult
-DELETE FROM asesor
+UPDATE asesor
+SET deleted_at = $1
+WHERE deleted_at is NULL
 `
 
-func (q *Queries) DeleteAllAsesors(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllAsesors)
+func (q *Queries) DeleteAllAsesors(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllAsesors, deletedAt)
 }
 
-const deleteAsesor = `-- name: DeleteAsesor :exec
-DELETE FROM asesor
+const deleteAsesorById = `-- name: DeleteAsesorById :exec
+UPDATE asesor
+SET deleted_at = $2
 WHERE asesor_id = $1
 `
 
-func (q *Queries) DeleteAsesor(ctx context.Context, asesorID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteAsesor, asesorID)
+type DeleteAsesorByIdParams struct {
+	AsesorID  int64        `json:"asesor_id"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteAsesorById(ctx context.Context, arg DeleteAsesorByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAsesorById, arg.AsesorID, arg.DeletedAt)
 	return err
 }
 
 const getAsesor = `-- name: GetAsesor :one
-SELECT asesor_id, client_id, username, photo, about, create_at, update_at FROM asesor
+SELECT asesor_id, client_id, username, photo, about, created_at, updated_at, deleted_at FROM asesor
 WHERE asesor_id = $1 LIMIT 1
 `
 
@@ -78,8 +87,9 @@ func (q *Queries) GetAsesor(ctx context.Context, asesorID int64) (Asesor, error)
 		&i.Username,
 		&i.Photo,
 		&i.About,
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -103,7 +113,7 @@ func (q *Queries) GetAsesorByUsername(ctx context.Context, username string) (Get
 }
 
 const listAsesors = `-- name: ListAsesors :many
-SELECT asesor_id, client_id, username, photo, about, create_at, update_at FROM asesor
+SELECT asesor_id, client_id, username, photo, about, created_at, updated_at, deleted_at FROM asesor
 ORDER BY username
 `
 
@@ -122,8 +132,9 @@ func (q *Queries) ListAsesors(ctx context.Context) ([]Asesor, error) {
 			&i.Username,
 			&i.Photo,
 			&i.About,
-			&i.CreateAt,
-			&i.UpdateAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -140,16 +151,16 @@ func (q *Queries) ListAsesors(ctx context.Context) ([]Asesor, error) {
 
 const updateAsesorById = `-- name: UpdateAsesorById :exec
 UPDATE asesor
-SET username = $2, photo = $3, about = $4, update_at = $5
+SET username = $2, photo = $3, about = $4, updated_at = $5
 WHERE asesor_id = $1
 `
 
 type UpdateAsesorByIdParams struct {
-	AsesorID int64        `json:"asesor_id"`
-	Username string       `json:"username"`
-	Photo    string       `json:"photo"`
-	About    string       `json:"about"`
-	UpdateAt sql.NullTime `json:"update_at"`
+	AsesorID  int64        `json:"asesor_id"`
+	Username  string       `json:"username"`
+	Photo     string       `json:"photo"`
+	About     string       `json:"about"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdateAsesorById(ctx context.Context, arg UpdateAsesorByIdParams) error {
@@ -158,7 +169,7 @@ func (q *Queries) UpdateAsesorById(ctx context.Context, arg UpdateAsesorByIdPara
 		arg.Username,
 		arg.Photo,
 		arg.About,
-		arg.UpdateAt,
+		arg.UpdatedAt,
 	)
 	return err
 }

@@ -10,5 +10,5 @@ CREATE TABLE format(
     version VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    deleted_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );

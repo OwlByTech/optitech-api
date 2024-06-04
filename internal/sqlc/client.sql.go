@@ -14,7 +14,7 @@ import (
 const createClient = `-- name: CreateClient :one
 INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING client_id, given_name, surname, email, password, created_at, updated_at
+RETURNING client_id, given_name, surname, email, password, created_at, updated_at, deleted_at
 `
 
 type CreateClientParams struct {
@@ -42,30 +42,39 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteAllClients = `-- name: DeleteAllClients :execresult
-DELETE FROM client
+UPDATE client
+SET deleted_at = $1 
+WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteAllClients(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllClients)
+func (q *Queries) DeleteAllClients(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllClients, deletedAt)
 }
 
-const deleteClient = `-- name: DeleteClient :exec
-DELETE FROM client
+const deleteClientById = `-- name: DeleteClientById :exec
+UPDATE client
+SET deleted_at = $2 
 WHERE client_id = $1
 `
 
-func (q *Queries) DeleteClient(ctx context.Context, clientID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteClient, clientID)
+type DeleteClientByIdParams struct {
+	ClientID  int64        `json:"client_id"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteClientById(ctx context.Context, arg DeleteClientByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteClientById, arg.ClientID, arg.DeletedAt)
 	return err
 }
 
 const getClient = `-- name: GetClient :one
-SELECT client_id, given_name, surname, email, password, created_at, updated_at FROM client
+SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
 WHERE client_id = $1 LIMIT 1
 `
 
@@ -80,6 +89,7 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -110,7 +120,7 @@ func (q *Queries) GetClientByEmail(ctx context.Context, email string) (GetClient
 }
 
 const listClients = `-- name: ListClients :many
-SELECT client_id, given_name, surname, email, password, created_at, updated_at FROM client
+SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
 ORDER BY given_name
 `
 
@@ -131,6 +141,7 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 			&i.Password,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

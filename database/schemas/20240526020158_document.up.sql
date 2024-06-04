@@ -8,5 +8,5 @@ CREATE TABLE document(
     status status NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    deleted_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );

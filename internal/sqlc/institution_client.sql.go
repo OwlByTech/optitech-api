@@ -12,50 +12,59 @@ import (
 )
 
 const createInstitutionClient = `-- name: CreateInstitutionClient :one
-INSERT INTO institution_client(client_id, institution_id, vinculated_at)
+INSERT INTO institution_client(client_id, institution_id, created_at)
 VALUES ($1, $2, $3)
-RETURNING institution_client_id, client_id, institution_id, vinculated_at, update_at
+RETURNING institution_client_id, client_id, institution_id, created_at, updated_at, deleted_at
 `
 
 type CreateInstitutionClientParams struct {
 	ClientID      int32     `json:"client_id"`
 	InstitutionID int32     `json:"institution_id"`
-	VinculatedAt  time.Time `json:"vinculated_at"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateInstitutionClient(ctx context.Context, arg CreateInstitutionClientParams) (InstitutionClient, error) {
-	row := q.db.QueryRowContext(ctx, createInstitutionClient, arg.ClientID, arg.InstitutionID, arg.VinculatedAt)
+	row := q.db.QueryRowContext(ctx, createInstitutionClient, arg.ClientID, arg.InstitutionID, arg.CreatedAt)
 	var i InstitutionClient
 	err := row.Scan(
 		&i.InstitutionClientID,
 		&i.ClientID,
 		&i.InstitutionID,
-		&i.VinculatedAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
-const deleteAllInstitutionClients = `-- name: DeleteAllInstitutionClients :execresult
-DELETE FROM institution_client
+const deleteAllInstitutionClient = `-- name: DeleteAllInstitutionClient :execresult
+UPDATE institution_client
+SET deleted_at = $1
+WHERE institution_client_id IS NULL
 `
 
-func (q *Queries) DeleteAllInstitutionClients(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllInstitutionClients)
+func (q *Queries) DeleteAllInstitutionClient(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllInstitutionClient, deletedAt)
 }
 
-const deleteInstitutionClient = `-- name: DeleteInstitutionClient :exec
-DELETE FROM institution_client
+const deleteinstInstitutionClientById = `-- name: DeleteinstInstitutionClientById :exec
+UPDATE institution_client
+SET deleted_at = $2
 WHERE institution_client_id = $1
 `
 
-func (q *Queries) DeleteInstitutionClient(ctx context.Context, institutionClientID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteInstitutionClient, institutionClientID)
+type DeleteinstInstitutionClientByIdParams struct {
+	InstitutionClientID int64        `json:"institution_client_id"`
+	DeletedAt           sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteinstInstitutionClientById(ctx context.Context, arg DeleteinstInstitutionClientByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteinstInstitutionClientById, arg.InstitutionClientID, arg.DeletedAt)
 	return err
 }
 
 const getInstitutionClient = `-- name: GetInstitutionClient :one
-SELECT institution_client_id, client_id, institution_id, vinculated_at, update_at FROM institution_client
+SELECT institution_client_id, client_id, institution_id, created_at, updated_at, deleted_at FROM institution_client
 WHERE institution_client_id = $1 LIMIT 1
 `
 
@@ -66,8 +75,9 @@ func (q *Queries) GetInstitutionClient(ctx context.Context, institutionClientID 
 		&i.InstitutionClientID,
 		&i.ClientID,
 		&i.InstitutionID,
-		&i.VinculatedAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -91,7 +101,7 @@ func (q *Queries) GetInstitutionClientByName(ctx context.Context, institutionCli
 }
 
 const listInstitutionClients = `-- name: ListInstitutionClients :many
-SELECT institution_client_id, client_id, institution_id, vinculated_at, update_at FROM institution_client
+SELECT institution_client_id, client_id, institution_id, created_at, updated_at, deleted_at FROM institution_client
 ORDER BY institution_client_id
 `
 
@@ -108,8 +118,9 @@ func (q *Queries) ListInstitutionClients(ctx context.Context) ([]InstitutionClie
 			&i.InstitutionClientID,
 			&i.ClientID,
 			&i.InstitutionID,
-			&i.VinculatedAt,
-			&i.UpdateAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -126,7 +137,7 @@ func (q *Queries) ListInstitutionClients(ctx context.Context) ([]InstitutionClie
 
 const updateInstitutionClientById = `-- name: UpdateInstitutionClientById :exec
 UPDATE institution_client
-SET client_id = $2, institution_id = $3, update_at = $4
+SET client_id = $2, institution_id = $3, updated_at = $4
 WHERE institution_client_id = $1
 `
 
@@ -134,7 +145,7 @@ type UpdateInstitutionClientByIdParams struct {
 	InstitutionClientID int64        `json:"institution_client_id"`
 	ClientID            int32        `json:"client_id"`
 	InstitutionID       int32        `json:"institution_id"`
-	UpdateAt            sql.NullTime `json:"update_at"`
+	UpdatedAt           sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdateInstitutionClientById(ctx context.Context, arg UpdateInstitutionClientByIdParams) error {
@@ -142,7 +153,7 @@ func (q *Queries) UpdateInstitutionClientById(ctx context.Context, arg UpdateIns
 		arg.InstitutionClientID,
 		arg.ClientID,
 		arg.InstitutionID,
-		arg.UpdateAt,
+		arg.UpdatedAt,
 	)
 	return err
 }

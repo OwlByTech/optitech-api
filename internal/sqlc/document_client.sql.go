@@ -12,16 +12,16 @@ import (
 )
 
 const createDocumentClient = `-- name: CreateDocumentClient :one
-INSERT INTO document_client(client_id, document_id, action, create_at)
+INSERT INTO document_client(client_id, document_id, action, created_at)
 VALUES ($1, $2, $3, $4)
-RETURNING document_client_id, client_id, document_id, action, create_at
+RETURNING document_client_id, client_id, document_id, action, created_at, updated_at, deleted_at
 `
 
 type CreateDocumentClientParams struct {
 	ClientID   int32     `json:"client_id"`
 	DocumentID int32     `json:"document_id"`
 	Action     Action    `json:"action"`
-	CreateAt   time.Time `json:"create_at"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateDocumentClient(ctx context.Context, arg CreateDocumentClientParams) (DocumentClient, error) {
@@ -29,7 +29,7 @@ func (q *Queries) CreateDocumentClient(ctx context.Context, arg CreateDocumentCl
 		arg.ClientID,
 		arg.DocumentID,
 		arg.Action,
-		arg.CreateAt,
+		arg.CreatedAt,
 	)
 	var i DocumentClient
 	err := row.Scan(
@@ -37,31 +37,41 @@ func (q *Queries) CreateDocumentClient(ctx context.Context, arg CreateDocumentCl
 		&i.ClientID,
 		&i.DocumentID,
 		&i.Action,
-		&i.CreateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const deleteAllDocumentClients = `-- name: DeleteAllDocumentClients :execresult
-DELETE FROM document_client
+UPDATE document_client
+SET deleted_at = $1
+WHERE document_client_id IS NULL
 `
 
-func (q *Queries) DeleteAllDocumentClients(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllDocumentClients)
+func (q *Queries) DeleteAllDocumentClients(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllDocumentClients, deletedAt)
 }
 
-const deleteDocumentClient = `-- name: DeleteDocumentClient :exec
-DELETE FROM document_client
+const deleteDocumentClientById = `-- name: DeleteDocumentClientById :exec
+UPDATE document_client
+SET deleted_at = $2
 WHERE document_client_id = $1
 `
 
-func (q *Queries) DeleteDocumentClient(ctx context.Context, documentClientID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteDocumentClient, documentClientID)
+type DeleteDocumentClientByIdParams struct {
+	DocumentClientID int64        `json:"document_client_id"`
+	DeletedAt        sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteDocumentClientById(ctx context.Context, arg DeleteDocumentClientByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteDocumentClientById, arg.DocumentClientID, arg.DeletedAt)
 	return err
 }
 
 const getDocumentClient = `-- name: GetDocumentClient :one
-SELECT document_client_id, client_id, document_id, action, create_at FROM document_client
+SELECT document_client_id, client_id, document_id, action, created_at, updated_at, deleted_at FROM document_client
 WHERE document_client_id = $1 LIMIT 1
 `
 
@@ -73,7 +83,9 @@ func (q *Queries) GetDocumentClient(ctx context.Context, documentClientID int64)
 		&i.ClientID,
 		&i.DocumentID,
 		&i.Action,
-		&i.CreateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -98,7 +110,7 @@ func (q *Queries) GetDocumentClientByName(ctx context.Context, documentClientID 
 }
 
 const listDocumentClients = `-- name: ListDocumentClients :many
-SELECT document_client_id, client_id, document_id, action, create_at FROM document_client
+SELECT document_client_id, client_id, document_id, action, created_at, updated_at, deleted_at FROM document_client
 ORDER BY document_client_id
 `
 
@@ -116,7 +128,9 @@ func (q *Queries) ListDocumentClients(ctx context.Context) ([]DocumentClient, er
 			&i.ClientID,
 			&i.DocumentID,
 			&i.Action,
-			&i.CreateAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

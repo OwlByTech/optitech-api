@@ -7,5 +7,5 @@ CREATE TABLE document_client(
     action action NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP,
-    deleted_at TIMESTAMP,
+    deleted_at TIMESTAMP
 );

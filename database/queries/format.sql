@@ -24,9 +24,9 @@ WHERE format_id = $1;
 -- name: DeleteFormatById :exec
 UPDATE format
 SET deleted_at = $2
-WHERE format = $1
+WHERE format_id = $1;
 
 -- name: DeleteAllFormats :execresult
-UPDATE format;
+UPDATE format
 SET deleted_at = $1
-WHERE deleted_at IS NULL;
+WHERE format_id IS NULL;

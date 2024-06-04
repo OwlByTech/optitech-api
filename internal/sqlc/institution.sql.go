@@ -9,22 +9,19 @@ import (
 	"context"
 	"database/sql"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 const createInstitution = `-- name: CreateInstitution :one
-INSERT INTO institution (institution_name, logo, description, services, create_at)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING institution_id, asesor_id, institution_name, logo, description, services, create_at, update_at
+INSERT INTO institution (institution_name, logo, description, created_at)
+VALUES ($1, $2, $3, $4)
+RETURNING institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at
 `
 
 type CreateInstitutionParams struct {
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
 	Description     string         `json:"description"`
-	Services        []string       `json:"services"`
-	CreateAt        time.Time      `json:"create_at"`
+	CreatedAt       time.Time      `json:"created_at"`
 }
 
 func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionParams) (Institution, error) {
@@ -32,8 +29,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		arg.InstitutionName,
 		arg.Logo,
 		arg.Description,
-		pq.Array(arg.Services),
-		arg.CreateAt,
+		arg.CreatedAt,
 	)
 	var i Institution
 	err := row.Scan(
@@ -42,33 +38,42 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.InstitutionName,
 		&i.Logo,
 		&i.Description,
-		pq.Array(&i.Services),
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
-const deleteAllInstitutions = `-- name: DeleteAllInstitutions :execresult
-DELETE FROM institution
+const deleteAllInstitutions = `-- name: DeleteAllInstitutions :exec
+UPDATE institution
+set deleted_at = $1 
+where institution_id is NULL
 `
 
-func (q *Queries) DeleteAllInstitutions(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllInstitutions)
+func (q *Queries) DeleteAllInstitutions(ctx context.Context, deletedAt sql.NullTime) error {
+	_, err := q.db.ExecContext(ctx, deleteAllInstitutions, deletedAt)
+	return err
 }
 
-const deleteInstitution = `-- name: DeleteInstitution :exec
-DELETE FROM institution
-WHERE institution_id = $1
+const deleteInstitutionById = `-- name: DeleteInstitutionById :exec
+UPDATE institution
+SET deleted_at = $2
+WHERE institution_id = $1 AND deleted_at IS NULL
 `
 
-func (q *Queries) DeleteInstitution(ctx context.Context, institutionID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteInstitution, institutionID)
+type DeleteInstitutionByIdParams struct {
+	InstitutionID int64        `json:"institution_id"`
+	DeletedAt     sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteInstitutionById(ctx context.Context, arg DeleteInstitutionByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteInstitutionById, arg.InstitutionID, arg.DeletedAt)
 	return err
 }
 
 const getInstitution = `-- name: GetInstitution :one
-SELECT institution_id, asesor_id, institution_name, logo, description, services, create_at, update_at FROM institution
+SELECT institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
 WHERE institution_id = $1 LIMIT 1
 `
 
@@ -81,15 +86,15 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int64) (Inst
 		&i.InstitutionName,
 		&i.Logo,
 		&i.Description,
-		pq.Array(&i.Services),
-		&i.CreateAt,
-		&i.UpdateAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getInstitutionByName = `-- name: GetInstitutionByName :one
-SELECT  institution_name, logo, description, services
+SELECT  institution_name, logo, description
 FROM institution
 WHERE institution_name = $1
 `
@@ -98,23 +103,17 @@ type GetInstitutionByNameRow struct {
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
 	Description     string         `json:"description"`
-	Services        []string       `json:"services"`
 }
 
 func (q *Queries) GetInstitutionByName(ctx context.Context, institutionName string) (GetInstitutionByNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getInstitutionByName, institutionName)
 	var i GetInstitutionByNameRow
-	err := row.Scan(
-		&i.InstitutionName,
-		&i.Logo,
-		&i.Description,
-		pq.Array(&i.Services),
-	)
+	err := row.Scan(&i.InstitutionName, &i.Logo, &i.Description)
 	return i, err
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
-SELECT institution_id, asesor_id, institution_name, logo, description, services, create_at, update_at FROM institution
+SELECT institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
 ORDER BY institution_name
 `
 
@@ -133,9 +132,9 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 			&i.InstitutionName,
 			&i.Logo,
 			&i.Description,
-			pq.Array(&i.Services),
-			&i.CreateAt,
-			&i.UpdateAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -152,7 +151,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 
 const updateInstitutionById = `-- name: UpdateInstitutionById :exec
 UPDATE institution
-SET institution_name = $2, logo = $3, description = $4, services = $5, update_at=$6
+SET institution_name = $2, logo = $3, description = $4,  updated_at=$5
 WHERE institution_id = $1
 `
 
@@ -161,8 +160,7 @@ type UpdateInstitutionByIdParams struct {
 	InstitutionName string         `json:"institution_name"`
 	Logo            sql.NullString `json:"logo"`
 	Description     string         `json:"description"`
-	Services        []string       `json:"services"`
-	UpdateAt        sql.NullTime   `json:"update_at"`
+	UpdatedAt       sql.NullTime   `json:"updated_at"`
 }
 
 func (q *Queries) UpdateInstitutionById(ctx context.Context, arg UpdateInstitutionByIdParams) error {
@@ -171,8 +169,7 @@ func (q *Queries) UpdateInstitutionById(ctx context.Context, arg UpdateInstituti
 		arg.InstitutionName,
 		arg.Logo,
 		arg.Description,
-		pq.Array(arg.Services),
-		arg.UpdateAt,
+		arg.UpdatedAt,
 	)
 	return err
 }
