@@ -2,10 +2,10 @@ CREATE TYPE status AS ENUM ('aprobado', 'en revision', 'rechazado');
 
 CREATE TABLE document(
     document_id BIGSERIAL PRIMARY KEY,
-    format_id INT REFERENCES format(format_id) NOT NULL,
-    institution_id INT REFERENCES institution(institution_id) NOT NULL,
+    directory_id INT REFERENCES directory_tree(directory_id) NOT NULL,
+    format_id INT REFERENCES format(format_id),
     client_id INT REFERENCES client(client_id) NOT NULL,
-    file_rute VARCHAR(255) NOT NULL,
+    url VARCHAR(255) NOT NULL,
     status status NOT NULL, 
     create_at TIMESTAMP NOT NULL,
     update_at TIMESTAMP

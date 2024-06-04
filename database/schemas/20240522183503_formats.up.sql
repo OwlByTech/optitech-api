@@ -6,7 +6,6 @@ CREATE TABLE format(
     asesor_id INT REFERENCES asesor(asesor_id) NOT NULL,
     format_name VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    items text[] NOT NULL,
     extension extensions NOT NULL,
     version VARCHAR(50) NOT NULL,
     create_at TIMESTAMP NOT NULL,
