@@ -8,23 +8,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joho/godotenv"
 	"gopkg.in/gomail.v2"
 )
 
-func CreateMailingService(send dto.MailingReq) error {
-	err := godotenv.Load()
-	if err != nil {
-		panic("Error loading .env file")
-	}
-
+func SendUser(send dto.MailingReq) error {
 	for _, email := range send.Emails {
-		html, err := ReadMJML(email, send.PasswordMessage)
+		html, err := ReadMJML(email, send.Password)
 		if err != nil {
 			return fmt.Errorf("could not read MJML: %w", err)
 		}
 
-		// Enviar correo
 		err = SendEmail(email, send.Subject, html)
 		if err != nil {
 			return fmt.Errorf("could not send email: %w", err)
@@ -62,17 +55,6 @@ func ReadMJML(email string, password string) (string, error) {
 	htmlContent, err := os.ReadFile("temp.html")
 	if err != nil {
 		return "", fmt.Errorf("error reading HTML file: %w", err)
-	}
-
-	// Deleite temporal
-	err = os.Remove(tempMJMLFile)
-	if err != nil {
-		return "", fmt.Errorf("error removing temporary MJML file: %w", err)
-	}
-
-	err = os.Remove("temp.html")
-	if err != nil {
-		return "", fmt.Errorf("error removing temporary HTML file: %w", err)
 	}
 
 	return string(htmlContent), nil
