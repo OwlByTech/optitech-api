@@ -18,9 +18,9 @@ RETURNING directory_institution_id, institution_id, directory_id, created_at, up
 `
 
 type CreateDirectoryInstitutionParams struct {
-	InstitutionID sql.NullInt32 `json:"institution_id"`
-	DirectoryID   sql.NullInt32 `json:"directory_id"`
-	CreatedAt     time.Time     `json:"created_at"`
+	InstitutionID int32     `json:"institution_id"`
+	DirectoryID   int32     `json:"directory_id"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateDirectoryInstitution(ctx context.Context, arg CreateDirectoryInstitutionParams) (DirectoryInstitution, error) {
@@ -89,8 +89,8 @@ WHERE directory_institution_id = $1
 `
 
 type GetDirectoryInstitutionByNameRow struct {
-	InstitutionID sql.NullInt32 `json:"institution_id"`
-	DirectoryID   sql.NullInt32 `json:"directory_id"`
+	InstitutionID int32 `json:"institution_id"`
+	DirectoryID   int32 `json:"directory_id"`
 }
 
 func (q *Queries) GetDirectoryInstitutionByName(ctx context.Context, directoryInstitutionID int64) (GetDirectoryInstitutionByNameRow, error) {

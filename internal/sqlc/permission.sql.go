@@ -18,8 +18,8 @@ RETURNING permission_id, permission_type, created_at, updated_at, deleted_at
 `
 
 type CreatePermissionParams struct {
-	PermissionType sql.NullString `json:"permission_type"`
-	CreatedAt      time.Time      `json:"created_at"`
+	PermissionType string    `json:"permission_type"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionParams) (Permission, error) {
@@ -85,9 +85,9 @@ FROM permission
 WHERE permission_id = $1
 `
 
-func (q *Queries) GetPermissionByName(ctx context.Context, permissionID int64) (sql.NullString, error) {
+func (q *Queries) GetPermissionByName(ctx context.Context, permissionID int64) (string, error) {
 	row := q.db.QueryRowContext(ctx, getPermissionByName, permissionID)
-	var permission_type sql.NullString
+	var permission_type string
 	err := row.Scan(&permission_type)
 	return permission_type, err
 }
@@ -133,9 +133,9 @@ WHERE permission_id = $1
 `
 
 type UpdatePermissionByIdParams struct {
-	PermissionID   int64          `json:"permission_id"`
-	PermissionType sql.NullString `json:"permission_type"`
-	UpdatedAt      sql.NullTime   `json:"updated_at"`
+	PermissionID   int64        `json:"permission_id"`
+	PermissionType string       `json:"permission_type"`
+	UpdatedAt      sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdatePermissionById(ctx context.Context, arg UpdatePermissionByIdParams) error {
