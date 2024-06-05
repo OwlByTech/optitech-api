@@ -1,27 +1,26 @@
-package service
+package mailing
 
 import (
 	"fmt"
+	"optitech/internal/config"
 	dto "optitech/internal/dto/mailing"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"gopkg.in/gomail.v2"
 )
 
-func SendUser(send dto.MailingReq) error {
-	for _, email := range send.Emails {
-		html, err := ReadMJML(email, send.Password)
-		if err != nil {
-			return fmt.Errorf("could not read MJML: %w", err)
-		}
+func SendPassword(send dto.PasswordMailingReq) error {
+	cfg, err := config.LoadConfig()
+	html, err := ReadMJML(send.Email, send.Password)
+	if err != nil {
+		return fmt.Errorf("could not read MJML: %w", err)
+	}
 
-		err = SendEmail(email, send.Subject, html)
-		if err != nil {
-			return fmt.Errorf("could not send email: %w", err)
-		}
+	err = SendEmail(cfg, send.Email, send.Subject, html)
+	if err != nil {
+		return fmt.Errorf("could not send email: %w", err)
 	}
 
 	return nil
@@ -33,7 +32,6 @@ func ReadMJML(email string, password string) (string, error) {
 		return "", fmt.Errorf("error reading MJML file: %w", err)
 	}
 
-	// Change variable
 	mjmlTemplate := string(mjmlContent)
 	mjmlTemplate = strings.ReplaceAll(mjmlTemplate, "{{user}}", email)
 	mjmlTemplate = strings.ReplaceAll(mjmlTemplate, "{{password}}", password)
@@ -44,14 +42,12 @@ func ReadMJML(email string, password string) (string, error) {
 		return "", fmt.Errorf("error writing temporary MJML file: %w", err)
 	}
 
-	// Change from mjml to html
 	cmd := exec.Command("mjml", tempMJMLFile, "-o", "temp.html")
 	err = cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("error converting MJML to HTML: %w", err)
 	}
 
-	// Read
 	htmlContent, err := os.ReadFile("temp.html")
 	if err != nil {
 		return "", fmt.Errorf("error reading HTML file: %w", err)
@@ -60,19 +56,14 @@ func ReadMJML(email string, password string) (string, error) {
 	return string(htmlContent), nil
 }
 
-func SendEmail(email string, subject string, html string) error {
+func SendEmail(cfg *config.Config, email string, subject string, html string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", os.Getenv("EMAIL_FROM"))
+	m.SetHeader("From", cfg.EmailFrom)
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", html)
 
-	port, err := strconv.Atoi(os.Getenv("EMAIL_SMTP_PORT"))
-	if err != nil {
-		return fmt.Errorf("invalid SMTP port: %w", err)
-	}
-
-	d := gomail.NewDialer(os.Getenv("EMAIL_SMTP_HOST"), port, os.Getenv("EMAIL_FROM"), os.Getenv("EMAIL_SMTP_PASSWORD"))
+	d := gomail.NewDialer(cfg.EmailSMTPHost, cfg.EmailSMTPPort, cfg.EmailFrom, cfg.EmailSMTPPassword)
 
 	if err := d.DialAndSend(m); err != nil {
 		return fmt.Errorf("could not send email: %w", err)
