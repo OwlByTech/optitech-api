@@ -261,6 +261,24 @@ type InstitutionService struct {
 	DeletedAt             sql.NullTime `json:"deleted_at"`
 }
 
+type Membership struct {
+	MembershipID     int64         `json:"membership_id"`
+	MembershipTypeID sql.NullInt32 `json:"membership_type_id"`
+	CreatedAt        time.Time     `json:"created_at"`
+	FinishAt         time.Time     `json:"finish_at"`
+	UpdatedAt        sql.NullTime  `json:"updated_at"`
+	DeletedAt        sql.NullTime  `json:"deleted_at"`
+}
+
+type MembershipType struct {
+	MembershipTypeID int64        `json:"membership_type_id"`
+	MembershipName   string       `json:"membership_name"`
+	Users            int32        `json:"users"`
+	CreatedAt        time.Time    `json:"created_at"`
+	UpdatedAt        sql.NullTime `json:"updated_at"`
+	DeletedAt        sql.NullTime `json:"deleted_at"`
+}
+
 type Permission struct {
 	PermissionID   int64        `json:"permission_id"`
 	PermissionType string       `json:"permission_type"`

@@ -83,21 +83,20 @@ func (q *Queries) GetClientRole(ctx context.Context, clientRoleID int64) (Client
 }
 
 const getClientRoleByName = `-- name: GetClientRoleByName :one
-SELECT client_role_id, client_id, role_id
+SELECT client_id, role_id
 FROM client_role
 WHERE client_role_id = $1
 `
 
 type GetClientRoleByNameRow struct {
-	ClientRoleID int64 `json:"client_role_id"`
-	ClientID     int32 `json:"client_id"`
-	RoleID       int32 `json:"role_id"`
+	ClientID int32 `json:"client_id"`
+	RoleID   int32 `json:"role_id"`
 }
 
 func (q *Queries) GetClientRoleByName(ctx context.Context, clientRoleID int64) (GetClientRoleByNameRow, error) {
 	row := q.db.QueryRowContext(ctx, getClientRoleByName, clientRoleID)
 	var i GetClientRoleByNameRow
-	err := row.Scan(&i.ClientRoleID, &i.ClientID, &i.RoleID)
+	err := row.Scan(&i.ClientID, &i.RoleID)
 	return i, err
 }
 

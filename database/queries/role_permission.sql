@@ -1,12 +1,12 @@
- -- name: GetRolePermissionn :one
+ -- name: GetRolePermission :one
 SELECT * FROM role_permission
 WHERE role_permission_id = $1 LIMIT 1;
 
--- name: ListPeRolermissions :many
+-- name: ListRolePermissions :many
 SELECT * FROM role_permission
 ORDER BY role_permission_id;
 
--- name: GetRolePermissionnByName :one
+-- name: GetRolePermissionByName :one
 SELECT role_id, permission_id
 FROM role_permission
 WHERE role_permission_id = $1;
@@ -26,9 +26,9 @@ UPDATE role_permission
 SET deleted_at = $2
 WHERE role_permission_id = $1;
 
--- name: DeleteRoleAllPermissions :execresult
+-- name: DeleteAllRolePermissions :execresult
 UPDATE role_permission
 SET deleted_at = $1
-WHERE document_client_id IS NULL;
+WHERE role_permission_id IS NULL;
 
 
