@@ -38,7 +38,7 @@ func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionPara
 const deleteAllPermissions = `-- name: DeleteAllPermissions :execresult
 UPDATE permission
 SET deleted_at = $1
-WHERE document_client_id IS NULL
+WHERE permission_id IS NULL
 `
 
 func (q *Queries) DeleteAllPermissions(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
