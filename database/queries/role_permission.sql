@@ -29,6 +29,6 @@ WHERE role_permission_id = $1;
 -- name: DeleteAllRolePermissions :execresult
 UPDATE role_permission
 SET deleted_at = $1
-WHERE role_permission_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

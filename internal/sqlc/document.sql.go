@@ -50,7 +50,7 @@ func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) 
 const deleteAllDocuments = `-- name: DeleteAllDocuments :execresult
 UPDATE document
 SET deleted_at = $1
-WHERE document_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllDocuments(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

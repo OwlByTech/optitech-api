@@ -40,7 +40,7 @@ func (q *Queries) CreateRolePermission(ctx context.Context, arg CreateRolePermis
 const deleteAllRolePermissions = `-- name: DeleteAllRolePermissions :execresult
 UPDATE role_permission
 SET deleted_at = $1
-WHERE role_permission_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllRolePermissions(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

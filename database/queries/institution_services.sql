@@ -24,6 +24,6 @@ WHERE institution_services_id = $1;
 -- name: DeleteAllInstitutionServices :execresult
 UPDATE institution_services
 SET deleted_at = $1
-WHERE institution_services_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

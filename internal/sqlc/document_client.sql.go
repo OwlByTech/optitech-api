@@ -47,7 +47,7 @@ func (q *Queries) CreateDocumentClient(ctx context.Context, arg CreateDocumentCl
 const deleteAllDocumentClients = `-- name: DeleteAllDocumentClients :execresult
 UPDATE document_client
 SET deleted_at = $1
-WHERE document_client_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllDocumentClients(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

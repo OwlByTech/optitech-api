@@ -29,6 +29,6 @@ WHERE role_id = $1;
 -- name: DeleteAllRoles :execresult
 UPDATE roles
 SET deleted_at = $1
-WHERE role_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

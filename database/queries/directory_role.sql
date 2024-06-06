@@ -24,6 +24,6 @@ WHERE directory_role_id = $1;
 -- name: DeleteAllDirectoryRoles :execresult
 UPDATE directory_role
 SET deleted_at = $1
-WHERE directory_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

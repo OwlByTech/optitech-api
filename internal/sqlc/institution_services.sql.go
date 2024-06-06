@@ -40,7 +40,7 @@ func (q *Queries) CreateInstitutionService(ctx context.Context, arg CreateInstit
 const deleteAllInstitutionServices = `-- name: DeleteAllInstitutionServices :execresult
 UPDATE institution_services
 SET deleted_at = $1
-WHERE institution_services_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllInstitutionServices(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

@@ -40,7 +40,7 @@ func (q *Queries) CreateClientRole(ctx context.Context, arg CreateClientRolePara
 const deleteAllClientRoles = `-- name: DeleteAllClientRoles :execresult
 UPDATE client_role
 SET deleted_at = $1
-WHERE document_client_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllClientRoles(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
