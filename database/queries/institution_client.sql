@@ -29,4 +29,4 @@ WHERE institution_client_id = $1;
 -- name: DeleteAllInstitutionClient :execresult
 UPDATE institution_client
 SET deleted_at = $1
-WHERE institution_client_id IS NULL;
+WHERE deleted_at IS NULL;

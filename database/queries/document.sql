@@ -29,4 +29,4 @@ WHERE document_id = $1;
 -- name: DeleteAllDocuments :execresult
 UPDATE document
 SET deleted_at = $1
-WHERE document_id IS NULL;
+WHERE deleted_at IS NULL;

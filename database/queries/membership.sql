@@ -29,6 +29,6 @@ WHERE membership_id = $1;
 -- name: DeleteRoleAllPermissions :execresult
 UPDATE membership
 SET deleted_at = $1
-WHERE membership_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

@@ -38,7 +38,7 @@ func (q *Queries) CreateRole(ctx context.Context, arg CreateRoleParams) (Role, e
 const deleteAllRoles = `-- name: DeleteAllRoles :execresult
 UPDATE roles
 SET deleted_at = $1
-WHERE role_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllRoles(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

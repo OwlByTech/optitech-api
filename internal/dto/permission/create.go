@@ -1,10 +1,14 @@
 package dto
 
 type CreatePermissionReq struct {
-	PermissionType string `json:"permission_type" validate:"required"`
+	PermissionName        string `json:"permission_name" validate:"required"`
+	PermissionCode        string `json:"permission_code" validate:"required"`
+	PermissionDescription string `json:"permission_description" validate:"required"`
 }
 
 type CreatePermissionRes struct {
-	Id             int64
-	PermissionType string
+	Id                    int64
+	PermissionName        string
+	PermissionCode        string
+	PermissionDescription string
 }

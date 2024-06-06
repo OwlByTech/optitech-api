@@ -40,7 +40,7 @@ func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTr
 const deleteAllDirectoryTrees = `-- name: DeleteAllDirectoryTrees :execresult
 UPDATE directory_tree
 SET deleted_at = $1
-WHERE directory_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllDirectoryTrees(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

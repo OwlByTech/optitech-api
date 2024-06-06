@@ -54,7 +54,7 @@ func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (For
 const deleteAllFormats = `-- name: DeleteAllFormats :execresult
 UPDATE format
 SET deleted_at = $1
-WHERE format_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllFormats(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

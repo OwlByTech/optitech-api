@@ -56,7 +56,7 @@ func (q *Queries) DeleteMembershipById(ctx context.Context, arg DeleteMembership
 const deleteRoleAllPermissions = `-- name: DeleteRoleAllPermissions :execresult
 UPDATE membership
 SET deleted_at = $1
-WHERE membership_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteRoleAllPermissions(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

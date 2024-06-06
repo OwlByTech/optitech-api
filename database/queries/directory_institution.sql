@@ -24,6 +24,6 @@ WHERE directory_institution_id = $1;
 -- name: DeleteAllDirectoryInstitutions :execresult
 UPDATE directory_institution
 SET deleted_at = $1
-WHERE directory_institution_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

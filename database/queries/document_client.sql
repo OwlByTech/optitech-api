@@ -24,6 +24,6 @@ WHERE document_client_id = $1;
 -- name: DeleteAllDocumentClients :execresult
 UPDATE document_client
 SET deleted_at = $1
-WHERE document_client_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

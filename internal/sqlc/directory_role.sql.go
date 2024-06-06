@@ -40,7 +40,7 @@ func (q *Queries) CreateDirectoryRole(ctx context.Context, arg CreateDirectoryRo
 const deleteAllDirectoryRoles = `-- name: DeleteAllDirectoryRoles :execresult
 UPDATE directory_role
 SET deleted_at = $1
-WHERE directory_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllDirectoryRoles(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

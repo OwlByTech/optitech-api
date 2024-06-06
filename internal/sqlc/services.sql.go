@@ -38,7 +38,7 @@ func (q *Queries) CreateServices(ctx context.Context, arg CreateServicesParams) 
 const deleteAllServicess = `-- name: DeleteAllServicess :execresult
 UPDATE services
 SET deleted_at = $1
-WHERE services_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllServicess(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {

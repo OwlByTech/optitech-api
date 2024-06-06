@@ -48,7 +48,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 const deleteAllInstitutions = `-- name: DeleteAllInstitutions :exec
 UPDATE institution
 set deleted_at = $1 
-where institution_id is NULL
+where deleted_at is NULL
 `
 
 func (q *Queries) DeleteAllInstitutions(ctx context.Context, deletedAt sql.NullTime) error {

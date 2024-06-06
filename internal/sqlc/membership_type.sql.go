@@ -40,7 +40,7 @@ func (q *Queries) CreateMembershipType(ctx context.Context, arg CreateMembership
 const deleteMembershipType = `-- name: DeleteMembershipType :execresult
 UPDATE membership_type
 SET deleted_at = $1
-WHERE membership_type_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteMembershipType(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
