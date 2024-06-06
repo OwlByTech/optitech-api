@@ -29,6 +29,6 @@ WHERE permission_id = $1;
 -- name: DeleteAllPermissions :execresult
 UPDATE permission
 SET deleted_at = $1
-WHERE document_client_id IS NULL;
+WHERE permission_id IS NULL;
 
 
