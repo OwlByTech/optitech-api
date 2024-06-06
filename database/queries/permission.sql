@@ -7,18 +7,18 @@ SELECT * FROM permission
 ORDER BY permission_id;
 
 -- name: GetPermissionByName :one
-SELECT permission_type
+SELECT permission_code, permission_description
 FROM permission
 WHERE permission_id = $1;
 
 -- name: CreatePermission :one
-INSERT INTO permission(permission_type, created_at)
-VALUES ($1, $2)
+INSERT INTO permission(permission_code, permission_description, created_at)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: UpdatePermissionById :exec
 UPDATE permission
-SET permission_type = $2, updated_at = $3
+SET permission_code = $2, permission_description = $3, updated_at = $4
 WHERE permission_id = $1;
 
 -- name: DeletePermissionById :exec

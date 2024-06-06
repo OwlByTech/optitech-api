@@ -280,11 +280,12 @@ type MembershipType struct {
 }
 
 type Permission struct {
-	PermissionID   int64        `json:"permission_id"`
-	PermissionType string       `json:"permission_type"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      sql.NullTime `json:"updated_at"`
-	DeletedAt      sql.NullTime `json:"deleted_at"`
+	PermissionID          int64        `json:"permission_id"`
+	PermissionCode        string       `json:"permission_code"`
+	PermissionDescription string       `json:"permission_description"`
+	CreatedAt             time.Time    `json:"created_at"`
+	UpdatedAt             sql.NullTime `json:"updated_at"`
+	DeletedAt             sql.NullTime `json:"deleted_at"`
 }
 
 type Role struct {
