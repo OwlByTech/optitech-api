@@ -281,6 +281,7 @@ type MembershipType struct {
 
 type Permission struct {
 	PermissionID          int64        `json:"permission_id"`
+	PermissionName        string       `json:"permission_name"`
 	PermissionCode        string       `json:"permission_code"`
 	PermissionDescription string       `json:"permission_description"`
 	CreatedAt             time.Time    `json:"created_at"`
