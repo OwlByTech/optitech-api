@@ -12,34 +12,34 @@ import (
 )
 
 const createClient = `-- name: CreateClient :one
-INSERT INTO client (email, password, given_name, surname, created_at)
+INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING client_id, email, password, given_name, surname, created_at, updated_at, deleted_at
+RETURNING client_id, given_name, surname, email, password, created_at, updated_at, deleted_at
 `
 
 type CreateClientParams struct {
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
 	GivenName string    `json:"given_name"`
 	Surname   string    `json:"surname"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Client, error) {
 	row := q.db.QueryRowContext(ctx, createClient,
-		arg.Email,
-		arg.Password,
 		arg.GivenName,
 		arg.Surname,
+		arg.Email,
+		arg.Password,
 		arg.CreatedAt,
 	)
 	var i Client
 	err := row.Scan(
 		&i.ClientID,
-		&i.Email,
-		&i.Password,
 		&i.GivenName,
 		&i.Surname,
+		&i.Email,
+		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -48,25 +48,33 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 }
 
 const deleteAllClients = `-- name: DeleteAllClients :execresult
-DELETE FROM client
+UPDATE client
+SET deleted_at = $1 
+WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteAllClients(ctx context.Context) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllClients)
+func (q *Queries) DeleteAllClients(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllClients, deletedAt)
 }
 
-const deleteClient = `-- name: DeleteClient :exec
-DELETE FROM client
+const deleteClientById = `-- name: DeleteClientById :exec
+UPDATE client
+SET deleted_at = $2 
 WHERE client_id = $1
 `
 
-func (q *Queries) DeleteClient(ctx context.Context, clientID int64) error {
-	_, err := q.db.ExecContext(ctx, deleteClient, clientID)
+type DeleteClientByIdParams struct {
+	ClientID  int64        `json:"client_id"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteClientById(ctx context.Context, arg DeleteClientByIdParams) error {
+	_, err := q.db.ExecContext(ctx, deleteClientById, arg.ClientID, arg.DeletedAt)
 	return err
 }
 
 const getClient = `-- name: GetClient :one
-SELECT client_id, email, password, given_name, surname, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
 WHERE client_id = $1 LIMIT 1
 `
 
@@ -75,10 +83,10 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 	var i Client
 	err := row.Scan(
 		&i.ClientID,
-		&i.Email,
-		&i.Password,
 		&i.GivenName,
 		&i.Surname,
+		&i.Email,
+		&i.Password,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -87,32 +95,32 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 }
 
 const getClientByEmail = `-- name: GetClientByEmail :one
-SELECT email, password, given_name, surname
+SELECT given_name, surname, email, password 
 FROM client
 WHERE email = $1
 `
 
 type GetClientByEmailRow struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
 	GivenName string `json:"given_name"`
 	Surname   string `json:"surname"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
 }
 
 func (q *Queries) GetClientByEmail(ctx context.Context, email string) (GetClientByEmailRow, error) {
 	row := q.db.QueryRowContext(ctx, getClientByEmail, email)
 	var i GetClientByEmailRow
 	err := row.Scan(
-		&i.Email,
-		&i.Password,
 		&i.GivenName,
 		&i.Surname,
+		&i.Email,
+		&i.Password,
 	)
 	return i, err
 }
 
 const listClients = `-- name: ListClients :many
-SELECT client_id, email, password, given_name, surname, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
 ORDER BY given_name
 `
 
@@ -127,10 +135,10 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 		var i Client
 		if err := rows.Scan(
 			&i.ClientID,
-			&i.Email,
-			&i.Password,
 			&i.GivenName,
 			&i.Surname,
+			&i.Email,
+			&i.Password,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -150,26 +158,26 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 
 const updateClientById = `-- name: UpdateClientById :exec
 UPDATE client
-SET email = $2, password = $3, given_name = $4, surname = $5, updated_at = $6
+SET given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
 WHERE client_id = $1
 `
 
 type UpdateClientByIdParams struct {
 	ClientID  int64        `json:"client_id"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
 	GivenName string       `json:"given_name"`
+	Password  string       `json:"password"`
 	Surname   string       `json:"surname"`
+	Email     string       `json:"email"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdateClientById(ctx context.Context, arg UpdateClientByIdParams) error {
 	_, err := q.db.ExecContext(ctx, updateClientById,
 		arg.ClientID,
-		arg.Email,
-		arg.Password,
 		arg.GivenName,
+		arg.Password,
 		arg.Surname,
+		arg.Email,
 		arg.UpdatedAt,
 	)
 	return err

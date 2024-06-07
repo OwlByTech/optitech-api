@@ -8,6 +8,21 @@ import (
 	sq "optitech/internal/sqlc"
 )
 
+type SeederStrategy interface {
+	Execute() error
+}
+
+type SeederUp struct{}
+
+func (s SeederUp) Execute() error {
+	return seeders.PermissionUp("database/json_data/permission.json")
+}
+
+type SeederDown struct{}
+
+func (s SeederDown) Execute() error {
+	return seeders.PermissionDown()
+}
 func Seeder(arg string) error {
 	db, err := Connect()
 	if err != nil {
@@ -16,28 +31,16 @@ func Seeder(arg string) error {
 
 	repository.Queries = *sq.New(db)
 
+	var strategy SeederStrategy
+
 	switch arg {
 	case "up":
-		if err := seederUp(); err != nil {
-			return err
-		}
-
+		strategy = SeederUp{}
 	case "down":
-		if err := seederDown(); err != nil {
-			return err
-		}
-
+		strategy = SeederDown{}
 	default:
 		return fmt.Errorf("You must provide up or down arguments")
 	}
 
-	return nil
-}
-
-func seederUp() error {
-	return seeders.ClientUp()
-}
-
-func seederDown() error {
-	return seeders.ClientDown()
+	return strategy.Execute()
 }

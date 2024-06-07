@@ -7,23 +7,26 @@ SELECT * FROM client
 ORDER BY given_name;
 
 -- name: GetClientByEmail :one
-SELECT email, password, given_name, surname
+SELECT given_name, surname, email, password 
 FROM client
 WHERE email = $1;
-
+ 
 -- name: CreateClient :one
-INSERT INTO client (email, password, given_name, surname, created_at)
+INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: UpdateClientById :exec
 UPDATE client
-SET email = $2, password = $3, given_name = $4, surname = $5, updated_at = $6
+SET given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
 WHERE client_id = $1;
 
--- name: DeleteClient :exec
-DELETE FROM client
+-- name: DeleteClientById :exec
+UPDATE client
+SET deleted_at = $2 
 WHERE client_id = $1;
 
 -- name: DeleteAllClients :execresult
-DELETE FROM client;
+UPDATE client
+SET deleted_at = $1 
+WHERE deleted_at IS NULL;
