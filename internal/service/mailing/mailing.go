@@ -3,11 +3,12 @@ package mailing
 import (
 	"encoding/json"
 	"fmt"
-	"optitech/internal/config"
-	dto "optitech/internal/dto/mailing"
 	"os"
 	"os/exec"
 	"strings"
+
+	"optitech/internal/config"
+	dto "optitech/internal/dto/mailing"
 
 	"gopkg.in/gomail.v2"
 )
@@ -39,7 +40,6 @@ func ReadMJML(data interface{}) (string, error) {
 
 	mjmlTemplate := string(mjmlContent)
 
-	// Convert structure of dates
 	dataMap := make(map[string]interface{})
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
@@ -51,7 +51,6 @@ func ReadMJML(data interface{}) (string, error) {
 		return "", fmt.Errorf("error unmarshaling data: %w", err)
 	}
 
-	// Replace values in template
 	for key, value := range dataMap {
 		placeholder := fmt.Sprintf("{{%s}}", key)
 		mjmlTemplate = strings.ReplaceAll(mjmlTemplate, placeholder, fmt.Sprintf("%v", value))
@@ -63,26 +62,23 @@ func ReadMJML(data interface{}) (string, error) {
 		return "", fmt.Errorf("error writing temporary MJML file: %w", err)
 	}
 
-	// MJML to HTML
-	cmd := exec.Command("mjml", tempMJMLFile, "-o", "temp.html")
+	cmd := exec.Command("/app/cmd/cli/repository-cli", "convert-mjml", tempMJMLFile)
 	err = cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("error converting MJML to HTML: %w", err)
 	}
 
-	// Read HTML
-	htmlContent, err := os.ReadFile("temp.html")
+	htmlContent, err := os.ReadFile("output.html")
 	if err != nil {
 		return "", fmt.Errorf("error reading HTML file: %w", err)
 	}
 
-	// Delete temp.mjml and temp.html
 	err = os.Remove(tempMJMLFile)
 	if err != nil {
 		return "", fmt.Errorf("error removing temporary MJML file: %w", err)
 	}
 
-	err = os.Remove("temp.html")
+	err = os.Remove("output.html")
 	if err != nil {
 		return "", fmt.Errorf("error removing temporary HTML file: %w", err)
 	}

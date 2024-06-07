@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"optitech/database"
+	"optitech/internal/service/mailing"
 	"os"
 )
 
@@ -15,7 +16,9 @@ migrate         Run the migrations
 	  	down      Run the Down migrations files
 seed        Run the migrations
       up		  Run the Up seeders files
-	  	down      Run the Down seeders files`
+	  	down      Run the Down seeders files
+convert-mjml    Convert MJML to HTML
+    <file>        ./internal/service/mailing/templates`
 
 func main() {
 
@@ -44,6 +47,17 @@ func main() {
 
 		if err != nil {
 			log.Fatalf("%v", err)
+		}
+
+	case "convert-mjml":
+		if len(os.Args) < 3 {
+			log.Printf("You must specify the MJML file path")
+			log.Fatal(help)
+		}
+
+		err := mailing.ConvertMJML(os.Args[2])
+		if err != nil {
+			log.Fatalf("Error converting MJML to HTML: %v", err)
 		}
 
 	default:
