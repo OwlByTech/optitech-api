@@ -19,7 +19,7 @@ func PermissionUp(fileName string) error {
 	var permissions []pdto.CreatePermissionReq
 	err := json_reader.ReadFromJSON(fileName, &permissions)
 	if err != nil {
-		return fmt.Errorf("Error al leer el JSON: %v", err)
+		return fmt.Errorf("error reading json %v", err)
 	}
 
 	var sqPermissions []sq.CreatePermissionParams
@@ -35,7 +35,7 @@ func PermissionUp(fileName string) error {
 
 	for _, permission := range sqPermissions {
 		if _, err := repository.Queries.CreatePermission(ctx, permission); err != nil {
-			return fmt.Errorf("Error al insertar permiso en la base de datos: %v", err)
+			return fmt.Errorf("error inserting data in db: %v", err)
 		}
 	}
 
