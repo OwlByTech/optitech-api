@@ -15,13 +15,25 @@ type SeederStrategy interface {
 type SeederUp struct{}
 
 func (s SeederUp) Execute() error {
-	return seeders.PermissionUp("database/json_data/permission.json")
+	if err := seeders.PermissionUp("database/json_data/permission.json"); err != nil {
+		return err
+	}
+	if err := seeders.RoleUp("database/json_data/role.json"); err != nil {
+		return err
+	}
+	return nil
 }
 
 type SeederDown struct{}
 
 func (s SeederDown) Execute() error {
-	return seeders.PermissionDown()
+	if err := seeders.PermissionDown(); err != nil {
+		return err
+	}
+	if err := seeders.RoleDown(); err != nil {
+		return err
+	}
+	return nil
 }
 func Seeder(arg string) error {
 	db, err := Connect()
@@ -39,7 +51,7 @@ func Seeder(arg string) error {
 	case "down":
 		strategy = SeederDown{}
 	default:
-		return fmt.Errorf("You must provide up or down arguments")
+		return fmt.Errorf("you must provide up or down arguments")
 	}
 
 	return strategy.Execute()

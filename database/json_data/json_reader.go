@@ -11,8 +11,10 @@ func ReadFromJSON(fileName string, dto interface{}) error {
 		return err
 	}
 	err = json.Unmarshal(jsonFile, dto)
+
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
