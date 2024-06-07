@@ -32,3 +32,4 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
 
+

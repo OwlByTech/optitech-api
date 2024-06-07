@@ -138,3 +138,4 @@ func (q *Queries) UpdateMembershipTypeById(ctx context.Context, arg UpdateMember
 	)
 	return err
 }
+
