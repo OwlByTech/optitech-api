@@ -32,14 +32,14 @@ func SendPassword(send dto.PasswordMailingReq) error {
 }
 
 func ReadMJML(data interface{}) (string, error) {
-	mjmlContent, err := os.ReadFile("./internal/service/mailing/templates/templatePassword.mjml")
+	mjmlContent, err := os.ReadFile("./internal/service/mailing/templates/template-password.mjml")
 	if err != nil {
 		return "", fmt.Errorf("error reading MJML file: %w", err)
 	}
 
 	mjmlTemplate := string(mjmlContent)
 
-	// Convertir la estructura de datos a un mapa genérico
+	// Convert structure of dates
 	dataMap := make(map[string]interface{})
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
@@ -51,7 +51,7 @@ func ReadMJML(data interface{}) (string, error) {
 		return "", fmt.Errorf("error unmarshaling data: %w", err)
 	}
 
-	// Reemplazar los valores en la plantilla
+	// Replace values in template
 	for key, value := range dataMap {
 		placeholder := fmt.Sprintf("{{%s}}", key)
 		mjmlTemplate = strings.ReplaceAll(mjmlTemplate, placeholder, fmt.Sprintf("%v", value))
@@ -63,12 +63,14 @@ func ReadMJML(data interface{}) (string, error) {
 		return "", fmt.Errorf("error writing temporary MJML file: %w", err)
 	}
 
+	// MJML to HTML
 	cmd := exec.Command("mjml", tempMJMLFile, "-o", "temp.html")
 	err = cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("error converting MJML to HTML: %w", err)
 	}
 
+	// Read HTML
 	htmlContent, err := os.ReadFile("temp.html")
 	if err != nil {
 		return "", fmt.Errorf("error reading HTML file: %w", err)

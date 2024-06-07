@@ -9,7 +9,6 @@ import (
 	"sync"
 )
 
-// Config holds the configuration for the email server
 type Config struct {
 	EmailFrom         string
 	EmailSMTPHost     string
@@ -20,7 +19,6 @@ type Config struct {
 var instance *Config
 var once sync.Once
 
-// LoadConfig loads configuration from environment variables
 func LoadConfig() (*Config, error) {
 	var err error
 	once.Do(func() {
@@ -42,7 +40,6 @@ func LoadConfig() (*Config, error) {
 	return instance, err
 }
 
-// GetConfig returns the loaded configuration
 func GetConfig() *Config {
 	return instance
 }
