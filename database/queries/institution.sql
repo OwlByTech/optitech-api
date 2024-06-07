@@ -29,4 +29,4 @@ WHERE institution_id = $1 AND deleted_at IS NULL;
 -- name: DeleteAllInstitutions :exec
 UPDATE institution
 set deleted_at = $1 
-where institution_id is NULL;
+where deleted_at is NULL;

@@ -24,6 +24,6 @@ WHERE directory_id = $1;
 -- name: DeleteAllDirectoryTrees :execresult
 UPDATE directory_tree
 SET deleted_at = $1
-WHERE directory_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

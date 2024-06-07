@@ -29,4 +29,4 @@ WHERE format_id = $1;
 -- name: DeleteAllFormats :execresult
 UPDATE format
 SET deleted_at = $1
-WHERE format_id IS NULL;
+WHERE deleted_at IS NULL;

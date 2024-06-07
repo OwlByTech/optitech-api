@@ -18,9 +18,9 @@ RETURNING institution_services_id, institution_id, services_id, created_at, upda
 `
 
 type CreateInstitutionServiceParams struct {
-	InstitutionID sql.NullInt32 `json:"institution_id"`
-	ServicesID    sql.NullInt32 `json:"services_id"`
-	CreatedAt     time.Time     `json:"created_at"`
+	InstitutionID int32     `json:"institution_id"`
+	ServicesID    int32     `json:"services_id"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateInstitutionService(ctx context.Context, arg CreateInstitutionServiceParams) (InstitutionService, error) {
@@ -40,7 +40,7 @@ func (q *Queries) CreateInstitutionService(ctx context.Context, arg CreateInstit
 const deleteAllInstitutionServices = `-- name: DeleteAllInstitutionServices :execresult
 UPDATE institution_services
 SET deleted_at = $1
-WHERE institution_services_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllInstitutionServices(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
@@ -89,8 +89,8 @@ WHERE institution_services_id = $1
 `
 
 type GetInstitutionServiceByNameRow struct {
-	InstitutionID sql.NullInt32 `json:"institution_id"`
-	ServicesID    sql.NullInt32 `json:"services_id"`
+	InstitutionID int32 `json:"institution_id"`
+	ServicesID    int32 `json:"services_id"`
 }
 
 func (q *Queries) GetInstitutionServiceByName(ctx context.Context, institutionServicesID int64) (GetInstitutionServiceByNameRow, error) {

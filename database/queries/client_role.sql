@@ -29,6 +29,6 @@ WHERE client_role_id = $1;
 -- name: DeleteAllClientRoles :execresult
 UPDATE client_role
 SET deleted_at = $1
-WHERE document_client_id IS NULL;
+WHERE deleted_at IS NULL;
 
 

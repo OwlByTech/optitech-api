@@ -37,14 +37,14 @@ func (q *Queries) CreateRolePermission(ctx context.Context, arg CreateRolePermis
 	return i, err
 }
 
-const deleteRoleAllPermissions = `-- name: DeleteRoleAllPermissions :execresult
+const deleteAllRolePermissions = `-- name: DeleteAllRolePermissions :execresult
 UPDATE role_permission
 SET deleted_at = $1
-WHERE document_client_id IS NULL
+WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteRoleAllPermissions(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteRoleAllPermissions, deletedAt)
+func (q *Queries) DeleteAllRolePermissions(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
+	return q.db.ExecContext(ctx, deleteAllRolePermissions, deletedAt)
 }
 
 const deleteRolePermissionById = `-- name: DeleteRolePermissionById :exec
@@ -63,31 +63,31 @@ func (q *Queries) DeleteRolePermissionById(ctx context.Context, arg DeleteRolePe
 	return err
 }
 
-const getRolePermissionnByName = `-- name: GetRolePermissionnByName :one
+const getRolePermissionByName = `-- name: GetRolePermissionByName :one
 SELECT role_id, permission_id
 FROM role_permission
 WHERE role_permission_id = $1
 `
 
-type GetRolePermissionnByNameRow struct {
+type GetRolePermissionByNameRow struct {
 	RoleID       int32 `json:"role_id"`
 	PermissionID int32 `json:"permission_id"`
 }
 
-func (q *Queries) GetRolePermissionnByName(ctx context.Context, rolePermissionID int64) (GetRolePermissionnByNameRow, error) {
-	row := q.db.QueryRowContext(ctx, getRolePermissionnByName, rolePermissionID)
-	var i GetRolePermissionnByNameRow
+func (q *Queries) GetRolePermissionByName(ctx context.Context, rolePermissionID int64) (GetRolePermissionByNameRow, error) {
+	row := q.db.QueryRowContext(ctx, getRolePermissionByName, rolePermissionID)
+	var i GetRolePermissionByNameRow
 	err := row.Scan(&i.RoleID, &i.PermissionID)
 	return i, err
 }
 
-const listPeRolermissions = `-- name: ListPeRolermissions :many
+const listRolePermissions = `-- name: ListRolePermissions :many
 SELECT role_permission_id, role_id, permission_id, created_at, updated_at, deleted_at FROM role_permission
 ORDER BY role_permission_id
 `
 
-func (q *Queries) ListPeRolermissions(ctx context.Context) ([]RolePermission, error) {
-	rows, err := q.db.QueryContext(ctx, listPeRolermissions)
+func (q *Queries) ListRolePermissions(ctx context.Context) ([]RolePermission, error) {
+	rows, err := q.db.QueryContext(ctx, listRolePermissions)
 	if err != nil {
 		return nil, err
 	}

@@ -18,8 +18,8 @@ RETURNING services_id, service_name, created_at, updated_at, deleted_at
 `
 
 type CreateServicesParams struct {
-	ServiceName sql.NullString `json:"service_name"`
-	CreatedAt   time.Time      `json:"created_at"`
+	ServiceName string    `json:"service_name"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 func (q *Queries) CreateServices(ctx context.Context, arg CreateServicesParams) (Service, error) {
@@ -38,7 +38,7 @@ func (q *Queries) CreateServices(ctx context.Context, arg CreateServicesParams) 
 const deleteAllServicess = `-- name: DeleteAllServicess :execresult
 UPDATE services
 SET deleted_at = $1
-WHERE services_id IS NULL
+WHERE deleted_at IS NULL
 `
 
 func (q *Queries) DeleteAllServicess(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
@@ -85,9 +85,9 @@ FROM services
 WHERE services_id = $1
 `
 
-func (q *Queries) GetServicesByName(ctx context.Context, servicesID int64) (sql.NullString, error) {
+func (q *Queries) GetServicesByName(ctx context.Context, servicesID int64) (string, error) {
 	row := q.db.QueryRowContext(ctx, getServicesByName, servicesID)
-	var service_name sql.NullString
+	var service_name string
 	err := row.Scan(&service_name)
 	return service_name, err
 }
@@ -133,9 +133,9 @@ WHERE services_id = $1
 `
 
 type UpdateServicesByIdParams struct {
-	ServicesID  int64          `json:"services_id"`
-	ServiceName sql.NullString `json:"service_name"`
-	UpdatedAt   sql.NullTime   `json:"updated_at"`
+	ServicesID  int64        `json:"services_id"`
+	ServiceName string       `json:"service_name"`
+	UpdatedAt   sql.NullTime `json:"updated_at"`
 }
 
 func (q *Queries) UpdateServicesById(ctx context.Context, arg UpdateServicesByIdParams) error {

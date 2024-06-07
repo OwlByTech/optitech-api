@@ -172,12 +172,12 @@ type ClientRole struct {
 }
 
 type DirectoryInstitution struct {
-	DirectoryInstitutionID int64         `json:"directory_institution_id"`
-	InstitutionID          sql.NullInt32 `json:"institution_id"`
-	DirectoryID            sql.NullInt32 `json:"directory_id"`
-	CreatedAt              time.Time     `json:"created_at"`
-	UpdatedAt              sql.NullTime  `json:"updated_at"`
-	DeletedAt              sql.NullTime  `json:"deleted_at"`
+	DirectoryInstitutionID int64        `json:"directory_institution_id"`
+	InstitutionID          int32        `json:"institution_id"`
+	DirectoryID            int32        `json:"directory_id"`
+	CreatedAt              time.Time    `json:"created_at"`
+	UpdatedAt              sql.NullTime `json:"updated_at"`
+	DeletedAt              sql.NullTime `json:"deleted_at"`
 }
 
 type DirectoryRole struct {
@@ -253,28 +253,46 @@ type InstitutionClient struct {
 }
 
 type InstitutionService struct {
-	InstitutionServicesID int64         `json:"institution_services_id"`
-	InstitutionID         sql.NullInt32 `json:"institution_id"`
-	ServicesID            sql.NullInt32 `json:"services_id"`
-	CreatedAt             time.Time     `json:"created_at"`
-	UpdatedAt             sql.NullTime  `json:"updated_at"`
-	DeletedAt             sql.NullTime  `json:"deleted_at"`
+	InstitutionServicesID int64        `json:"institution_services_id"`
+	InstitutionID         int32        `json:"institution_id"`
+	ServicesID            int32        `json:"services_id"`
+	CreatedAt             time.Time    `json:"created_at"`
+	UpdatedAt             sql.NullTime `json:"updated_at"`
+	DeletedAt             sql.NullTime `json:"deleted_at"`
+}
+
+type Membership struct {
+	MembershipID     int64         `json:"membership_id"`
+	MembershipTypeID sql.NullInt32 `json:"membership_type_id"`
+	CreatedAt        time.Time     `json:"created_at"`
+	FinishAt         time.Time     `json:"finish_at"`
+	UpdatedAt        sql.NullTime  `json:"updated_at"`
+	DeletedAt        sql.NullTime  `json:"deleted_at"`
+}
+
+type MembershipType struct {
+	MembershipTypeID int64        `json:"membership_type_id"`
+	MembershipName   string       `json:"membership_name"`
+	Users            int32        `json:"users"`
+	CreatedAt        time.Time    `json:"created_at"`
+	UpdatedAt        sql.NullTime `json:"updated_at"`
+	DeletedAt        sql.NullTime `json:"deleted_at"`
 }
 
 type Permission struct {
-	PermissionID   int64          `json:"permission_id"`
-	PermissionType sql.NullString `json:"permission_type"`
-	CreatedAt      time.Time      `json:"created_at"`
-	UpdatedAt      sql.NullTime   `json:"updated_at"`
-	DeletedAt      sql.NullTime   `json:"deleted_at"`
+	PermissionID   int64        `json:"permission_id"`
+	PermissionType string       `json:"permission_type"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      sql.NullTime `json:"updated_at"`
+	DeletedAt      sql.NullTime `json:"deleted_at"`
 }
 
 type Role struct {
-	RoleID    int64          `json:"role_id"`
-	RoleName  sql.NullString `json:"role_name"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt sql.NullTime   `json:"updated_at"`
-	DeletedAt sql.NullTime   `json:"deleted_at"`
+	RoleID    int64        `json:"role_id"`
+	RoleName  string       `json:"role_name"`
+	CreatedAt time.Time    `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
 }
 
 type RolePermission struct {
@@ -287,9 +305,9 @@ type RolePermission struct {
 }
 
 type Service struct {
-	ServicesID  int64          `json:"services_id"`
-	ServiceName sql.NullString `json:"service_name"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   sql.NullTime   `json:"updated_at"`
-	DeletedAt   sql.NullTime   `json:"deleted_at"`
+	ServicesID  int64        `json:"services_id"`
+	ServiceName string       `json:"service_name"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   sql.NullTime `json:"updated_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
 }
