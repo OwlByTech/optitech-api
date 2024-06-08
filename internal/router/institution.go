@@ -4,7 +4,7 @@ import (
 	"optitech/internal/handler"
 )
 
-func (s Server) AttachRoutes() {
+func (s Server) RoutesInstitution() {
 	r := s.app
 	institution_route := r.Group("/api/institution")
 	institution_route.Post("/", handler.CreateInstitutionHandler)

@@ -15,7 +15,8 @@ func (s *Server) New() {
 }
 
 func (s *Server) ListenAndServe() error {
-	s.AttachRoutes()
+	s.RoutesServices()
+	s.RoutesInstitution()
 	err := s.app.Listen(fmt.Sprintf(":%d", s.Port))
 
 	if err != nil {
