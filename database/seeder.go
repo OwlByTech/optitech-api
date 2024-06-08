@@ -3,7 +3,6 @@ package database
 import (
 	"fmt"
 	"log"
-	"optitech/database/seeders"
 	"optitech/internal/repository"
 	sq "optitech/internal/sqlc"
 )
@@ -14,15 +13,8 @@ type SeederStrategy interface {
 
 type SeederUp struct{}
 
-func (s SeederUp) Execute() error {
-	return seeders.PermissionUp("database/json_data/permission.json")
-}
-
 type SeederDown struct{}
 
-func (s SeederDown) Execute() error {
-	return seeders.PermissionDown()
-}
 func Seeder(arg string) error {
 	db, err := Connect()
 	if err != nil {
@@ -35,9 +27,7 @@ func Seeder(arg string) error {
 
 	switch arg {
 	case "up":
-		strategy = SeederUp{}
 	case "down":
-		strategy = SeederDown{}
 	default:
 		return fmt.Errorf("You must provide up or down arguments")
 	}

@@ -4,9 +4,9 @@ import (
 	"optitech/internal/handler"
 )
 
-func (s Server) AttachRoutes() {
+func (s Server) Routes() {
 	r := s.app
-
-	r.Post("/api/client", handler.CreateClientHandler)
-	r.Get("/api/client/:id", handler.GetClientHandler)
+	r.Group("/api")
+	r.Post("/client", handler.CreateClientHandler)
+	r.Get("/client/:id", handler.GetClientHandler)
 }

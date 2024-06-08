@@ -34,8 +34,6 @@ func CreateClientService(req dto.CreateClientReq) (*sq.Client, error) {
 		Password:  req.Password,
 	}
 
-	// TODO: after save get the id of inserted using sqlc because
-	// can i used the last inserted id
 	r, err := repository.Queries.CreateClient(ctx, repoReq)
 
 	if err != nil {

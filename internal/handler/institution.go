@@ -52,6 +52,23 @@ func CreateInstitutionHandler(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+func UpdateInstitutionHandler(c *fiber.Ctx) error {
+
+	req := &cdto.UpdateInstitutionReq{}
+	params := c.FormValue("data")
+	if err := json.Unmarshal([]byte(params), &req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	file, err := c.FormFile("file")
+	req.LogoFile = file
+	res, err := service.UpdateInstitutionService(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
 func DeleteInstitutionHandler(c *fiber.Ctx) error {
 
 	params := c.AllParams()

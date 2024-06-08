@@ -5,3 +5,4 @@ CREATE TABLE services(
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
