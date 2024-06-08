@@ -7,8 +7,9 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createDirectoryInstitution = `-- name: CreateDirectoryInstitution :one
@@ -18,13 +19,13 @@ RETURNING directory_institution_id, institution_id, directory_id, created_at, up
 `
 
 type CreateDirectoryInstitutionParams struct {
-	InstitutionID int32     `json:"institution_id"`
-	DirectoryID   int32     `json:"directory_id"`
-	CreatedAt     time.Time `json:"created_at"`
+	InstitutionID int32            `json:"institution_id"`
+	DirectoryID   int32            `json:"directory_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateDirectoryInstitution(ctx context.Context, arg CreateDirectoryInstitutionParams) (DirectoryInstitution, error) {
-	row := q.db.QueryRowContext(ctx, createDirectoryInstitution, arg.InstitutionID, arg.DirectoryID, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createDirectoryInstitution, arg.InstitutionID, arg.DirectoryID, arg.CreatedAt)
 	var i DirectoryInstitution
 	err := row.Scan(
 		&i.DirectoryInstitutionID,
@@ -43,8 +44,8 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteAllDirectoryInstitutions(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllDirectoryInstitutions, deletedAt)
+func (q *Queries) DeleteAllDirectoryInstitutions(ctx context.Context, deletedAt pgtype.Timestamp) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteAllDirectoryInstitutions, deletedAt)
 }
 
 const deleteDirectoryInstitutionById = `-- name: DeleteDirectoryInstitutionById :exec
@@ -54,12 +55,12 @@ WHERE directory_institution_id = $1
 `
 
 type DeleteDirectoryInstitutionByIdParams struct {
-	DirectoryInstitutionID int64        `json:"directory_institution_id"`
-	DeletedAt              sql.NullTime `json:"deleted_at"`
+	DirectoryInstitutionID int64            `json:"directory_institution_id"`
+	DeletedAt              pgtype.Timestamp `json:"deleted_at"`
 }
 
 func (q *Queries) DeleteDirectoryInstitutionById(ctx context.Context, arg DeleteDirectoryInstitutionByIdParams) error {
-	_, err := q.db.ExecContext(ctx, deleteDirectoryInstitutionById, arg.DirectoryInstitutionID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, deleteDirectoryInstitutionById, arg.DirectoryInstitutionID, arg.DeletedAt)
 	return err
 }
 
@@ -69,7 +70,7 @@ WHERE directory_institution_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetDirectoryInstitution(ctx context.Context, directoryInstitutionID int64) (DirectoryInstitution, error) {
-	row := q.db.QueryRowContext(ctx, getDirectoryInstitution, directoryInstitutionID)
+	row := q.db.QueryRow(ctx, getDirectoryInstitution, directoryInstitutionID)
 	var i DirectoryInstitution
 	err := row.Scan(
 		&i.DirectoryInstitutionID,
@@ -94,7 +95,7 @@ type GetDirectoryInstitutionByNameRow struct {
 }
 
 func (q *Queries) GetDirectoryInstitutionByName(ctx context.Context, directoryInstitutionID int64) (GetDirectoryInstitutionByNameRow, error) {
-	row := q.db.QueryRowContext(ctx, getDirectoryInstitutionByName, directoryInstitutionID)
+	row := q.db.QueryRow(ctx, getDirectoryInstitutionByName, directoryInstitutionID)
 	var i GetDirectoryInstitutionByNameRow
 	err := row.Scan(&i.InstitutionID, &i.DirectoryID)
 	return i, err
@@ -106,7 +107,7 @@ ORDER BY directory_institution_id
 `
 
 func (q *Queries) ListDirectoryInstitutions(ctx context.Context) ([]DirectoryInstitution, error) {
-	rows, err := q.db.QueryContext(ctx, listDirectoryInstitutions)
+	rows, err := q.db.Query(ctx, listDirectoryInstitutions)
 	if err != nil {
 		return nil, err
 	}
@@ -125,9 +126,6 @@ func (q *Queries) ListDirectoryInstitutions(ctx context.Context) ([]DirectoryIns
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -5,10 +5,10 @@
 package sqlc
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Action string
@@ -141,173 +141,154 @@ func (ns NullStatus) Value() (driver.Value, error) {
 }
 
 type Asesor struct {
-	AsesorID  int64        `json:"asesor_id"`
-	ClientID  int32        `json:"client_id"`
-	Username  string       `json:"username"`
-	Photo     string       `json:"photo"`
-	About     string       `json:"about"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
+	AsesorID  int64            `json:"asesor_id"`
+	ClientID  int32            `json:"client_id"`
+	Username  string           `json:"username"`
+	Photo     string           `json:"photo"`
+	About     string           `json:"about"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Client struct {
-	ClientID  int64        `json:"client_id"`
-	GivenName string       `json:"given_name"`
-	Surname   string       `json:"surname"`
-	Email     string       `json:"email"`
-	Password  string       `json:"password"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
+	ClientID  int64            `json:"client_id"`
+	GivenName string           `json:"given_name"`
+	Surname   string           `json:"surname"`
+	Email     string           `json:"email"`
+	Password  string           `json:"password"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
 type ClientRole struct {
-	ClientRoleID int64        `json:"client_role_id"`
-	ClientID     int32        `json:"client_id"`
-	RoleID       int32        `json:"role_id"`
-	CreatedAt    time.Time    `json:"created_at"`
-	UpdatedAt    sql.NullTime `json:"updated_at"`
-	DeletedAt    sql.NullTime `json:"deleted_at"`
+	ClientRoleID int64            `json:"client_role_id"`
+	ClientID     int32            `json:"client_id"`
+	RoleID       int32            `json:"role_id"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
+	DeletedAt    pgtype.Timestamp `json:"deleted_at"`
 }
 
 type DirectoryInstitution struct {
-	DirectoryInstitutionID int64        `json:"directory_institution_id"`
-	InstitutionID          int32        `json:"institution_id"`
-	DirectoryID            int32        `json:"directory_id"`
-	CreatedAt              time.Time    `json:"created_at"`
-	UpdatedAt              sql.NullTime `json:"updated_at"`
-	DeletedAt              sql.NullTime `json:"deleted_at"`
+	DirectoryInstitutionID int64            `json:"directory_institution_id"`
+	InstitutionID          int32            `json:"institution_id"`
+	DirectoryID            int32            `json:"directory_id"`
+	CreatedAt              pgtype.Timestamp `json:"created_at"`
+	UpdatedAt              pgtype.Timestamp `json:"updated_at"`
+	DeletedAt              pgtype.Timestamp `json:"deleted_at"`
 }
 
 type DirectoryRole struct {
-	DirectoryRoleID int64         `json:"directory_role_id"`
-	DirectoryID     sql.NullInt32 `json:"directory_id"`
-	RoleID          sql.NullInt32 `json:"role_id"`
-	CreatedAt       time.Time     `json:"created_at"`
-	UpdatedAt       sql.NullTime  `json:"updated_at"`
-	DeletedAt       sql.NullTime  `json:"deleted_at"`
+	DirectoryRoleID int64            `json:"directory_role_id"`
+	DirectoryID     pgtype.Int4      `json:"directory_id"`
+	RoleID          pgtype.Int4      `json:"role_id"`
+	CreatedAt       pgtype.Timestamp `json:"created_at"`
+	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
+	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
 }
 
 type DirectoryTree struct {
-	DirectoryID int64          `json:"directory_id"`
-	ParentID    sql.NullInt32  `json:"parent_id"`
-	Name        sql.NullString `json:"name"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   sql.NullTime   `json:"updated_at"`
-	DeletedAt   sql.NullTime   `json:"deleted_at"`
+	DirectoryID int64            `json:"directory_id"`
+	ParentID    pgtype.Int4      `json:"parent_id"`
+	Name        pgtype.Text      `json:"name"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Document struct {
-	DocumentID  int64         `json:"document_id"`
-	DirectoryID int32         `json:"directory_id"`
-	FormatID    sql.NullInt32 `json:"format_id"`
-	Url         string        `json:"url"`
-	Status      Status        `json:"status"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   sql.NullTime  `json:"updated_at"`
-	DeletedAt   sql.NullTime  `json:"deleted_at"`
+	DocumentID  int64            `json:"document_id"`
+	DirectoryID int32            `json:"directory_id"`
+	FormatID    pgtype.Int4      `json:"format_id"`
+	Url         string           `json:"url"`
+	Status      Status           `json:"status"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 }
 
 type DocumentClient struct {
-	DocumentClientID int64        `json:"document_client_id"`
-	ClientID         int32        `json:"client_id"`
-	DocumentID       int32        `json:"document_id"`
-	Action           Action       `json:"action"`
-	CreatedAt        time.Time    `json:"created_at"`
-	UpdatedAt        sql.NullTime `json:"updated_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	DocumentClientID int64            `json:"document_client_id"`
+	ClientID         int32            `json:"client_id"`
+	DocumentID       int32            `json:"document_id"`
+	Action           Action           `json:"action"`
+	CreatedAt        pgtype.Timestamp `json:"created_at"`
+	UpdatedAt        pgtype.Timestamp `json:"updated_at"`
+	DeletedAt        pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Format struct {
-	FormatID        int64         `json:"format_id"`
-	UpdatedFormatID sql.NullInt32 `json:"updated_format_id"`
-	AsesorID        int32         `json:"asesor_id"`
-	FormatName      string        `json:"format_name"`
-	Description     string        `json:"description"`
-	Extension       Extensions    `json:"extension"`
-	Version         string        `json:"version"`
-	CreatedAt       time.Time     `json:"created_at"`
-	UpdatedAt       sql.NullTime  `json:"updated_at"`
-	DeletedAt       sql.NullTime  `json:"deleted_at"`
+	FormatID        int64            `json:"format_id"`
+	UpdatedFormatID pgtype.Int4      `json:"updated_format_id"`
+	AsesorID        int32            `json:"asesor_id"`
+	FormatName      string           `json:"format_name"`
+	Description     string           `json:"description"`
+	Extension       Extensions       `json:"extension"`
+	Version         string           `json:"version"`
+	CreatedAt       pgtype.Timestamp `json:"created_at"`
+	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
+	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Institution struct {
-	InstitutionID   int64          `json:"institution_id"`
-	AsesorID        sql.NullInt32  `json:"asesor_id"`
-	InstitutionName string         `json:"institution_name"`
-	Logo            sql.NullString `json:"logo"`
-	Description     string         `json:"description"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       sql.NullTime   `json:"updated_at"`
-	DeletedAt       sql.NullTime   `json:"deleted_at"`
+	InstitutionID   int64            `json:"institution_id"`
+	AsesorID        pgtype.Int4      `json:"asesor_id"`
+	InstitutionName string           `json:"institution_name"`
+	Logo            pgtype.Text      `json:"logo"`
+	Description     string           `json:"description"`
+	CreatedAt       pgtype.Timestamp `json:"created_at"`
+	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
+	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
 }
 
 type InstitutionClient struct {
-	InstitutionClientID int64        `json:"institution_client_id"`
-	ClientID            int32        `json:"client_id"`
-	InstitutionID       int32        `json:"institution_id"`
-	CreatedAt           time.Time    `json:"created_at"`
-	UpdatedAt           sql.NullTime `json:"updated_at"`
-	DeletedAt           sql.NullTime `json:"deleted_at"`
+	InstitutionClientID int64            `json:"institution_client_id"`
+	ClientID            int32            `json:"client_id"`
+	InstitutionID       int32            `json:"institution_id"`
+	CreatedAt           pgtype.Timestamp `json:"created_at"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
+	DeletedAt           pgtype.Timestamp `json:"deleted_at"`
 }
 
 type InstitutionService struct {
-	InstitutionServicesID int64        `json:"institution_services_id"`
-	InstitutionID         int32        `json:"institution_id"`
-	ServicesID            int32        `json:"services_id"`
-	CreatedAt             time.Time    `json:"created_at"`
-	UpdatedAt             sql.NullTime `json:"updated_at"`
-	DeletedAt             sql.NullTime `json:"deleted_at"`
-}
-
-type Membership struct {
-	MembershipID     int64         `json:"membership_id"`
-	MembershipTypeID sql.NullInt32 `json:"membership_type_id"`
-	CreatedAt        time.Time     `json:"created_at"`
-	FinishAt         time.Time     `json:"finish_at"`
-	UpdatedAt        sql.NullTime  `json:"updated_at"`
-	DeletedAt        sql.NullTime  `json:"deleted_at"`
-}
-
-type MembershipType struct {
-	MembershipTypeID int64        `json:"membership_type_id"`
-	MembershipName   string       `json:"membership_name"`
-	Users            int32        `json:"users"`
-	CreatedAt        time.Time    `json:"created_at"`
-	UpdatedAt        sql.NullTime `json:"updated_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	InstitutionID int32            `json:"institution_id"`
+	ServiceID     int32            `json:"service_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Permission struct {
-	PermissionID   int64        `json:"permission_id"`
-	PermissionType string       `json:"permission_type"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      sql.NullTime `json:"updated_at"`
-	DeletedAt      sql.NullTime `json:"deleted_at"`
+	PermissionID   int64            `json:"permission_id"`
+	PermissionType string           `json:"permission_type"`
+	CreatedAt      pgtype.Timestamp `json:"created_at"`
+	UpdatedAt      pgtype.Timestamp `json:"updated_at"`
+	DeletedAt      pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Role struct {
-	RoleID    int64        `json:"role_id"`
-	RoleName  string       `json:"role_name"`
-	CreatedAt time.Time    `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
+	RoleID    int64            `json:"role_id"`
+	RoleName  string           `json:"role_name"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
 type RolePermission struct {
-	RolePermissionID int64        `json:"role_permission_id"`
-	RoleID           int32        `json:"role_id"`
-	PermissionID     int32        `json:"permission_id"`
-	CreatedAt        time.Time    `json:"created_at"`
-	UpdatedAt        sql.NullTime `json:"updated_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	RolePermissionID int64            `json:"role_permission_id"`
+	RoleID           int32            `json:"role_id"`
+	PermissionID     int32            `json:"permission_id"`
+	CreatedAt        pgtype.Timestamp `json:"created_at"`
+	UpdatedAt        pgtype.Timestamp `json:"updated_at"`
+	DeletedAt        pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Service struct {
-	ServicesID  int64        `json:"services_id"`
-	ServiceName string       `json:"service_name"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   sql.NullTime `json:"updated_at"`
-	DeletedAt   sql.NullTime `json:"deleted_at"`
+	ServiceID   int64            `json:"service_id"`
+	ServiceName string           `json:"service_name"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 }
