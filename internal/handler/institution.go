@@ -53,8 +53,14 @@ func CreateInstitutionHandler(c *fiber.Ctx) error {
 }
 
 func UpdateInstitutionHandler(c *fiber.Ctx) error {
-
-	req := &cdto.UpdateInstitutionReq{}
+	params_id := c.AllParams()
+	req_id := &cdto.GetInstitutionReq{}
+	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	req := &cdto.UpdateInstitutionReq{
+		InstitutionID: req_id.InstitutionID,
+	}
 	params := c.FormValue("data")
 	if err := json.Unmarshal([]byte(params), &req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
