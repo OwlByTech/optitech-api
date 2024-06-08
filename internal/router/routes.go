@@ -4,7 +4,7 @@ import (
 	"optitech/internal/handler"
 )
 
-func (s Server) Routes() {
+func (s *Server) Routes() {
 	r := s.app
 	r.Group("/api")
 	r.Post("/client", handler.CreateClientHandler)
