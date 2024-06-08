@@ -11,7 +11,7 @@ type CreateInstitutionReq struct {
 }
 
 type CreateInstitutionRes struct {
-	Id              int64
+	InstitutionID   int64
 	InstitutionName string
 	Description     string
 	Services        []string

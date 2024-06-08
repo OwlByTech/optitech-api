@@ -5,16 +5,10 @@ import (
 )
 
 type UpdateInstitutionReq struct {
+	InstitutionID   int64
 	InstitutionName string `json:"institutionName" `
 	Description     string `json:"description"`
 	LogoFile        *multipart.FileHeader
 	AsesorID        int32    `json:"asesor_id"`
 	Services        []string `json:"services" `
-}
-
-type UpdateInstitutionRes struct {
-	Id              int64
-	InstitutionName string
-	Description     string
-	Services        []string
 }
