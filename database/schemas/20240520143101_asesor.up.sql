@@ -8,3 +8,4 @@ CREATE TABLE asesor (
   updated_at TIMESTAMP,
   deleted_at TIMESTAMP
 );
+

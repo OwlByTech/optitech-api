@@ -6,3 +6,4 @@ CREATE TABLE institution_client (
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
+
