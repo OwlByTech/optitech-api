@@ -2,21 +2,30 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/gofiber/fiber/v2"
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/institution"
-	"optitech/internal/service/institution"
-
-	"github.com/gofiber/fiber/v2"
+	"optitech/internal/interfaces"
 )
 
-func GetInstitutionHandler(c *fiber.Ctx) error {
+type handler_institution struct {
+	institutionService interfaces.IInstitutionService
+}
+
+func NewServiceInstitution(r interfaces.IInstitutionService) interfaces.IHandler {
+	return &handler_institution{
+		institutionService: r,
+	}
+}
+
+func (h *handler_institution) Get(c *fiber.Ctx) error {
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := service.GetInstitutionService(*req)
+	res, err := h.institutionService.Get(*req)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -25,9 +34,9 @@ func GetInstitutionHandler(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func ListInstitutionsHandler(c *fiber.Ctx) error {
+func (h *handler_institution) List(c *fiber.Ctx) error {
 
-	res, err := service.ListInstitutionsService()
+	res, err := h.institutionService.List()
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -35,7 +44,7 @@ func ListInstitutionsHandler(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func CreateInstitutionHandler(c *fiber.Ctx) error {
+func (h *handler_institution) Create(c *fiber.Ctx) error {
 
 	req := &cdto.CreateInstitutionReq{}
 	params := c.FormValue("data")
@@ -44,7 +53,7 @@ func CreateInstitutionHandler(c *fiber.Ctx) error {
 	}
 	file, err := c.FormFile("file")
 	req.LogoFile = file
-	res, err := service.CreateInstitutionService(*req)
+	res, err := h.institutionService.Create(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -52,7 +61,7 @@ func CreateInstitutionHandler(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func UpdateInstitutionHandler(c *fiber.Ctx) error {
+func (h *handler_institution) Update(c *fiber.Ctx) error {
 	params_id := c.AllParams()
 	req_id := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
@@ -67,7 +76,7 @@ func UpdateInstitutionHandler(c *fiber.Ctx) error {
 	}
 	file, err := c.FormFile("file")
 	req.LogoFile = file
-	res, err := service.UpdateInstitutionService(*req)
+	res, err := h.institutionService.Update(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -75,7 +84,7 @@ func UpdateInstitutionHandler(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func DeleteInstitutionHandler(c *fiber.Ctx) error {
+func (h *handler_institution) Delete(c *fiber.Ctx) error {
 
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}
@@ -83,7 +92,7 @@ func DeleteInstitutionHandler(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := service.DeleteInstitutionService(*req)
+	res, err := h.institutionService.Delete(*req)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
