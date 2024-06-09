@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Probabilidades y Costos</title>
+    <script src="node_modules/cytoscape/dist/cytoscape.min.js"></script>
+</head>
+
+<body>
+    <label for="CostoTotal">Costo Total:</label>
+    <input type="number" id="costoTotal" min="1"><br>
+    <label for="unidades">Número de Unidades:</label>
+    <input type="number" id="unidades" min="1"><br>
+    <label for="componentes">Número de Componentes:</label>
+    <input type="number" id="componentes" min="1"><br><br>
+
+    <button onclick="generarTablas()">Generar Tablas</button><br><br>
+
+    <div id="tablas"></div>
+    <button onclick="resolver()">Resolver</button> <!-- Botón para resolver y mostrar el grafo -->
+    <div id="grafo" style="width: 800px; height: 600px; background-color: white; border: 1px solid black;"></div>
+    <!-- Div para mostrar el grafo -->
+    <div id="rutaMasCorta"></div>
+
+
+    <script>
+        function generarTablas() {
+            var unidades = document.getElementById('unidades').value;
+            var componentes = document.getElementById('componentes').value;
+            var tablasHTML = '';
+
+            // Generar tabla de probabilidades
+            tablasHTML += '<h2>Tabla de Probabilidades</h2>';
+            tablasHTML += '<table id="tablaProbabilidades">';
+            tablasHTML += '<tr><th></th>';
+            for (var j = 1; j <= componentes; j++) {
+                tablasHTML += '<th>Componente ' + j + '</th>';
+            }
+            tablasHTML += '</tr>';
+            for (var i = 1; i <= unidades; i++) {
+                tablasHTML += '<tr>';
+                tablasHTML += '<td>Unidad ' + i + '</td>';
+                for (var k = 1; k <= componentes; k++) {
+                    tablasHTML += '<td><input type="number" step="0.01" id="prob_' + i + '_' + k + '"></td>';
+                }
+                tablasHTML += '</tr>';
+            }
+            tablasHTML += '</table>';
+
+            // Generar tabla de costos
+            tablasHTML += '<h2>Tabla de Costos</h2>';
+            tablasHTML += '<table id="tablaCostos">';
+            tablasHTML += '<tr><th></th>';
+            for (var l = 1; l <= componentes; l++) {
+                tablasHTML += '<th>Componente ' + l + '</th>';
+            }
+            tablasHTML += '</tr>';
+            for (var m = 1; m <= unidades; m++) {
+                tablasHTML += '<tr>';
+                tablasHTML += '<td>Unidad ' + m + '</td>';
+                for (var n = 1; n <= componentes; n++) {
+                    tablasHTML += '<td><input type="number" id="costo_' + m + '_' + n + '"></td>';
+                }
+                tablasHTML += '</tr>';
+            }
+            tablasHTML += '</table>';
+
+            document.getElementById('tablas').innerHTML = tablasHTML;
+        }
+
+        function resolver() {
+            var costoTotal = parseInt(document.getElementById('costoTotal').value);
+            var unidades = parseInt(document.getElementById('unidades').value);
+            var componentes = parseInt(document.getElementById('componentes').value);
+            var cy = cytoscape({
+                container: document.getElementById('grafo'),
+                elements: [],
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': '#666',
+                            'label': function (node) {
+                                return 'Costo: ' + node.data('costo');
+                            }
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 3,
+                            'line-color': '#ccc',
+                            'target-arrow-color': '#ccc',
+                            'target-arrow-shape': 'triangle',
+                            'label': function (edge) {
+                                return 'Probabilidad: ' + edge.data('probabilidad');
+                            }
+                        }
+                    }
+                ]
+            });
+
+            var nodoInicialId = '0';
+            cy.add({ // Agregar nodo inicial
+                group: 'nodes',
+                data: { id: nodoInicialId, costo: costoTotal }
+            });
+
+            var costoRestante = costoTotal;
+
+            for (var c = 1; c <= componentes; c++) {
+                var nodoAnteriorId = nodoInicialId; // Nodo inicial como nodo anterior
+
+                for (var i = 1; i <= unidades; i++) {
+                    // Calcular el costo actual restando el costo del componente actual
+                    var costoComponente = parseInt(document.getElementById('costo_' + i + '_' + c).value);
+                    var costoEtapaActual = costoRestante - costoComponente;
+
+                    // Verificar si ya existe un nodo con el mismo costo
+                    var nodoExistente = cy.nodes().filter(function (node) {
+                        return node.data('costo') === costoEtapaActual;
+                    });
+
+                    if (nodoExistente.nonempty()) { // Si ya existe, conectar con ese nodo
+                        var nodoExistenteId = nodoExistente.first().id();
+                        var nodoActualId = 'C' + c + '_U' + i;
+
+                        cy.add({ // Agregar arista entre nodo existente y nodo actual
+                            group: 'edges',
+                            data: {
+                                id: nodoAnteriorId + '-' + nodoExistenteId,
+                                source: nodoAnteriorId,
+                                target: nodoExistenteId,
+                                costo: costoComponente,
+                                probabilidad: parseFloat(document.getElementById('prob_' + i + '_' + c).value)
+                            }
+                        });
+
+                        nodoAnteriorId = nodoExistenteId; // Actualizar el nodo anterior
+                    } else { // Si no existe, crear uno nuevo
+                        var nodoActualId = 'C' + c + '_U' + i;
+                        cy.add({ // Agregar nodo actual
+                            group: 'nodes',
+                            data: { id: nodoActualId, costo: costoEtapaActual }
+                        });
+
+                        if (c > 1) { // Conectar con nodos de la etapa anterior
+                            for (var j = 1; j <= unidades; j++) {
+                                var nodoAnteriorIdComponenteAnterior = 'C' + (c - 1) + '_U' + j;
+                                var costoNodoAnterior = cy.getElementById(nodoAnteriorIdComponenteAnterior).data('costo');
+                                var costoEtapaAnterior = costoNodoAnterior - costoComponente; // Calcular costo de la etapa anterior
+
+                                var nodoEtapaAnteriorId = 'C' + (c - 1) + '_U' + j + '_C' + c + '_U' + i;
+
+                                cy.add({ // Agregar nodo de la etapa anterior
+                                    group: 'nodes',
+                                    data: { id: nodoEtapaAnteriorId, costo: costoEtapaAnterior }
+                                });
+
+                                cy.add({ // Agregar arista entre nodos de la etapa anterior y actual
+                                    group: 'edges',
+                                    data: {
+                                        id: nodoAnteriorIdComponenteAnterior + '-' + nodoEtapaAnteriorId,
+                                        source: nodoAnteriorIdComponenteAnterior,
+                                        target: nodoEtapaAnteriorId,
+                                        costo: costoComponente,
+                                        probabilidad: parseFloat(document.getElementById('prob_' + i + '_' + c).value)
+                                    }
+                                });
+                            }
+                        } else { // Conectar con el nodo inicial
+                            cy.add({ // Agregar arista entre nodo inicial y nodos de la primera etapa
+                                group: 'edges',
+                                data: {
+                                    id: nodoInicialId + '-' + nodoActualId,
+                                    source: nodoInicialId,
+                                    target: nodoActualId,
+                                    costo: costoComponente,
+                                    probabilidad: parseFloat(document.getElementById('prob_' + i + '_' + c).value)
+                                }
+                            });
+                        }
+
+                        nodoAnteriorId = nodoActualId; // Actualizar el nodo anterior
+                    }
+                }
+
+                costoRestante = costoEtapaActual; // Actualizar el costo restante para la siguiente etapa
+            }
+            limpiarNodosSinConexion(cy);
+            calcularRutas(cy);
+        }
+
+        function limpiarNodosSinConexion(cy) {
+            cy.nodes().forEach(function (node) {
+                if (node.connectedEdges().length === 0) {
+                    cy.remove(node);
+                }
+            });
+        }
+
+        function calcularRutas(cy) {
+            var startNode = cy.getElementById('0');
+            var endNodes = cy.nodes().not('#0');
+            var todasLasRutas = [];
+
+            endNodes.forEach(function (endNode) {
+                encontrarRutas(startNode, endNode, [], [], todasLasRutas);
+            });
+
+            var rutaMasCorta = null;
+            var menorProbabilidadTotal = Number.POSITIVE_INFINITY;
+
+            todasLasRutas.forEach(function (ruta) {
+                var probabilidadTotal = 1;
+                var costoTotal = 0;
+
+                ruta.forEach(function (element) {
+                    if (element.type === 'node') {
+                        costoTotal += element.costo;
+                    } else if (element.type === 'edge') {
+                        probabilidadTotal *= element.probabilidad;
+                        costoTotal += element.costo;
+                    }
+                });
+
+                if (probabilidadTotal < menorProbabilidadTotal) {
+                    menorProbabilidadTotal = probabilidadTotal;
+                    rutaMasCorta = ruta;
+                }
+            });
+
+            mostrarRutaMasCorta(todasLasRutas);
+        }
+
+        function encontrarRutas(nodoActual, nodoFinal, rutaActual, nodosVisitados, todasLasRutas) {
+            if (nodoActual.id() === nodoFinal.id()) {
+                todasLasRutas.push(rutaActual.slice()); // Clonar la ruta actual y agregarla a todas las rutas
+            } else {
+                nodosVisitados.push(nodoActual.id());
+                nodoActual.outgoers('edge').forEach(function (arista) {
+                    var nodoSiguiente = arista.target();
+                    if (!nodosVisitados.includes(nodoSiguiente.id())) {
+                        rutaActual.push({ type: 'node', id: nodoActual.id(), costo: nodoActual.data('costo') });
+                        rutaActual.push({ type: 'edge', id: arista.id(), costo: arista.data('costo'), probabilidad: arista.data('probabilidad') });
+                        encontrarRutas(nodoSiguiente, nodoFinal, rutaActual, nodosVisitados, todasLasRutas);
+                        rutaActual.pop(); // Eliminar la arista de la ruta actual
+                        rutaActual.pop(); // Eliminar el nodo de la ruta actual
+                    }
+                });
+                nodosVisitados.pop(); // Eliminar el nodo actual de la lista de nodos visitados
+            }
+            return todasLasRutas;
+        }
+
+        function mostrarRutaMasCorta(todasLasRutas) {
+            var rutaMasCortaHTML = '<h2>Rutas más cortas desde el nodo inicial hasta todos los nodos finales:</h2>';
+            var rutaMasProbable = null;
+            var mayorProbabilidadTotal = 0;
+
+            if (!todasLasRutas || todasLasRutas.length === 0) {
+                rutaMasCortaHTML += '<p>No se encontraron rutas.</p>';
+            } else {
+                todasLasRutas.forEach(function (ruta, index) {
+                    // Verificar si la ruta comienza desde el nodo inicial (0)
+                    if (ruta[0].id === '0') {
+                        var costoTotal = 0;
+                        var probabilidadTotal = 1;
+
+                        rutaMasCortaHTML += (index + 1) + '. '; // Agregar numeración
+                        ruta.forEach(function (element) {
+                            if (element.type === 'node') {
+                                rutaMasCortaHTML += 'Nodo: ' + element.id + ' (Costo: ' + element.costo + ') -> ';
+                                costoTotal += element.costo;
+                            } else if (element.type === 'edge') {
+                                rutaMasCortaHTML += 'Arista: ' + element.id + ' (Costo: ' + element.costo + ', Probabilidad: ' + element.probabilidad + ') -> ';
+                                costoTotal += element.costo;
+                                probabilidadTotal *= element.probabilidad;
+                            }
+                        });
+
+                        rutaMasCortaHTML = rutaMasCortaHTML.slice(0, -4); // Eliminar el último " -> "
+                        rutaMasCortaHTML += '<br>Costo total: ' + costoTotal;
+                        rutaMasCortaHTML += '<br>Probabilidad total: ' + probabilidadTotal.toFixed(6) + '<br>';
+
+                        // Actualizar la ruta más probable
+                        if (probabilidadTotal > mayorProbabilidadTotal) {
+                            mayorProbabilidadTotal = probabilidadTotal;
+                            rutaMasProbable = index + 1; // Almacenar el número de la ruta más probable
+                        }
+                    }
+                });
+            }
+
+            // Agregar mensaje de la ruta más probable
+            if (rutaMasProbable) {
+                var mensajeRutaMasProbable = 'Ruta más probable es: Ruta ' + (rutaMasProbable ) + ' con probabilidad total de ' + mayorProbabilidadTotal.toFixed(6);
+                rutaMasCortaHTML += '<br><br>' + mensajeRutaMasProbable;
+            }
+
+            document.getElementById('rutaMasCorta').innerHTML = rutaMasCortaHTML;
+        }
+
+    </script>
+
+    <div id="cy" style="width: 600px; height: 400px;"></div> <!-- Div para mostrar el grafo -->
+</body>
+
+</html>
