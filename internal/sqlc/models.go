@@ -296,3 +296,20 @@ type Service struct {
 	UpdatedAt   sql.NullTime `json:"updated_at"`
 	DeletedAt   sql.NullTime `json:"deleted_at"`
 }
+
+type Standard struct {
+	StandardID int64          `json:"standard_id"`
+	ServiceID  int32          `json:"service_id"`
+	Standard   string         `json:"standard"`
+	Complexity sql.NullString `json:"complexity"`
+	Modality   string         `json:"modality"`
+	Article    string         `json:"article"`
+	Section    string         `json:"section"`
+	Paragraph  sql.NullString `json:"paragraph"`
+	Criteria   string         `json:"criteria"`
+	Comply     sql.NullBool   `json:"comply"`
+	Applys     sql.NullBool   `json:"applys"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  sql.NullTime   `json:"updated_at"`
+	DeletedAt  sql.NullTime   `json:"deleted_at"`
+}

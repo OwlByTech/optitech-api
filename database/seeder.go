@@ -21,6 +21,12 @@ func (s SeederUp) Execute() error {
 	if err := seeders.RoleUp("database/json_data/role.json"); err != nil {
 		return err
 	}
+	if err := seeders.ServiceUp("database/json_data/services.json"); err != nil {
+		return err
+	}
+	if err := seeders.StandardUp("database/json_data/standards.json"); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -31,6 +37,12 @@ func (s SeederDown) Execute() error {
 		return err
 	}
 	if err := seeders.RoleDown(); err != nil {
+		return err
+	}
+	if err := seeders.ServiceDown(); err != nil {
+		return err
+	}
+	if err := seeders.StandardDown(); err != nil {
 		return err
 	}
 	return nil
