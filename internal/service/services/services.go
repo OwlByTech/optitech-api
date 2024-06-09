@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+type service_institution struct{}
+
+func NewInstitutionService() *service_institution {
+	return &service_institution{}
+}
+
 func GetService(req dto.GetServiceReq) (*dto.GetServiceRes, error) {
 	ctx := context.Background()
 

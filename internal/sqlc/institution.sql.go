@@ -58,19 +58,19 @@ func (q *Queries) DeleteAllInstitutions(ctx context.Context, deletedAt pgtype.Ti
 	return err
 }
 
-const deleteInstitutionById = `-- name: DeleteInstitutionById :exec
+const deleteInstitution = `-- name: DeleteInstitution :exec
 UPDATE institution
 SET deleted_at = $2
 WHERE institution_id = $1 AND deleted_at IS NULL
 `
 
-type DeleteInstitutionByIdParams struct {
+type DeleteInstitutionParams struct {
 	InstitutionID int64            `json:"institution_id"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
-func (q *Queries) DeleteInstitutionById(ctx context.Context, arg DeleteInstitutionByIdParams) error {
-	_, err := q.db.Exec(ctx, deleteInstitutionById, arg.InstitutionID, arg.DeletedAt)
+func (q *Queries) DeleteInstitution(ctx context.Context, arg DeleteInstitutionParams) error {
+	_, err := q.db.Exec(ctx, deleteInstitution, arg.InstitutionID, arg.DeletedAt)
 	return err
 }
 
@@ -148,13 +148,13 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 	return items, nil
 }
 
-const updateInstitutionById = `-- name: UpdateInstitutionById :exec
+const updateInstitution = `-- name: UpdateInstitution :exec
 UPDATE institution
 SET institution_name = $2, logo = $3, description = $4,  updated_at=$5,asesor_id= $6
 WHERE institution_id = $1
 `
 
-type UpdateInstitutionByIdParams struct {
+type UpdateInstitutionParams struct {
 	InstitutionID   int64            `json:"institution_id"`
 	InstitutionName string           `json:"institution_name"`
 	Logo            pgtype.Text      `json:"logo"`
@@ -163,8 +163,8 @@ type UpdateInstitutionByIdParams struct {
 	AsesorID        pgtype.Int4      `json:"asesor_id"`
 }
 
-func (q *Queries) UpdateInstitutionById(ctx context.Context, arg UpdateInstitutionByIdParams) error {
-	_, err := q.db.Exec(ctx, updateInstitutionById,
+func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionParams) error {
+	_, err := q.db.Exec(ctx, updateInstitution,
 		arg.InstitutionID,
 		arg.InstitutionName,
 		arg.Logo,
