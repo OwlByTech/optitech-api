@@ -1,0 +1,123 @@
+[
+    {
+      "service_name": "TODOS LOS SERVICIOS"
+    },
+    {
+      "service_name": "CONSULTA EXTERNA GENERAL"
+    },
+    {
+      "service_name": "CONSULTA EXTERNA ESPECIALIZADA"
+    },
+    {
+      "service_name": "VACUNACIÓN"
+    },
+    {
+      "service_name": "SEGURIDAD Y SALUD EN EL TRABAJO"
+    },
+    {
+      "service_name": "TERAPIAS"
+    },
+    {
+      "service_name": "SERVICIO FARMACEUTICO"
+    },
+    {
+      "service_name": "RADIOLOGÍA ODONTOLÓGICA"
+    },
+    {
+      "service_name": "IMÁGENES DIAGNÓSTICAS - METODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS MEDIANTE EQUIPOS GENERADORES DE RADIACIONES IONIZANTES"
+    },
+    {
+      "service_name": "IMÁGENES DIAGNÓSTICAS - MÉTODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS MEDIANTE EQUIPOS GENERADORES DE RADIACIONES NO IONIZANTES"
+    },
+    {
+      "service_name": "MEDICINA NUCLEAR"
+    },
+    {
+      "service_name": "RADIOTERAPIA"
+    },
+    {
+      "service_name": "QUIMIOTERAPIA"
+    },
+    {
+      "service_name": "DIAGNÓSTICO VASCULAR"
+    },
+    {
+      "service_name": "HEMODINAMIA E INTERVENCIONISMO"
+    },
+    {
+      "service_name": "GESTIÓN PRE TRANSFUSIONAL"
+    },
+    {
+      "service_name": "TOMA DE MUESTRAS DE LABORATORIO CLÍNICO"
+    },
+    {
+      "service_name": "LABORATORIO CLÍNICO"
+    },
+    {
+      "service_name": "TOMA DE MUESTRAS DE CUELLO UTERINO Y GINECOLÓGICAS"
+    },
+    {
+      "service_name": "LABORATORIO DE CITOLOGÍAS CERVICO-UTERINAS"
+    },
+    {
+      "service_name": "LABORATORIO DE HISTOTECNOLOGÍA"
+    },
+    {
+      "service_name": "PATOLOGÍA"
+    },
+    {
+      "service_name": "DIÁLISIS"
+    },
+    {
+      "service_name": "HOSPITALIZACIÓN"
+    },
+    {
+      "service_name": "HOSPITALIZACIÓN PACIENTE CRÓNICO"
+    },
+    {
+      "service_name": "CUIDADO BÁSICO NEONATAL"
+    },
+    {
+      "service_name": "CUIDADO INTERMEDIO NEONATAL"
+    },
+    {
+      "service_name": "CUIDADO INTENSIVO NEONATAL"
+    },
+    {
+      "service_name": "CUIDADO INTERMEDIO PEDIÁTRICO"
+    },
+    {
+      "service_name": "CUIDADO INTENSIVO PEDIÁTRICO"
+    },
+    {
+      "service_name": "CUIDADO INTERMEDIO ADULTO"
+    },
+    {
+      "service_name": "ATENCIÓN DEL PARTO"
+    },
+    {
+      "service_name": "CUIDADO INTENSIVO ADULTOS"
+    },
+    {
+      "service_name": "HOSPITALIZACIÓN EN SALUD MENTAL O CONSUMO DE SUSTANCIAS PSICOACTIVAS"
+    },
+    {
+      "service_name": "HOSPITALIZACIÓN PARCIAL"
+    },
+    {
+      "service_name": "CUIDADO BÁSICO DEL CONSUMO DE SUSTANCIAS PSICOACTIVAS"
+    },
+    {
+      "service_name": "CIRUGÍA"
+    },
+    {
+      "service_name": "URGENCIAS"
+    },
+    {
+      "service_name": "TRANSPORTE ASISTENCIAL"
+    },
+    {
+      "service_name": "ATENCIÓN PREHOSPITALARIA"
+    }
+  ]
+  
