@@ -1,22 +1,27 @@
 package service
 
 import (
-	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgtype"
 	"io"
 	dto "optitech/internal/dto/institution"
-	"optitech/internal/repository"
+	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"os"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func GetInstitutionService(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
-	ctx := context.Background()
+type service_institution struct {
+	institutionRepository interfaces.IInstitutionRepository
+}
 
-	repoRes, err := repository.Queries.GetInstitution(ctx, req.InstitutionID)
+func NewServiceInstitution(r interfaces.IInstitutionRepository) interfaces.IInstitutionService {
+	return &service_institution{
+		institutionRepository: r,
+	}
+}
+func (s *service_institution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
+	repoRes, err := s.institutionRepository.GetInstitution(req.InstitutionID)
 
 	if err != nil {
 		return nil, err
@@ -29,31 +34,17 @@ func GetInstitutionService(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, e
 	}, nil
 }
 
-func ListInstitutionsService() ([]*dto.GetInstitutionRes, error) {
-	ctx := context.Background()
-	repoRes, err := repository.Queries.ListInstitutions(ctx)
+func (s *service_institution) List() ([]*dto.GetInstitutionRes, error) {
+	repoRes, err := s.institutionRepository.ListInstitutions()
 	if err != nil {
 		return nil, err
 	}
 
-	institutions := make([]*dto.GetInstitutionRes, len(repoRes))
-	for i, inst := range repoRes {
-		services := []string{}
-		institutions[i] = &dto.GetInstitutionRes{
-			InstitutionID:   inst.InstitutionID,
-			Description:     inst.Description,
-			InstitutionName: inst.InstitutionName,
-			Logo:            inst.Logo.String,
-			Services:        services,
-		}
-	}
-
-	return institutions, nil
+	return repoRes, nil
 }
 
-func CreateInstitutionService(req dto.CreateInstitutionReq) (*sq.Institution, error) {
-	ctx := context.Background()
-	repoReq := sq.CreateInstitutionParams{
+func (s *service_institution) Create(req *dto.CreateInstitutionReq) (*dto.CreateInstitutionRes, error) {
+	repoReq := &sq.CreateInstitutionParams{
 		InstitutionName: req.InstitutionName,
 		Description:     req.Description,
 		CreatedAt:       pgtype.Timestamp{Time: time.Now(), Valid: true},
@@ -83,18 +74,17 @@ func CreateInstitutionService(req dto.CreateInstitutionReq) (*sq.Institution, er
 		repoReq.AsesorID = pgtype.Int4{Int32: req.AsesorID, Valid: true}
 	}
 
-	r, err := repository.Queries.CreateInstitution(ctx, repoReq)
+	r, err := s.institutionRepository.CreateInstitution(repoReq)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &r, nil
+	return r, nil
 }
 
-func UpdateInstitutionService(req dto.UpdateInstitutionReq) (bool, error) {
-	ctx := context.Background()
-	repoReq := sq.UpdateInstitutionByIdParams{
+func (s *service_institution) Update(req *dto.UpdateInstitutionReq) (bool, error) {
+	repoReq := &sq.UpdateInstitutionParams{
 		InstitutionID: req.InstitutionID,
 	}
 	if req.AsesorID < 0 {
@@ -127,7 +117,7 @@ func UpdateInstitutionService(req dto.UpdateInstitutionReq) (bool, error) {
 		repoReq.Logo = pgtype.Text{String: nameFile, Valid: true}
 	}
 
-	err := repository.Queries.UpdateInstitutionById(ctx, repoReq)
+	err := s.institutionRepository.UpdateInstitution(repoReq)
 
 	if err != nil {
 		return false, err
@@ -136,14 +126,13 @@ func UpdateInstitutionService(req dto.UpdateInstitutionReq) (bool, error) {
 	return true, nil
 }
 
-func DeleteInstitutionService(req dto.GetInstitutionReq) (bool, error) {
-	ctx := context.Background()
-	repoReq := sq.DeleteInstitutionByIdParams{
+func (s *service_institution) Delete(req dto.GetInstitutionReq) (bool, error) {
+	repoReq := &sq.DeleteInstitutionParams{
 		InstitutionID: req.InstitutionID,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	err := repository.Queries.DeleteInstitutionById(ctx, repoReq)
+	err := s.institutionRepository.DeleteInstitution(repoReq)
 
 	if err != nil {
 		return false, err
