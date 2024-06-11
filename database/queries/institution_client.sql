@@ -1,32 +1,34 @@
 -- name: GetInstitutionClient :one
 SELECT * FROM institution_client
-WHERE institution_client_id = $1 LIMIT 1;
+WHERE client_id = $1 AND institution_id=$2 and deleted_at IS NULL;
 
 -- name: ListInstitutionClients :many
-SELECT * FROM institution_client
-ORDER BY institution_client_id;
+SELECT client.given_name,client.surname ,institution_client.client_id FROM institution_client
+INNER JOIN client ON institution_client.client_id=client_id.client_id
+WHERE  institution_client.institution_id=$1;
 
--- name: GetInstitutionClientByName :one
-SELECT client_id, institution_id
-FROM institution_client
-WHERE institution_client_id = $1;
 
--- name: CreateInstitutionClient :one
+-- name: CreateInstitutionClient :copyfrom
 INSERT INTO institution_client(client_id, institution_id, created_at)
-VALUES ($1, $2, $3)
-RETURNING *;
+VALUES ($1, $2, $3);
 
--- name: UpdateInstitutionClientById :exec
+-- name: ExistsInstitutionClient :one
+SELECT * FROM institution_client
+WHERE client_id = $1 AND institution_id=$2 and deleted_at IS NOT NULL ;
+
+
+-- name: RecoverInstitutionClient :exec
 UPDATE institution_client
-SET client_id = $2, institution_id = $3, updated_at = $4
-WHERE institution_client_id = $1;
+SET deleted_at = NULL,updated_at= $2
+WHERE institution_id= $1 AND client_id= $3 ;
 
--- name: DeleteinstInstitutionClientById :exec
+
+-- name: DeleteinstInstitutionClientByClientAndInstitution :exec
 UPDATE institution_client
 SET deleted_at = $2
-WHERE institution_client_id = $1;
+WHERE institution_id= $1 AND client_id= $3 ;
 
--- name: DeleteAllInstitutionClient :execresult
+-- name: DeleteInstitutionClientByInstitution :exec
 UPDATE institution_client
-SET deleted_at = $1
-WHERE deleted_at IS NULL;
+SET deleted_at = $2
+WHERE institution_id = $1;

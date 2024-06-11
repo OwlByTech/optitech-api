@@ -1,8 +1,8 @@
--- name: GetServices :one
+-- name: GetService :one
 SELECT * FROM services
 WHERE service_id = $1 LIMIT 1;
 
--- name: ListServicess :many
+-- name: ListServices :many
 SELECT * FROM services
 ORDER BY service_id;
 
@@ -11,17 +11,17 @@ SELECT service_name
 FROM services
 WHERE service_id = $1;
 
--- name: CreateServices :one
+-- name: CreateService :one
 INSERT INTO services(service_name, created_at)
 VALUES ($1, $2)
 RETURNING *;
 
--- name: UpdateServicesById :exec
+-- name: UpdateService :exec
 UPDATE services
 SET service_name = $2, updated_at = $3
 WHERE service_id = $1;
 
--- name: DeleteServicesById :exec
+-- name: DeleteService :exec
 UPDATE services
 SET deleted_at = $2
 WHERE service_id = $1;
