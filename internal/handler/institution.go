@@ -12,7 +12,7 @@ type handler_institution struct {
 	institutionService interfaces.IInstitutionService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionService) interfaces.IHandler {
+func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IHandler {
 	return &handler_institution{
 		institutionService: r,
 	}
