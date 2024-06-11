@@ -233,7 +233,7 @@ type Format struct {
 }
 
 type Institution struct {
-	InstitutionID   int64            `json:"institution_id"`
+	InstitutionID   int32            `json:"institution_id"`
 	AsesorID        pgtype.Int4      `json:"asesor_id"`
 	InstitutionName string           `json:"institution_name"`
 	Logo            pgtype.Text      `json:"logo"`
@@ -244,12 +244,11 @@ type Institution struct {
 }
 
 type InstitutionClient struct {
-	InstitutionClientID int64            `json:"institution_client_id"`
-	ClientID            int32            `json:"client_id"`
-	InstitutionID       int32            `json:"institution_id"`
-	CreatedAt           pgtype.Timestamp `json:"created_at"`
-	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
-	DeletedAt           pgtype.Timestamp `json:"deleted_at"`
+	ClientID      int32            `json:"client_id"`
+	InstitutionID int32            `json:"institution_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 type InstitutionService struct {
@@ -286,7 +285,7 @@ type RolePermission struct {
 }
 
 type Service struct {
-	ServiceID   int64            `json:"service_id"`
+	ServiceID   int32            `json:"service_id"`
 	ServiceName string           `json:"service_name"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`

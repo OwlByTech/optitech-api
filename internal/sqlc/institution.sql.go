@@ -65,7 +65,7 @@ WHERE institution_id = $1 AND deleted_at IS NULL
 `
 
 type DeleteInstitutionParams struct {
-	InstitutionID int64            `json:"institution_id"`
+	InstitutionID int32            `json:"institution_id"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -79,7 +79,7 @@ SELECT institution_id, asesor_id, institution_name, logo, description, created_a
 WHERE institution_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetInstitution(ctx context.Context, institutionID int64) (Institution, error) {
+func (q *Queries) GetInstitution(ctx context.Context, institutionID int32) (Institution, error) {
 	row := q.db.QueryRow(ctx, getInstitution, institutionID)
 	var i Institution
 	err := row.Scan(
@@ -155,7 +155,7 @@ WHERE institution_id = $1
 `
 
 type UpdateInstitutionParams struct {
-	InstitutionID   int64            `json:"institution_id"`
+	InstitutionID   int32            `json:"institution_id"`
 	InstitutionName string           `json:"institution_name"`
 	Logo            pgtype.Text      `json:"logo"`
 	Description     string           `json:"description"`

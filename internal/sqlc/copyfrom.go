@@ -9,13 +9,13 @@ import (
 	"context"
 )
 
-// iteratorForCreateInstitutionService implements pgx.CopyFromSource.
-type iteratorForCreateInstitutionService struct {
-	rows                 []CreateInstitutionServiceParams
+// iteratorForCreateInstitutionClient implements pgx.CopyFromSource.
+type iteratorForCreateInstitutionClient struct {
+	rows                 []CreateInstitutionClientParams
 	skippedFirstNextCall bool
 }
 
-func (r *iteratorForCreateInstitutionService) Next() bool {
+func (r *iteratorForCreateInstitutionClient) Next() bool {
 	if len(r.rows) == 0 {
 		return false
 	}
@@ -27,7 +27,41 @@ func (r *iteratorForCreateInstitutionService) Next() bool {
 	return len(r.rows) > 0
 }
 
-func (r iteratorForCreateInstitutionService) Values() ([]interface{}, error) {
+func (r iteratorForCreateInstitutionClient) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].ClientID,
+		r.rows[0].InstitutionID,
+		r.rows[0].CreatedAt,
+	}, nil
+}
+
+func (r iteratorForCreateInstitutionClient) Err() error {
+	return nil
+}
+
+func (q *Queries) CreateInstitutionClient(ctx context.Context, arg []CreateInstitutionClientParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"institution_client"}, []string{"client_id", "institution_id", "created_at"}, &iteratorForCreateInstitutionClient{rows: arg})
+}
+
+// iteratorForCreateInstitutionServices implements pgx.CopyFromSource.
+type iteratorForCreateInstitutionServices struct {
+	rows                 []CreateInstitutionServicesParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForCreateInstitutionServices) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForCreateInstitutionServices) Values() ([]interface{}, error) {
 	return []interface{}{
 		r.rows[0].InstitutionID,
 		r.rows[0].ServiceID,
@@ -35,10 +69,10 @@ func (r iteratorForCreateInstitutionService) Values() ([]interface{}, error) {
 	}, nil
 }
 
-func (r iteratorForCreateInstitutionService) Err() error {
+func (r iteratorForCreateInstitutionServices) Err() error {
 	return nil
 }
 
-func (q *Queries) CreateInstitutionService(ctx context.Context, arg []CreateInstitutionServiceParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"institution_services"}, []string{"institution_id", "service_id", "created_at"}, &iteratorForCreateInstitutionService{rows: arg})
+func (q *Queries) CreateInstitutionServices(ctx context.Context, arg []CreateInstitutionServicesParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"institution_services"}, []string{"institution_id", "service_id", "created_at"}, &iteratorForCreateInstitutionServices{rows: arg})
 }
