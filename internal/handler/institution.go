@@ -8,17 +8,17 @@ import (
 	"optitech/internal/interfaces"
 )
 
-type handler_institution struct {
+type handlerInstitution struct {
 	institutionService interfaces.IInstitutionService
 }
 
 func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IHandler {
-	return &handler_institution{
+	return &handlerInstitution{
 		institutionService: r,
 	}
 }
 
-func (h *handler_institution) Get(c *fiber.Ctx) error {
+func (h *handlerInstitution) Get(c *fiber.Ctx) error {
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
@@ -34,7 +34,7 @@ func (h *handler_institution) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (h *handler_institution) List(c *fiber.Ctx) error {
+func (h *handlerInstitution) List(c *fiber.Ctx) error {
 
 	res, err := h.institutionService.List()
 	if err != nil {
@@ -44,7 +44,7 @@ func (h *handler_institution) List(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (h *handler_institution) Create(c *fiber.Ctx) error {
+func (h *handlerInstitution) Create(c *fiber.Ctx) error {
 
 	req := &cdto.CreateInstitutionReq{}
 	params := c.FormValue("data")
@@ -61,7 +61,7 @@ func (h *handler_institution) Create(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (h *handler_institution) Update(c *fiber.Ctx) error {
+func (h *handlerInstitution) Update(c *fiber.Ctx) error {
 	params_id := c.AllParams()
 	req_id := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
@@ -84,7 +84,7 @@ func (h *handler_institution) Update(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (h *handler_institution) Delete(c *fiber.Ctx) error {
+func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
 
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}

@@ -7,17 +7,17 @@ import (
 	"optitech/internal/interfaces"
 )
 
-type handler_service struct {
+type handlerService struct {
 	serviceService interfaces.IService
 }
 
-func NewHandlerService(r interfaces.IService) interfaces.IHandler {
-	return &handler_service{
+func NewHandlerService(r interfaces.IService) interfaces.IServiceHandler {
+	return &handlerService{
 		serviceService: r,
 	}
 }
 
-func (h *handler_service) Get(c *fiber.Ctx) error {
+func (h *handlerService) Get(c *fiber.Ctx) error {
 	params := c.AllParams()
 	req := &cdto.GetServiceReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
@@ -33,7 +33,7 @@ func (h *handler_service) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (h *handler_service) List(c *fiber.Ctx) error {
+func (h *handlerService) List(c *fiber.Ctx) error {
 
 	res, err := h.serviceService.List()
 	if err != nil {
@@ -41,59 +41,4 @@ func (h *handler_service) List(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(res)
-}
-
-func (h *handler_service) Create(c *fiber.Ctx) error {
-
-	req := &cdto.CreateServiceReq{}
-	err := c.BodyParser(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	err = dto.ValidateDTO(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	res, err := h.serviceService.Create(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(res)
-}
-func (h *handler_service) Update(c *fiber.Ctx) error {
-
-	req := &cdto.CreateServiceReq{}
-	err := c.BodyParser(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	err = dto.ValidateDTO(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	res, err := h.serviceService.Create(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(res)
-}
-
-func (h *handler_service) Delete(c *fiber.Ctx) error {
-
-	params := c.AllParams()
-	req := &cdto.GetServiceReq{}
-	if err := dto.ValidateParamsToDTO(params, req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	res, err := h.serviceService.Delete(*req)
-
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(res)
-
 }
