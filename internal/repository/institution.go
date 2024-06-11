@@ -17,7 +17,7 @@ func NewRepositoryInstitution(q *sq.Queries) interfaces.IInstitutionRepository {
 	}
 }
 
-func (r *repository_institution) GetInstitution(InstitutionID int64) (*dto.GetInstitutionRes, error) {
+func (r *repository_institution) GetInstitution(InstitutionID int32) (*dto.GetInstitutionRes, error) {
 	ctx := context.Background()
 	repoRes, err := r.institutionRepository.GetInstitution(ctx, InstitutionID)
 
@@ -31,17 +31,17 @@ func (r *repository_institution) GetInstitution(InstitutionID int64) (*dto.GetIn
 	}, nil
 }
 
-func (r *repository_institution) ListInstitutions() ([]*dto.GetInstitutionRes, error) {
+func (r *repository_institution) ListInstitutions() (*[]dto.GetInstitutionRes, error) {
 	ctx := context.Background()
 	repoRes, err := r.institutionRepository.ListInstitutions(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	institutions := make([]*dto.GetInstitutionRes, len(repoRes))
+	institutions := make([]dto.GetInstitutionRes, len(repoRes))
 	for i, inst := range repoRes {
 		services := []string{}
-		institutions[i] = &dto.GetInstitutionRes{
+		institutions[i] = dto.GetInstitutionRes{
 			InstitutionID:   inst.InstitutionID,
 			Description:     inst.Description,
 			InstitutionName: inst.InstitutionName,
@@ -50,7 +50,7 @@ func (r *repository_institution) ListInstitutions() ([]*dto.GetInstitutionRes, e
 		}
 	}
 
-	return institutions, nil
+	return &institutions, nil
 }
 
 func (r *repository_institution) CreateInstitution(arg *sq.CreateInstitutionParams) (*dto.CreateInstitutionRes, error) {
