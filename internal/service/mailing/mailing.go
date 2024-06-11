@@ -1,6 +1,7 @@
 package mailing
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -56,34 +57,20 @@ func ReadMJML(data interface{}) (string, error) {
 		mjmlTemplate = strings.ReplaceAll(mjmlTemplate, placeholder, fmt.Sprintf("%v", value))
 	}
 
-	tempMJMLFile := "temp.mjml"
-	err = os.WriteFile(tempMJMLFile, []byte(mjmlTemplate), 0644)
-	if err != nil {
-		return "", fmt.Errorf("error writing temporary MJML file: %w", err)
-	}
+	var mjmlBuffer bytes.Buffer
+	mjmlBuffer.WriteString(mjmlTemplate)
 
-	cmd := exec.Command("/app/cmd/cli/repository-cli", "convert-mjml", tempMJMLFile)
+	var htmlBuffer bytes.Buffer
+	cmd := exec.Command("/app/cmd/cli/repository-cli", "convert-mjml")
+	cmd.Stdin = &mjmlBuffer
+	cmd.Stdout = &htmlBuffer
+
 	err = cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("error converting MJML to HTML: %w", err)
 	}
 
-	htmlContent, err := os.ReadFile("output.html")
-	if err != nil {
-		return "", fmt.Errorf("error reading HTML file: %w", err)
-	}
-
-	err = os.Remove(tempMJMLFile)
-	if err != nil {
-		return "", fmt.Errorf("error removing temporary MJML file: %w", err)
-	}
-
-	err = os.Remove("output.html")
-	if err != nil {
-		return "", fmt.Errorf("error removing temporary HTML file: %w", err)
-	}
-
-	return string(htmlContent), nil
+	return htmlBuffer.String(), nil
 }
 
 func SendEmail(cfg *config.Config, email string, subject string, html string) error {

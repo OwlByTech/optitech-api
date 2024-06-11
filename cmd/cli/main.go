@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"optitech/database"
-	"optitech/internal/service/mailing"
 	"os"
+	"os/exec"
 )
 
 var help = `Usage:
@@ -50,18 +52,23 @@ func main() {
 		}
 
 	case "convert-mjml":
-		if len(os.Args) < 3 {
-			log.Printf("You must specify the MJML file path")
-			log.Fatal(help)
-		}
-
-		err := mailing.ConvertMJML(os.Args[2])
+		err := convertMJML(os.Stdin, os.Stdout)
 		if err != nil {
 			log.Fatalf("Error converting MJML to HTML: %v", err)
 		}
-
 	default:
 		log.Fatal(help)
 	}
+}
 
+func convertMJML(input io.Reader, output io.Writer) error {
+	cmd := exec.Command("mjml", "-i", "-s")
+	cmd.Stdin = input
+	cmd.Stdout = output
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("error converting MJML to HTML: %w", err)
+	}
+	return nil
 }
