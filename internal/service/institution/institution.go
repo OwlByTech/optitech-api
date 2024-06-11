@@ -12,12 +12,16 @@ import (
 )
 
 type service_institution struct {
-	institutionRepository interfaces.IInstitutionRepository
+	institutionRepository       interfaces.IInstitutionRepository
+	services_institutionService interfaces.IServicesInstitutionService
+	client_institutionService   interfaces.IInstitutionClientService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository) interfaces.IInstitutionService {
+func NewServiceInstitution(r interfaces.IInstitutionRepository, service_institution_services interfaces.IServicesInstitutionService, service_institution_client interfaces.IInstitutionClientService) interfaces.IInstitutionService {
 	return &service_institution{
-		institutionRepository: r,
+		institutionRepository:       r,
+		services_institutionService: service_institution_services,
+		client_institutionService:   service_institution_client,
 	}
 }
 func (s *service_institution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
@@ -27,14 +31,10 @@ func (s *service_institution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutio
 		return nil, err
 	}
 
-	return &dto.GetInstitutionRes{
-		InstitutionID:   repoRes.InstitutionID,
-		InstitutionName: repoRes.InstitutionName,
-		Description:     repoRes.Description,
-	}, nil
+	return repoRes, err
 }
 
-func (s *service_institution) List() ([]*dto.GetInstitutionRes, error) {
+func (s *service_institution) List() (*[]dto.GetInstitutionRes, error) {
 	repoRes, err := s.institutionRepository.ListInstitutions()
 	if err != nil {
 		return nil, err
@@ -78,6 +78,40 @@ func (s *service_institution) Create(req *dto.CreateInstitutionReq) (*dto.Create
 
 	if err != nil {
 		return nil, err
+	}
+	services := make([]sq.CreateInstitutionServicesParams, len(req.Services))
+	for i, ser := range req.Services {
+		services[i] = sq.CreateInstitutionServicesParams{
+			InstitutionID: r.InstitutionID,
+			ServiceID:     ser,
+			CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
+		}
+	}
+
+	if err := s.services_institutionService.Create(&services); err != nil {
+		return nil, err
+	}
+	if services, err := s.services_institutionService.List(r.InstitutionID); err != nil {
+		return nil, err
+	} else {
+		r.Services = *services
+	}
+	clients := make([]sq.CreateInstitutionClientParams, len(req.Clients))
+	for i, client := range req.Clients {
+		clients[i] = sq.CreateInstitutionClientParams{
+			InstitutionID: r.InstitutionID,
+			ClientID:      client,
+			CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
+		}
+	}
+
+	if err := s.client_institutionService.Create(&clients); err != nil {
+		return nil, err
+	}
+	if clients, err := s.client_institutionService.List(r.InstitutionID); err != nil {
+		return nil, err
+	} else {
+		r.Clients = *clients
 	}
 
 	return r, nil

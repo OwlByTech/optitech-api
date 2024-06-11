@@ -1,76 +1,63 @@
 package service
 
 import (
-	"context"
 	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/services"
-	"optitech/internal/repository"
+	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
 )
 
-type service_institution struct{}
-
-func NewInstitutionService() *service_institution {
-	return &service_institution{}
+type service_services struct {
+	servicesRepository interfaces.IServiceRepository
 }
 
-func GetService(req dto.GetServiceReq) (*dto.GetServiceRes, error) {
-	ctx := context.Background()
-
-	repoRes, err := repository.Queries.GetServices(ctx, req.ServiceID)
+func NewServiceServices(r interfaces.IServiceRepository) interfaces.IService {
+	return &service_services{
+		servicesRepository: r,
+	}
+}
+func (s *service_services) Get(req dto.GetServiceReq) (*dto.GetServiceRes, error) {
+	repoRes, err := s.servicesRepository.GetService(req.ServiceID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.GetServiceRes{
-		ServiceID:   repoRes.ServiceID,
-		ServiceName: repoRes.ServiceName,
-	}, nil
+	return repoRes, err
 }
 
-func ListServices() ([]*dto.GetServiceRes, error) {
-	ctx := context.Background()
-	repoRes, err := repository.Queries.ListServicess(ctx)
+func (s *service_services) List() (*[]dto.GetServiceRes, error) {
+	repoRes, err := s.servicesRepository.ListServices()
 	if err != nil {
 		return nil, err
 	}
 
-	services := make([]*dto.GetServiceRes, len(repoRes))
-	for i, inst := range repoRes {
-		services[i] = &dto.GetServiceRes{
-			ServiceID:   inst.ServiceID,
-			ServiceName: inst.ServiceName,
-		}
-	}
-
-	return services, nil
+	return repoRes, nil
 }
 
-func CreateService(req dto.CreateServiceReq) (*sq.Service, error) {
-	ctx := context.Background()
-	repoReq := sq.CreateServicesParams{
+func (s *service_services) Create(req *dto.CreateServiceReq) (*dto.CreateServiceRes, error) {
+	repoReq := &sq.CreateServiceParams{
 		ServiceName: req.ServiceName,
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	r, err := repository.Queries.CreateServices(ctx, repoReq)
-
+	r, err := s.servicesRepository.CreateService(repoReq)
 	if err != nil {
 		return nil, err
 	}
 
-	return &r, nil
+	return r, nil
 }
 
-func UpdateService(req dto.UpdateServiceReq) (bool, error) {
-	ctx := context.Background()
-	repoReq := sq.UpdateServicesByIdParams{
+func (s *service_services) Update(req *dto.UpdateServiceReq) (bool, error) {
+	repoReq := &sq.UpdateServiceParams{
+		ServiceID:   req.ServiceID,
 		ServiceName: req.ServiceName,
+		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	err := repository.Queries.UpdateServicesById(ctx, repoReq)
+	err := s.servicesRepository.UpdateService(repoReq)
 
 	if err != nil {
 		return false, err
@@ -79,14 +66,13 @@ func UpdateService(req dto.UpdateServiceReq) (bool, error) {
 	return true, nil
 }
 
-func DeleteService(req dto.GetServiceReq) (bool, error) {
-	ctx := context.Background()
-	repoReq := sq.DeleteServicesByIdParams{
+func (s *service_services) Delete(req dto.GetServiceReq) (bool, error) {
+	repoReq := &sq.DeleteServiceParams{
 		ServiceID: req.ServiceID,
 		DeletedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	err := repository.Queries.DeleteServicesById(ctx, repoReq)
+	err := s.servicesRepository.DeleteService(repoReq)
 
 	if err != nil {
 		return false, err

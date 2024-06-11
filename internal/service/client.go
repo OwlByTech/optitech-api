@@ -17,7 +17,6 @@ func GetClientService(req dto.GetClientReq) (*dto.GetClientRes, error) {
 	}
 
 	return &dto.GetClientRes{
-		Id:        repoRes.ClientID,
 		GivenName: repoRes.GivenName,
 		Surname:   repoRes.Surname,
 		Email:     repoRes.Email,
