@@ -1,6 +1,6 @@
 package dto
 
 type UpdateServiceReq struct {
-	Id          int64
+	ServiceID   int32
 	ServiceName string `json:"service_name" validate:"required"`
 }

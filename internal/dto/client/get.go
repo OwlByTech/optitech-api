@@ -5,7 +5,7 @@ type GetClientReq struct {
 }
 
 type GetClientRes struct {
-	Id        int64
+	ClientID  int32
 	GivenName string
 	Surname   string
 	Email     string

@@ -1,11 +1,11 @@
 package dto
 
 type GetInstitutionReq struct {
-	InstitutionID int64 `validate:"required"`
+	InstitutionID int32 `validate:"required"`
 }
 
 type GetInstitutionRes struct {
-	InstitutionID   int64
+	InstitutionID   int32
 	InstitutionName string
 	Logo            string
 	Description     string

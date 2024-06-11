@@ -5,7 +5,7 @@ import (
 )
 
 type UpdateInstitutionReq struct {
-	InstitutionID   int64
+	InstitutionID   int32
 	InstitutionName string `json:"institutionName" `
 	Description     string `json:"description"`
 	LogoFile        *multipart.FileHeader

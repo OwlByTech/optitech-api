@@ -6,7 +6,6 @@ type CreateInstitutionServicesReq struct {
 }
 
 type CreateInstitutionServicesRes struct {
-	Id            int64
-	InstitutionID int64
-	ServiceId     int64
+	InstitutionID int32
+	ServiceId     int32
 }
