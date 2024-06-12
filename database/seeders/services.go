@@ -25,8 +25,8 @@ func ServiceUp(fileName string) error {
 	var sqServices []sq.CreateServicesParams
 	for _, data := range services {
 		service := sq.CreateServicesParams{
-			ServiceName: data.Name,
-			CreatedAt:   curTime,
+			Name:      data.Name,
+			CreatedAt: curTime,
 		}
 		sqServices = append(sqServices, service)
 	}

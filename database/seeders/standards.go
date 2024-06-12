@@ -26,7 +26,7 @@ func StandardUp(fileName string) error {
 	for _, data := range standards {
 		standard := sq.CreateStandardParams{
 			ServiceID:  data.ServiceId,
-			Standard:   data.Name,
+			Name:       data.Name,
 			Complexity: sql.NullString{String: data.Complexity},
 			Modality:   data.Modality,
 			Article:    data.Article,

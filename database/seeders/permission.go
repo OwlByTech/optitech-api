@@ -25,10 +25,10 @@ func PermissionUp(fileName string) error {
 	var sqPermissions []sq.CreatePermissionParams
 	for _, data := range permissions {
 		permission := sq.CreatePermissionParams{
-			PermissionName:        data.Name,
-			PermissionCode:        data.Code,
-			PermissionDescription: data.Description,
-			CreatedAt:             curTime,
+			Name:        data.Name,
+			Code:        data.Code,
+			Description: data.Description,
+			CreatedAt:   curTime,
 		}
 		sqPermissions = append(sqPermissions, permission)
 	}
