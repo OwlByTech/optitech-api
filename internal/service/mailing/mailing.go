@@ -1,31 +1,25 @@
 package mailing
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
-	"optitech/internal/config"
+	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/mailing"
 
 	"gopkg.in/gomail.v2"
 )
 
 func SendPassword(send dto.PasswordMailingReq) error {
-	cfg, err := config.LoadConfig()
+
+	html, err := parseHTML(send, "template-password")
 	if err != nil {
-		return fmt.Errorf("could not load config: %w", err)
+		return fmt.Errorf("could not read HTML: %w", err)
 	}
 
-	html, err := ReadMJML(send)
-	if err != nil {
-		return fmt.Errorf("could not read MJML: %w", err)
-	}
-
-	err = SendEmail(cfg, send.Email, send.Subject, html)
+	err = SendEmail(send.Email, send.Subject, html)
 	if err != nil {
 		return fmt.Errorf("could not send email: %w", err)
 	}
@@ -33,13 +27,13 @@ func SendPassword(send dto.PasswordMailingReq) error {
 	return nil
 }
 
-func ReadMJML(data interface{}) (string, error) {
-	mjmlContent, err := os.ReadFile("./internal/service/mailing/templates/template-password.mjml")
+func parseHTML(data interface{}, templatePath string) (string, error) {
+	htmlContent, err := os.ReadFile(fmt.Sprintf("./internal/service/mailing/templates/%s.html", templatePath))
 	if err != nil {
-		return "", fmt.Errorf("error reading MJML file: %w", err)
+		return "", fmt.Errorf("error reading HMTL file: %w", err)
 	}
 
-	mjmlTemplate := string(mjmlContent)
+	htmlTemplate := string(htmlContent)
 
 	dataMap := make(map[string]interface{})
 	dataBytes, err := json.Marshal(data)
@@ -54,33 +48,20 @@ func ReadMJML(data interface{}) (string, error) {
 
 	for key, value := range dataMap {
 		placeholder := fmt.Sprintf("{{%s}}", key)
-		mjmlTemplate = strings.ReplaceAll(mjmlTemplate, placeholder, fmt.Sprintf("%v", value))
+		htmlTemplate = strings.ReplaceAll(htmlTemplate, placeholder, fmt.Sprintf("%v", value))
 	}
 
-	var mjmlBuffer bytes.Buffer
-	mjmlBuffer.WriteString(mjmlTemplate)
-
-	var htmlBuffer bytes.Buffer
-	cmd := exec.Command("/app/cmd/cli/repository-cli", "convert-mjml")
-	cmd.Stdin = &mjmlBuffer
-	cmd.Stdout = &htmlBuffer
-
-	err = cmd.Run()
-	if err != nil {
-		return "", fmt.Errorf("error converting MJML to HTML: %w", err)
-	}
-
-	return htmlBuffer.String(), nil
+	return htmlTemplate, nil
 }
 
-func SendEmail(cfg *config.Config, email string, subject string, html string) error {
+func SendEmail(email string, subject string, html string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", cfg.EmailFrom)
+	m.SetHeader("From", cfg.Env.EmailFrom)
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", html)
 
-	d := gomail.NewDialer(cfg.EmailSMTPHost, cfg.EmailSMTPPort, cfg.EmailFrom, cfg.EmailSMTPPassword)
+	d := gomail.NewDialer(cfg.Env.EmailSMTPHost, cfg.Env.EmailSMTPPort, cfg.Env.EmailFrom, cfg.Env.EmailSMTPPassword)
 
 	if err := d.DialAndSend(m); err != nil {
 		return fmt.Errorf("could not send email: %w", err)

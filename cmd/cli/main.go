@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"optitech/database"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 var help = `Usage:
@@ -19,8 +19,7 @@ migrate         Run the migrations
 seed        Run the migrations
       up		  Run the Up seeders files
 	  	down      Run the Down seeders files
-convert-mjml    Convert MJML to HTML
-    <file>        ./internal/service/mailing/templates`
+convert-mjml    Convert all MJML to HTML`
 
 func main() {
 
@@ -52,20 +51,47 @@ func main() {
 		}
 
 	case "convert-mjml":
-		err := convertMJML(os.Stdin, os.Stdout)
+		err := convertAllMailingTemplates()
 		if err != nil {
-			log.Fatalf("Error converting MJML to HTML: %v", err)
+			log.Fatalf("Error converting all MJML to HTML: %v", err)
 		}
 	default:
 		log.Fatal(help)
 	}
 }
 
-func convertMJML(input io.Reader, output io.Writer) error {
-	cmd := exec.Command("mjml", "-i", "-s")
-	cmd.Stdin = input
-	cmd.Stdout = output
-	cmd.Stderr = os.Stderr
+func convertAllMailingTemplates() error {
+	path := "./internal/service/mailing/templates"
+	items, err := os.ReadDir(path)
+	if err != nil {
+		return fmt.Errorf("error read path templates")
+	}
+
+	for _, item := range items {
+		filename := item.Name()
+		split := strings.Split(filename, ".")
+		if len(split) != 2 {
+			continue
+		}
+
+		if split[1] != "mjml" {
+			continue
+		}
+
+		inputPath := fmt.Sprintf("%s/%s", path, filename)
+		outputPath := fmt.Sprintf("%s/%s.html", path, split[0])
+		err := convertMJMLToHTML(inputPath, outputPath)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func convertMJMLToHTML(inputPath string, outputPath string) error {
+	cmd := exec.Command("mjml", "-i", "-s", inputPath, outputPath)
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("error converting MJML to HTML: %w", err)
