@@ -7,17 +7,17 @@ import (
 	sq "optitech/internal/sqlc"
 )
 
-type repository_service struct {
+type repositoryService struct {
 	serviceRepository *sq.Queries
 }
 
 func NewRepositoryService(q *sq.Queries) interfaces.IServiceRepository {
-	return &repository_service{
+	return &repositoryService{
 		serviceRepository: q,
 	}
 }
 
-func (r *repository_service) GetService(ServiceID int32) (*dto.GetServiceRes, error) {
+func (r *repositoryService) GetService(ServiceID int32) (*dto.GetServiceRes, error) {
 	ctx := context.Background()
 	repoRes, err := r.serviceRepository.GetService(ctx, ServiceID)
 
@@ -30,7 +30,7 @@ func (r *repository_service) GetService(ServiceID int32) (*dto.GetServiceRes, er
 	}, nil
 }
 
-func (r *repository_service) ListServices() (*[]dto.GetServiceRes, error) {
+func (r *repositoryService) ListServices() (*[]dto.GetServiceRes, error) {
 	ctx := context.Background()
 	repoRes, err := r.serviceRepository.ListServices(ctx)
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *repository_service) ListServices() (*[]dto.GetServiceRes, error) {
 	return &services, nil
 }
 
-func (r *repository_service) CreateService(arg *sq.CreateServiceParams) (*dto.CreateServiceRes, error) {
+func (r *repositoryService) CreateService(arg *sq.CreateServiceParams) (*dto.CreateServiceRes, error) {
 	ctx := context.Background()
 	res, err := r.serviceRepository.CreateService(ctx, *arg)
 
@@ -61,13 +61,13 @@ func (r *repository_service) CreateService(arg *sq.CreateServiceParams) (*dto.Cr
 	}, nil
 }
 
-func (r *repository_service) UpdateService(arg *sq.UpdateServiceParams) error {
+func (r *repositoryService) UpdateService(arg *sq.UpdateServiceParams) error {
 	ctx := context.Background()
 	return r.serviceRepository.UpdateService(ctx, *arg)
 
 }
 
-func (r *repository_service) DeleteService(arg *sq.DeleteServiceParams) error {
+func (r *repositoryService) DeleteService(arg *sq.DeleteServiceParams) error {
 	ctx := context.Background()
 	return r.serviceRepository.DeleteService(ctx, *arg)
 

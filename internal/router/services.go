@@ -8,12 +8,11 @@ import (
 
 func (s *Server) RoutesServices() {
 	r := s.app
-	repo_service := repository.NewRepositoryService(&repository.Queries)
-	sevice := service.NewServiceServices(repo_service)
+	repoService := repository.NewRepositoryService(&repository.Queries)
+	sevice := service.NewServiceServices(repoService)
 	handler := handler.NewHandlerService(sevice)
-	service_route := r.Group("/api/service")
-	service_route.Post("/", handler.Create)
-	service_route.Get("/:id", handler.Get)
-	service_route.Get("/", handler.List)
+	serviceRoute := r.Group("/api/service")
+	serviceRoute.Get("/:id", handler.Get)
+	serviceRoute.Get("/", handler.List)
 
 }

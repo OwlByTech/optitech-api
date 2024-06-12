@@ -1,7 +1,7 @@
 package service
 
 import (
-	dto_client "optitech/internal/dto/client"
+	dtoClient "optitech/internal/dto/client"
 	dto "optitech/internal/dto/institution_client"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
@@ -10,30 +10,30 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type service_institution_client struct {
+type serviceInstitutionClient struct {
 	institutionClientRepository interfaces.IInstitutionClientRepository
 }
 
 func NewServiceInstitutionClient(r interfaces.IInstitutionClientRepository) interfaces.IInstitutionClientService {
-	return &service_institution_client{
+	return &serviceInstitutionClient{
 		institutionClientRepository: r,
 	}
 }
 
-func (s *service_institution_client) List(InstitutionID int32) (*[]dto_client.GetClientRes, error) {
+func (s *serviceInstitutionClient) List(InstitutionID int32) (*[]dtoClient.GetClientRes, error) {
 
 	return s.institutionClientRepository.ListInstitutionClient(InstitutionID)
 
 }
-func (s *service_institution_client) Exists(req *sq.ExistsInstitutionClientParams) bool {
+func (s *serviceInstitutionClient) Exists(req *sq.ExistsInstitutionClientParams) bool {
 	return s.Exists(req)
 }
 
-func (s *service_institution_client) Create(req *[]sq.CreateInstitutionClientParams) error {
+func (s *serviceInstitutionClient) Create(req *[]sq.CreateInstitutionClientParams) error {
 	return s.institutionClientRepository.CreateInstitutionClient(req)
 }
 
-func (s *service_institution_client) DeleteById(req *dto.GetInstitutionClientReq) (bool, error) {
+func (s *serviceInstitutionClient) DeleteById(req *dto.GetInstitutionClientReq) (bool, error) {
 	arg := &sq.DeleteinstInstitutionClientByClientAndInstitutionParams{
 		InstitutionID: req.InstitutionID,
 		ClientID:      req.ClientID,
@@ -48,7 +48,7 @@ func (s *service_institution_client) DeleteById(req *dto.GetInstitutionClientReq
 	return true, err
 }
 
-func (s *service_institution_client) DeleteByInstitution(InstitutionID int32) (bool, error) {
+func (s *serviceInstitutionClient) DeleteByInstitution(InstitutionID int32) (bool, error) {
 	arg := &sq.DeleteInstitutionClientByInstitutionParams{
 		InstitutionID: InstitutionID,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},

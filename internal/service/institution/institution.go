@@ -11,20 +11,20 @@ import (
 	"time"
 )
 
-type service_institution struct {
-	institutionRepository       interfaces.IInstitutionRepository
-	services_institutionService interfaces.IServicesInstitutionService
-	client_institutionService   interfaces.IInstitutionClientService
+type serviceInstitution struct {
+	institutionRepository     interfaces.IInstitutionRepository
+	serviceInstitutionService interfaces.IServicesInstitutionService
+	clientInstitutionService  interfaces.IInstitutionClientService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository, service_institution_services interfaces.IServicesInstitutionService, service_institution_client interfaces.IInstitutionClientService) interfaces.IInstitutionService {
-	return &service_institution{
-		institutionRepository:       r,
-		services_institutionService: service_institution_services,
-		client_institutionService:   service_institution_client,
+func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServicesInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService) interfaces.IInstitutionService {
+	return &serviceInstitution{
+		institutionRepository:     r,
+		serviceInstitutionService: serviceInstitutionService,
+		clientInstitutionService:  serviceInstitutionClient,
 	}
 }
-func (s *service_institution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
+func (s *serviceInstitution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
 	repoRes, err := s.institutionRepository.GetInstitution(req.InstitutionID)
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *service_institution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutio
 	return repoRes, err
 }
 
-func (s *service_institution) List() (*[]dto.GetInstitutionRes, error) {
+func (s *serviceInstitution) List() (*[]dto.GetInstitutionRes, error) {
 	repoRes, err := s.institutionRepository.ListInstitutions()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (s *service_institution) List() (*[]dto.GetInstitutionRes, error) {
 	return repoRes, nil
 }
 
-func (s *service_institution) Create(req *dto.CreateInstitutionReq) (*dto.CreateInstitutionRes, error) {
+func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateInstitutionRes, error) {
 	repoReq := &sq.CreateInstitutionParams{
 		InstitutionName: req.InstitutionName,
 		Description:     req.Description,
@@ -88,10 +88,10 @@ func (s *service_institution) Create(req *dto.CreateInstitutionReq) (*dto.Create
 		}
 	}
 
-	if err := s.services_institutionService.Create(&services); err != nil {
+	if err := s.serviceInstitutionService.Create(&services); err != nil {
 		return nil, err
 	}
-	if services, err := s.services_institutionService.List(r.InstitutionID); err != nil {
+	if services, err := s.serviceInstitutionService.List(r.InstitutionID); err != nil {
 		return nil, err
 	} else {
 		r.Services = *services
@@ -105,10 +105,10 @@ func (s *service_institution) Create(req *dto.CreateInstitutionReq) (*dto.Create
 		}
 	}
 
-	if err := s.client_institutionService.Create(&clients); err != nil {
+	if err := s.clientInstitutionService.Create(&clients); err != nil {
 		return nil, err
 	}
-	if clients, err := s.client_institutionService.List(r.InstitutionID); err != nil {
+	if clients, err := s.clientInstitutionService.List(r.InstitutionID); err != nil {
 		return nil, err
 	} else {
 		r.Clients = *clients
@@ -117,7 +117,7 @@ func (s *service_institution) Create(req *dto.CreateInstitutionReq) (*dto.Create
 	return r, nil
 }
 
-func (s *service_institution) Update(req *dto.UpdateInstitutionReq) (bool, error) {
+func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error) {
 	repoReq := &sq.UpdateInstitutionParams{
 		InstitutionID: req.InstitutionID,
 	}
@@ -160,7 +160,7 @@ func (s *service_institution) Update(req *dto.UpdateInstitutionReq) (bool, error
 	return true, nil
 }
 
-func (s *service_institution) Delete(req dto.GetInstitutionReq) (bool, error) {
+func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 	repoReq := &sq.DeleteInstitutionParams{
 		InstitutionID: req.InstitutionID,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
