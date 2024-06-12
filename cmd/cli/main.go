@@ -91,7 +91,7 @@ func convertAllMailingTemplates() error {
 }
 
 func convertMJMLToHTML(inputPath string, outputPath string) error {
-	cmd := exec.Command("mjml", "-i", "-s", inputPath, outputPath)
+	cmd := exec.Command("mjml", "-r", inputPath, "-o", outputPath)
 	err := cmd.Run()
 	if err != nil {
 		return fmt.Errorf("error converting MJML to HTML: %w", err)

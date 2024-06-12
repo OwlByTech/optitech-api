@@ -1,3 +1,6 @@
 .env
 .air
 .docker-volumes
+
+## html to templates
+internal/services/mailing/templates/* .html
