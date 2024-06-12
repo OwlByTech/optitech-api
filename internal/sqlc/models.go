@@ -262,13 +262,13 @@ type InstitutionService struct {
 }
 
 type Permission struct {
-	PermissionID          int64        `json:"permission_id"`
-	PermissionName        string       `json:"permission_name"`
-	PermissionCode        string       `json:"permission_code"`
-	PermissionDescription string       `json:"permission_description"`
-	CreatedAt             time.Time    `json:"created_at"`
-	UpdatedAt             sql.NullTime `json:"updated_at"`
-	DeletedAt             sql.NullTime `json:"deleted_at"`
+	PermissionID int64        `json:"permission_id"`
+	Name         string       `json:"name"`
+	Code         string       `json:"code"`
+	Description  string       `json:"description"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    sql.NullTime `json:"updated_at"`
+	DeletedAt    sql.NullTime `json:"deleted_at"`
 }
 
 type Role struct {
@@ -290,17 +290,17 @@ type RolePermission struct {
 }
 
 type Service struct {
-	ServicesID  int64        `json:"services_id"`
-	ServiceName string       `json:"service_name"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   sql.NullTime `json:"updated_at"`
-	DeletedAt   sql.NullTime `json:"deleted_at"`
+	ServicesID int64        `json:"services_id"`
+	Name       string       `json:"name"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  sql.NullTime `json:"updated_at"`
+	DeletedAt  sql.NullTime `json:"deleted_at"`
 }
 
 type Standard struct {
 	StandardID int64          `json:"standard_id"`
 	ServiceID  int32          `json:"service_id"`
-	Standard   string         `json:"standard"`
+	Name       string         `json:"name"`
 	Complexity sql.NullString `json:"complexity"`
 	Modality   string         `json:"modality"`
 	Article    string         `json:"article"`

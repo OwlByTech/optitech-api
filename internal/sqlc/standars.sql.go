@@ -12,14 +12,14 @@ import (
 )
 
 const createStandard = `-- name: CreateStandard :one
-INSERT INTO standards(service_id, standard, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at)
+INSERT INTO standards(service_id, name, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING standard_id, service_id, standard, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at, updated_at, deleted_at
+RETURNING standard_id, service_id, name, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at, updated_at, deleted_at
 `
 
 type CreateStandardParams struct {
 	ServiceID  int32          `json:"service_id"`
-	Standard   string         `json:"standard"`
+	Name       string         `json:"name"`
 	Complexity sql.NullString `json:"complexity"`
 	Modality   string         `json:"modality"`
 	Article    string         `json:"article"`
@@ -34,7 +34,7 @@ type CreateStandardParams struct {
 func (q *Queries) CreateStandard(ctx context.Context, arg CreateStandardParams) (Standard, error) {
 	row := q.db.QueryRowContext(ctx, createStandard,
 		arg.ServiceID,
-		arg.Standard,
+		arg.Name,
 		arg.Complexity,
 		arg.Modality,
 		arg.Article,
@@ -49,7 +49,7 @@ func (q *Queries) CreateStandard(ctx context.Context, arg CreateStandardParams) 
 	err := row.Scan(
 		&i.StandardID,
 		&i.ServiceID,
-		&i.Standard,
+		&i.Name,
 		&i.Complexity,
 		&i.Modality,
 		&i.Article,
@@ -77,13 +77,13 @@ func (q *Queries) DeleteAllStandards(ctx context.Context, deletedAt sql.NullTime
 
 const deleteStandardById = `-- name: DeleteStandardById :exec
 UPDATE standards
-SET standard = $2, complexity = $3, modality =$4, article = $5, section = $6, paragraph = $7, criteria = $8, comply = $9, applys = $10, updated_at = $11
+SET name = $2, complexity = $3, modality =$4, article = $5, section = $6, paragraph = $7, criteria = $8, comply = $9, applys = $10, updated_at = $11
 WHERE standard_id = $1
 `
 
 type DeleteStandardByIdParams struct {
 	StandardID int64          `json:"standard_id"`
-	Standard   string         `json:"standard"`
+	Name       string         `json:"name"`
 	Complexity sql.NullString `json:"complexity"`
 	Modality   string         `json:"modality"`
 	Article    string         `json:"article"`
@@ -98,7 +98,7 @@ type DeleteStandardByIdParams struct {
 func (q *Queries) DeleteStandardById(ctx context.Context, arg DeleteStandardByIdParams) error {
 	_, err := q.db.ExecContext(ctx, deleteStandardById,
 		arg.StandardID,
-		arg.Standard,
+		arg.Name,
 		arg.Complexity,
 		arg.Modality,
 		arg.Article,
@@ -113,7 +113,7 @@ func (q *Queries) DeleteStandardById(ctx context.Context, arg DeleteStandardById
 }
 
 const getStandard = `-- name: GetStandard :one
-SELECT standard_id, service_id, standard, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at, updated_at, deleted_at FROM standards
+SELECT standard_id, service_id, name, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at, updated_at, deleted_at FROM standards
 WHERE standard_id = $1 LIMIT 1
 `
 
@@ -123,7 +123,7 @@ func (q *Queries) GetStandard(ctx context.Context, standardID int64) (Standard, 
 	err := row.Scan(
 		&i.StandardID,
 		&i.ServiceID,
-		&i.Standard,
+		&i.Name,
 		&i.Complexity,
 		&i.Modality,
 		&i.Article,
@@ -140,13 +140,13 @@ func (q *Queries) GetStandard(ctx context.Context, standardID int64) (Standard, 
 }
 
 const getStandardByName = `-- name: GetStandardByName :one
-SELECT standard, complexity, modality, article, section, paragraph, criteria, comply, applys
+SELECT name, complexity, modality, article, section, paragraph, criteria, comply, applys
 FROM standards
 WHERE standard_id = $1
 `
 
 type GetStandardByNameRow struct {
-	Standard   string         `json:"standard"`
+	Name       string         `json:"name"`
 	Complexity sql.NullString `json:"complexity"`
 	Modality   string         `json:"modality"`
 	Article    string         `json:"article"`
@@ -161,7 +161,7 @@ func (q *Queries) GetStandardByName(ctx context.Context, standardID int64) (GetS
 	row := q.db.QueryRowContext(ctx, getStandardByName, standardID)
 	var i GetStandardByNameRow
 	err := row.Scan(
-		&i.Standard,
+		&i.Name,
 		&i.Complexity,
 		&i.Modality,
 		&i.Article,
@@ -175,7 +175,7 @@ func (q *Queries) GetStandardByName(ctx context.Context, standardID int64) (GetS
 }
 
 const listStandards = `-- name: ListStandards :many
-SELECT standard_id, service_id, standard, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at, updated_at, deleted_at FROM standards
+SELECT standard_id, service_id, name, complexity, modality, article, section, paragraph, criteria, comply, applys, created_at, updated_at, deleted_at FROM standards
 ORDER BY standard_id
 `
 
@@ -191,7 +191,7 @@ func (q *Queries) ListStandards(ctx context.Context) ([]Standard, error) {
 		if err := rows.Scan(
 			&i.StandardID,
 			&i.ServiceID,
-			&i.Standard,
+			&i.Name,
 			&i.Complexity,
 			&i.Modality,
 			&i.Article,
