@@ -14,13 +14,15 @@ import (
 
 func RolePermissionUp(fileName string) error {
 	ctx := context.Background()
-	curTime := time.Now()
+	var curTime time.Time
 
 	var rolePermissions []rdto.CreateRolePermissionReq
 	err := json_reader.ReadFromJSON(fileName, &rolePermissions)
 	if err != nil {
 		return fmt.Errorf("error reading json %v", err)
 	}
+
+	curTime = time.Now()
 
 	var sqRolePermission []sq.CreateRolePermissionParams
 	for _, data := range rolePermissions {

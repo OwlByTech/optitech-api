@@ -14,13 +14,15 @@ import (
 
 func RoleUp(fileName string) error {
 	ctx := context.Background()
-	curTime := time.Now()
+	var curTime time.Time
 
 	var role []rdto.CreateRoleReq
 	err := json_reader.ReadFromJSON(fileName, &role)
 	if err != nil {
 		return fmt.Errorf("error reading json %v", err)
 	}
+
+	curTime = time.Now()
 
 	var sqRoles []sq.CreateRoleParams
 	for _, data := range role {

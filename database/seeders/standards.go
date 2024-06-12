@@ -14,13 +14,15 @@ import (
 
 func StandardUp(fileName string) error {
 	ctx := context.Background()
-	curTime := time.Now()
+	var curTime time.Time
 
 	var standards []sdto.CreateStandardsReq
 	err := json_reader.ReadFromJSON(fileName, &standards)
 	if err != nil {
 		return fmt.Errorf("error reading json %v", err)
 	}
+
+	curTime = time.Now()
 
 	var sqStandard []sq.CreateStandardParams
 	for _, data := range standards {

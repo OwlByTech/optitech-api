@@ -14,13 +14,15 @@ import (
 
 func ServiceUp(fileName string) error {
 	ctx := context.Background()
-	curTime := time.Now()
+	var curTime time.Time
 
 	var services []sdto.CreateServiceReq
 	err := json_reader.ReadFromJSON(fileName, &services)
 	if err != nil {
 		return fmt.Errorf("error reading json %v", err)
 	}
+
+	curTime = time.Now()
 
 	var sqServices []sq.CreateServicesParams
 	for _, data := range services {

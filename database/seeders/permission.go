@@ -14,13 +14,15 @@ import (
 
 func PermissionUp(fileName string) error {
 	ctx := context.Background()
-	curTime := time.Now()
+	var curTime time.Time
 
 	var permissions []pdto.CreatePermissionReq
 	err := json_reader.ReadFromJSON(fileName, &permissions)
 	if err != nil {
 		return fmt.Errorf("error reading json %v", err)
 	}
+
+	curTime = time.Now()
 
 	var sqPermissions []sq.CreatePermissionParams
 	for _, data := range permissions {
