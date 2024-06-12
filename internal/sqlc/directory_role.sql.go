@@ -7,8 +7,9 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createDirectoryRole = `-- name: CreateDirectoryRole :one
@@ -18,13 +19,13 @@ RETURNING directory_role_id, directory_id, role_id, created_at, updated_at, dele
 `
 
 type CreateDirectoryRoleParams struct {
-	DirectoryID sql.NullInt32 `json:"directory_id"`
-	RoleID      sql.NullInt32 `json:"role_id"`
-	CreatedAt   time.Time     `json:"created_at"`
+	DirectoryID pgtype.Int4      `json:"directory_id"`
+	RoleID      pgtype.Int4      `json:"role_id"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateDirectoryRole(ctx context.Context, arg CreateDirectoryRoleParams) (DirectoryRole, error) {
-	row := q.db.QueryRowContext(ctx, createDirectoryRole, arg.DirectoryID, arg.RoleID, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createDirectoryRole, arg.DirectoryID, arg.RoleID, arg.CreatedAt)
 	var i DirectoryRole
 	err := row.Scan(
 		&i.DirectoryRoleID,
@@ -43,8 +44,8 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteAllDirectoryRoles(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllDirectoryRoles, deletedAt)
+func (q *Queries) DeleteAllDirectoryRoles(ctx context.Context, deletedAt pgtype.Timestamp) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteAllDirectoryRoles, deletedAt)
 }
 
 const deleteDirectoryRoleById = `-- name: DeleteDirectoryRoleById :exec
@@ -54,12 +55,12 @@ WHERE directory_role_id = $1
 `
 
 type DeleteDirectoryRoleByIdParams struct {
-	DirectoryRoleID int64        `json:"directory_role_id"`
-	DeletedAt       sql.NullTime `json:"deleted_at"`
+	DirectoryRoleID int64            `json:"directory_role_id"`
+	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
 }
 
 func (q *Queries) DeleteDirectoryRoleById(ctx context.Context, arg DeleteDirectoryRoleByIdParams) error {
-	_, err := q.db.ExecContext(ctx, deleteDirectoryRoleById, arg.DirectoryRoleID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, deleteDirectoryRoleById, arg.DirectoryRoleID, arg.DeletedAt)
 	return err
 }
 
@@ -69,7 +70,7 @@ WHERE directory_role_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetDirectoryRole(ctx context.Context, directoryRoleID int64) (DirectoryRole, error) {
-	row := q.db.QueryRowContext(ctx, getDirectoryRole, directoryRoleID)
+	row := q.db.QueryRow(ctx, getDirectoryRole, directoryRoleID)
 	var i DirectoryRole
 	err := row.Scan(
 		&i.DirectoryRoleID,
@@ -89,12 +90,12 @@ WHERE directory_role_id = $1
 `
 
 type GetDirectoryRoleByNameRow struct {
-	DirectoryID sql.NullInt32 `json:"directory_id"`
-	RoleID      sql.NullInt32 `json:"role_id"`
+	DirectoryID pgtype.Int4 `json:"directory_id"`
+	RoleID      pgtype.Int4 `json:"role_id"`
 }
 
 func (q *Queries) GetDirectoryRoleByName(ctx context.Context, directoryRoleID int64) (GetDirectoryRoleByNameRow, error) {
-	row := q.db.QueryRowContext(ctx, getDirectoryRoleByName, directoryRoleID)
+	row := q.db.QueryRow(ctx, getDirectoryRoleByName, directoryRoleID)
 	var i GetDirectoryRoleByNameRow
 	err := row.Scan(&i.DirectoryID, &i.RoleID)
 	return i, err
@@ -106,7 +107,7 @@ ORDER BY directory_role_id
 `
 
 func (q *Queries) ListDirectoryRoles(ctx context.Context) ([]DirectoryRole, error) {
-	rows, err := q.db.QueryContext(ctx, listDirectoryRoles)
+	rows, err := q.db.Query(ctx, listDirectoryRoles)
 	if err != nil {
 		return nil, err
 	}
@@ -125,9 +126,6 @@ func (q *Queries) ListDirectoryRoles(ctx context.Context) ([]DirectoryRole, erro
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

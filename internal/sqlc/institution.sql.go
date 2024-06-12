@@ -7,8 +7,8 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createInstitution = `-- name: CreateInstitution :one
@@ -18,14 +18,14 @@ RETURNING institution_id, asesor_id, institution_name, logo, description, create
 `
 
 type CreateInstitutionParams struct {
-	InstitutionName string         `json:"institution_name"`
-	Logo            sql.NullString `json:"logo"`
-	Description     string         `json:"description"`
-	CreatedAt       time.Time      `json:"created_at"`
+	InstitutionName string           `json:"institution_name"`
+	Logo            pgtype.Text      `json:"logo"`
+	Description     string           `json:"description"`
+	CreatedAt       pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionParams) (Institution, error) {
-	row := q.db.QueryRowContext(ctx, createInstitution,
+	row := q.db.QueryRow(ctx, createInstitution,
 		arg.InstitutionName,
 		arg.Logo,
 		arg.Description,
@@ -51,8 +51,8 @@ set deleted_at = $1
 where deleted_at is NULL
 `
 
-func (q *Queries) DeleteAllInstitutions(ctx context.Context, deletedAt sql.NullTime) error {
-	_, err := q.db.ExecContext(ctx, deleteAllInstitutions, deletedAt)
+func (q *Queries) DeleteAllInstitutions(ctx context.Context, deletedAt pgtype.Timestamp) error {
+	_, err := q.db.Exec(ctx, deleteAllInstitutions, deletedAt)
 	return err
 }
 
@@ -63,12 +63,12 @@ WHERE institution_id = $1 AND deleted_at IS NULL
 `
 
 type DeleteInstitutionByIdParams struct {
-	InstitutionID int64        `json:"institution_id"`
-	DeletedAt     sql.NullTime `json:"deleted_at"`
+	InstitutionID int64            `json:"institution_id"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 func (q *Queries) DeleteInstitutionById(ctx context.Context, arg DeleteInstitutionByIdParams) error {
-	_, err := q.db.ExecContext(ctx, deleteInstitutionById, arg.InstitutionID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, deleteInstitutionById, arg.InstitutionID, arg.DeletedAt)
 	return err
 }
 
@@ -78,7 +78,7 @@ WHERE institution_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetInstitution(ctx context.Context, institutionID int64) (Institution, error) {
-	row := q.db.QueryRowContext(ctx, getInstitution, institutionID)
+	row := q.db.QueryRow(ctx, getInstitution, institutionID)
 	var i Institution
 	err := row.Scan(
 		&i.InstitutionID,
@@ -100,13 +100,13 @@ WHERE institution_name = $1
 `
 
 type GetInstitutionByNameRow struct {
-	InstitutionName string         `json:"institution_name"`
-	Logo            sql.NullString `json:"logo"`
-	Description     string         `json:"description"`
+	InstitutionName string      `json:"institution_name"`
+	Logo            pgtype.Text `json:"logo"`
+	Description     string      `json:"description"`
 }
 
 func (q *Queries) GetInstitutionByName(ctx context.Context, institutionName string) (GetInstitutionByNameRow, error) {
-	row := q.db.QueryRowContext(ctx, getInstitutionByName, institutionName)
+	row := q.db.QueryRow(ctx, getInstitutionByName, institutionName)
 	var i GetInstitutionByNameRow
 	err := row.Scan(&i.InstitutionName, &i.Logo, &i.Description)
 	return i, err
@@ -118,7 +118,7 @@ ORDER BY institution_name
 `
 
 func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
-	rows, err := q.db.QueryContext(ctx, listInstitutions)
+	rows, err := q.db.Query(ctx, listInstitutions)
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +140,6 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -156,15 +153,15 @@ WHERE institution_id = $1
 `
 
 type UpdateInstitutionByIdParams struct {
-	InstitutionID   int64          `json:"institution_id"`
-	InstitutionName string         `json:"institution_name"`
-	Logo            sql.NullString `json:"logo"`
-	Description     string         `json:"description"`
-	UpdatedAt       sql.NullTime   `json:"updated_at"`
+	InstitutionID   int64            `json:"institution_id"`
+	InstitutionName string           `json:"institution_name"`
+	Logo            pgtype.Text      `json:"logo"`
+	Description     string           `json:"description"`
+	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdateInstitutionById(ctx context.Context, arg UpdateInstitutionByIdParams) error {
-	_, err := q.db.ExecContext(ctx, updateInstitutionById,
+	_, err := q.db.Exec(ctx, updateInstitutionById,
 		arg.InstitutionID,
 		arg.InstitutionName,
 		arg.Logo,

@@ -7,8 +7,9 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createInstitutionClient = `-- name: CreateInstitutionClient :one
@@ -18,13 +19,13 @@ RETURNING institution_client_id, client_id, institution_id, created_at, updated_
 `
 
 type CreateInstitutionClientParams struct {
-	ClientID      int32     `json:"client_id"`
-	InstitutionID int32     `json:"institution_id"`
-	CreatedAt     time.Time `json:"created_at"`
+	ClientID      int32            `json:"client_id"`
+	InstitutionID int32            `json:"institution_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateInstitutionClient(ctx context.Context, arg CreateInstitutionClientParams) (InstitutionClient, error) {
-	row := q.db.QueryRowContext(ctx, createInstitutionClient, arg.ClientID, arg.InstitutionID, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createInstitutionClient, arg.ClientID, arg.InstitutionID, arg.CreatedAt)
 	var i InstitutionClient
 	err := row.Scan(
 		&i.InstitutionClientID,
@@ -43,8 +44,8 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteAllInstitutionClient(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllInstitutionClient, deletedAt)
+func (q *Queries) DeleteAllInstitutionClient(ctx context.Context, deletedAt pgtype.Timestamp) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteAllInstitutionClient, deletedAt)
 }
 
 const deleteinstInstitutionClientById = `-- name: DeleteinstInstitutionClientById :exec
@@ -54,12 +55,12 @@ WHERE institution_client_id = $1
 `
 
 type DeleteinstInstitutionClientByIdParams struct {
-	InstitutionClientID int64        `json:"institution_client_id"`
-	DeletedAt           sql.NullTime `json:"deleted_at"`
+	InstitutionClientID int64            `json:"institution_client_id"`
+	DeletedAt           pgtype.Timestamp `json:"deleted_at"`
 }
 
 func (q *Queries) DeleteinstInstitutionClientById(ctx context.Context, arg DeleteinstInstitutionClientByIdParams) error {
-	_, err := q.db.ExecContext(ctx, deleteinstInstitutionClientById, arg.InstitutionClientID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, deleteinstInstitutionClientById, arg.InstitutionClientID, arg.DeletedAt)
 	return err
 }
 
@@ -69,7 +70,7 @@ WHERE institution_client_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetInstitutionClient(ctx context.Context, institutionClientID int64) (InstitutionClient, error) {
-	row := q.db.QueryRowContext(ctx, getInstitutionClient, institutionClientID)
+	row := q.db.QueryRow(ctx, getInstitutionClient, institutionClientID)
 	var i InstitutionClient
 	err := row.Scan(
 		&i.InstitutionClientID,
@@ -94,7 +95,7 @@ type GetInstitutionClientByNameRow struct {
 }
 
 func (q *Queries) GetInstitutionClientByName(ctx context.Context, institutionClientID int64) (GetInstitutionClientByNameRow, error) {
-	row := q.db.QueryRowContext(ctx, getInstitutionClientByName, institutionClientID)
+	row := q.db.QueryRow(ctx, getInstitutionClientByName, institutionClientID)
 	var i GetInstitutionClientByNameRow
 	err := row.Scan(&i.ClientID, &i.InstitutionID)
 	return i, err
@@ -106,7 +107,7 @@ ORDER BY institution_client_id
 `
 
 func (q *Queries) ListInstitutionClients(ctx context.Context) ([]InstitutionClient, error) {
-	rows, err := q.db.QueryContext(ctx, listInstitutionClients)
+	rows, err := q.db.Query(ctx, listInstitutionClients)
 	if err != nil {
 		return nil, err
 	}
@@ -126,9 +127,6 @@ func (q *Queries) ListInstitutionClients(ctx context.Context) ([]InstitutionClie
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -142,14 +140,14 @@ WHERE institution_client_id = $1
 `
 
 type UpdateInstitutionClientByIdParams struct {
-	InstitutionClientID int64        `json:"institution_client_id"`
-	ClientID            int32        `json:"client_id"`
-	InstitutionID       int32        `json:"institution_id"`
-	UpdatedAt           sql.NullTime `json:"updated_at"`
+	InstitutionClientID int64            `json:"institution_client_id"`
+	ClientID            int32            `json:"client_id"`
+	InstitutionID       int32            `json:"institution_id"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdateInstitutionClientById(ctx context.Context, arg UpdateInstitutionClientByIdParams) error {
-	_, err := q.db.ExecContext(ctx, updateInstitutionClientById,
+	_, err := q.db.Exec(ctx, updateInstitutionClientById,
 		arg.InstitutionClientID,
 		arg.ClientID,
 		arg.InstitutionID,
