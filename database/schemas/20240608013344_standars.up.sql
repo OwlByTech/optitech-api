@@ -1,7 +1,7 @@
 CREATE TABLE standards(
     standard_id BIGSERIAL PRIMARY KEY,
     service_id INT REFERENCES services(services_id) NOT NULL,
-    standard VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     complexity VARCHAR(255),
     modality VARCHAR(255) NOT NULL,
     article VARCHAR(30) NOT NULL,
