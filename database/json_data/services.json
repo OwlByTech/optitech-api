@@ -1,123 +1,123 @@
 [
     {
-      "service_name": "TODOS LOS SERVICIOS"
+      "name": "TODOS LOS SERVICIOS"
     },
     {
-      "service_name": "CONSULTA EXTERNA GENERAL"
+      "name": "CONSULTA EXTERNA GENERAL"
     },
     {
-      "service_name": "CONSULTA EXTERNA ESPECIALIZADA"
+      "name": "CONSULTA EXTERNA ESPECIALIZADA"
     },
     {
-      "service_name": "VACUNACIÓN"
+      "name": "VACUNACIÓN"
     },
     {
-      "service_name": "SEGURIDAD Y SALUD EN EL TRABAJO"
+      "name": "SEGURIDAD Y SALUD EN EL TRABAJO"
     },
     {
-      "service_name": "TERAPIAS"
+      "name": "TERAPIAS"
     },
     {
-      "service_name": "SERVICIO FARMACEUTICO"
+      "name": "SERVICIO FARMACEUTICO"
     },
     {
-      "service_name": "RADIOLOGÍA ODONTOLÓGICA"
+      "name": "RADIOLOGÍA ODONTOLÓGICA"
     },
     {
-      "service_name": "IMÁGENES DIAGNÓSTICAS - METODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS MEDIANTE EQUIPOS GENERADORES DE RADIACIONES IONIZANTES"
+      "name": "IMÁGENES DIAGNÓSTICAS - METODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS MEDIANTE EQUIPOS GENERADORES DE RADIACIONES IONIZANTES"
     },
     {
-      "service_name": "IMÁGENES DIAGNÓSTICAS - MÉTODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS MEDIANTE EQUIPOS GENERADORES DE RADIACIONES NO IONIZANTES"
+      "name": "IMÁGENES DIAGNÓSTICAS - MÉTODOS DIAGNÓSTICOS CON IMÁGENES OBTENIDAS MEDIANTE EQUIPOS GENERADORES DE RADIACIONES NO IONIZANTES"
     },
     {
-      "service_name": "MEDICINA NUCLEAR"
+      "name": "MEDICINA NUCLEAR"
     },
     {
-      "service_name": "RADIOTERAPIA"
+      "name": "RADIOTERAPIA"
     },
     {
-      "service_name": "QUIMIOTERAPIA"
+      "name": "QUIMIOTERAPIA"
     },
     {
-      "service_name": "DIAGNÓSTICO VASCULAR"
+      "name": "DIAGNÓSTICO VASCULAR"
     },
     {
-      "service_name": "HEMODINAMIA E INTERVENCIONISMO"
+      "name": "HEMODINAMIA E INTERVENCIONISMO"
     },
     {
-      "service_name": "GESTIÓN PRE TRANSFUSIONAL"
+      "name": "GESTIÓN PRE TRANSFUSIONAL"
     },
     {
-      "service_name": "TOMA DE MUESTRAS DE LABORATORIO CLÍNICO"
+      "name": "TOMA DE MUESTRAS DE LABORATORIO CLÍNICO"
     },
     {
-      "service_name": "LABORATORIO CLÍNICO"
+      "name": "LABORATORIO CLÍNICO"
     },
     {
-      "service_name": "TOMA DE MUESTRAS DE CUELLO UTERINO Y GINECOLÓGICAS"
+      "name": "TOMA DE MUESTRAS DE CUELLO UTERINO Y GINECOLÓGICAS"
     },
     {
-      "service_name": "LABORATORIO DE CITOLOGÍAS CERVICO-UTERINAS"
+      "name": "LABORATORIO DE CITOLOGÍAS CERVICO-UTERINAS"
     },
     {
-      "service_name": "LABORATORIO DE HISTOTECNOLOGÍA"
+      "name": "LABORATORIO DE HISTOTECNOLOGÍA"
     },
     {
-      "service_name": "PATOLOGÍA"
+      "name": "PATOLOGÍA"
     },
     {
-      "service_name": "DIÁLISIS"
+      "name": "DIÁLISIS"
     },
     {
-      "service_name": "HOSPITALIZACIÓN"
+      "name": "HOSPITALIZACIÓN"
     },
     {
-      "service_name": "HOSPITALIZACIÓN PACIENTE CRÓNICO"
+      "name": "HOSPITALIZACIÓN PACIENTE CRÓNICO"
     },
     {
-      "service_name": "CUIDADO BÁSICO NEONATAL"
+      "name": "CUIDADO BÁSICO NEONATAL"
     },
     {
-      "service_name": "CUIDADO INTERMEDIO NEONATAL"
+      "name": "CUIDADO INTERMEDIO NEONATAL"
     },
     {
-      "service_name": "CUIDADO INTENSIVO NEONATAL"
+      "name": "CUIDADO INTENSIVO NEONATAL"
     },
     {
-      "service_name": "CUIDADO INTERMEDIO PEDIÁTRICO"
+      "name": "CUIDADO INTERMEDIO PEDIÁTRICO"
     },
     {
-      "service_name": "CUIDADO INTENSIVO PEDIÁTRICO"
+      "name": "CUIDADO INTENSIVO PEDIÁTRICO"
     },
     {
-      "service_name": "CUIDADO INTERMEDIO ADULTO"
+      "name": "CUIDADO INTERMEDIO ADULTO"
     },
     {
-      "service_name": "ATENCIÓN DEL PARTO"
+      "name": "ATENCIÓN DEL PARTO"
     },
     {
-      "service_name": "CUIDADO INTENSIVO ADULTOS"
+      "name": "CUIDADO INTENSIVO ADULTOS"
     },
     {
-      "service_name": "HOSPITALIZACIÓN EN SALUD MENTAL O CONSUMO DE SUSTANCIAS PSICOACTIVAS"
+      "name": "HOSPITALIZACIÓN EN SALUD MENTAL O CONSUMO DE SUSTANCIAS PSICOACTIVAS"
     },
     {
-      "service_name": "HOSPITALIZACIÓN PARCIAL"
+      "name": "HOSPITALIZACIÓN PARCIAL"
     },
     {
-      "service_name": "CUIDADO BÁSICO DEL CONSUMO DE SUSTANCIAS PSICOACTIVAS"
+      "name": "CUIDADO BÁSICO DEL CONSUMO DE SUSTANCIAS PSICOACTIVAS"
     },
     {
-      "service_name": "CIRUGÍA"
+      "name": "CIRUGÍA"
     },
     {
-      "service_name": "URGENCIAS"
+      "name": "URGENCIAS"
     },
     {
-      "service_name": "TRANSPORTE ASISTENCIAL"
+      "name": "TRANSPORTE ASISTENCIAL"
     },
     {
-      "service_name": "ATENCIÓN PREHOSPITALARIA"
+      "name": "ATENCIÓN PREHOSPITALARIA"
     }
   ]
   

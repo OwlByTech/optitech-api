@@ -2,7 +2,7 @@ package dto
 
 type CreateStandardsReq struct {
 	ServiceId  int32  `json:"service_id" validate:"required"`
-	Standard   string `json:"standard" validate:"required"`
+	Name       string `json:"name" validate:"required"`
 	Complexity string `json:"complexity" validate:"required"`
 	Modality   string `json:"modality" validate:"required"`
 	Article    string `json:"article" validate:"required"`
@@ -16,7 +16,7 @@ type CreateStandardsReq struct {
 type CreateStandardsRes struct {
 	Id         int64
 	ServiceId  int32
-	Standard   string
+	Name       string
 	Complexity string
 	Modality   string
 	Article    string

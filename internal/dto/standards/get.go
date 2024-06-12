@@ -7,7 +7,7 @@ type GetStandardsReq struct {
 type GetStandardsRes struct {
 	Id         int64
 	ServiceId  int32
-	Standard   string
+	Name       string
 	Complexity string
 	Modality   string
 	Article    string
