@@ -6,13 +6,20 @@ import (
 	"strconv"
 
 	"optitech/database"
+	"optitech/internal/config"
 	"optitech/internal/repository"
 	"optitech/internal/router"
 	sq "optitech/internal/sqlc"
 )
 
 func main() {
+	err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("could not load config: %v", err)
+	}
+
 	db, err := database.Connect()
+
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
