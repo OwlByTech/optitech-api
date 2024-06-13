@@ -1,13 +1,14 @@
 package database
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/golang-migrate/migrate/v4/database/pgx/v5"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
@@ -22,11 +23,13 @@ func Migrate(arg string) error {
 
 	p := fmt.Sprintf("file://%s", filepath.ToSlash(filepath.Join(wd, "database", "schemas")))
 
-	db, err := Connect()
+	db, err := sql.Open("postgres", DBUrl())
+
+	defer db.Close()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	driver, err := pgx.WithInstance(db, &pgx.Config{})
 
 	if err != nil {
 		log.Fatalf("%v", err)
