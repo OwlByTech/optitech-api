@@ -1,14 +1,15 @@
 package database
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	"log"
 	"os"
 )
 
-var instance *sql.DB
+var instance *pgxpool.Pool
 
 func DBUrl() string {
 	dbUser := os.Getenv("DATABASE_USER")
@@ -20,8 +21,8 @@ func DBUrl() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPass, dbName)
 }
 
-func Connect() (*sql.DB, error) {
-	db, err := sql.Open("postgres", DBUrl())
+func Connect() (*pgxpool.Pool, error) {
+	db, err := pgxpool.New(context.Background(), DBUrl())
 	if err != nil {
 		log.Fatal(err)
 	}
