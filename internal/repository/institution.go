@@ -25,9 +25,10 @@ func (r *repositoryInstitution) GetInstitution(InstitutionID int32) (*dto.GetIns
 		return nil, err
 	}
 	return &dto.GetInstitutionRes{
-		InstitutionID:   repoRes.InstitutionID,
+		Id:              repoRes.InstitutionID,
 		InstitutionName: repoRes.InstitutionName,
 		Description:     repoRes.Description,
+		Logo:            repoRes.Logo.String,
 	}, nil
 }
 
@@ -40,13 +41,11 @@ func (r *repositoryInstitution) ListInstitutions() (*[]dto.GetInstitutionRes, er
 
 	institutions := make([]dto.GetInstitutionRes, len(repoRes))
 	for i, inst := range repoRes {
-		services := []string{}
 		institutions[i] = dto.GetInstitutionRes{
-			InstitutionID:   inst.InstitutionID,
+			Id:              inst.InstitutionID,
 			Description:     inst.Description,
 			InstitutionName: inst.InstitutionName,
 			Logo:            inst.Logo.String,
-			Services:        services,
 		}
 	}
 
@@ -66,6 +65,11 @@ func (r *repositoryInstitution) CreateInstitution(arg *sq.CreateInstitutionParam
 		InstitutionName: res.InstitutionName,
 		Description:     res.Description,
 	}, nil
+}
+
+func (r *repositoryInstitution) UpdateAsesorInstitution(arg *sq.UpdateAsesorInstitutionParams) error {
+	ctx := context.Background()
+	return r.institutionRepository.UpdateAsesorInstitution(ctx, *arg)
 }
 
 func (r *repositoryInstitution) UpdateInstitution(arg *sq.UpdateInstitutionParams) error {

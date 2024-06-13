@@ -11,7 +11,7 @@ func (s *Server) RoutesServices() {
 	repoService := repository.NewRepositoryService(&repository.Queries)
 	sevice := service.NewServiceServices(repoService)
 	handler := handler.NewHandlerService(sevice)
-	serviceRoute := r.Group("/api/service")
+	serviceRoute := r.Group("/api/services")
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Get("/", handler.List)
 

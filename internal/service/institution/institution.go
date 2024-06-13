@@ -5,6 +5,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"io"
 	dto "optitech/internal/dto/institution"
+	dto_services "optitech/internal/dto/institution_services"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"os"
@@ -13,11 +14,11 @@ import (
 
 type serviceInstitution struct {
 	institutionRepository     interfaces.IInstitutionRepository
-	serviceInstitutionService interfaces.IServicesInstitutionService
+	serviceInstitutionService interfaces.IServiceInstitutionService
 	clientInstitutionService  interfaces.IInstitutionClientService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServicesInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService) interfaces.IInstitutionService {
+func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService) interfaces.IInstitutionService {
 	return &serviceInstitution{
 		institutionRepository:     r,
 		serviceInstitutionService: serviceInstitutionService,
@@ -25,7 +26,11 @@ func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstituti
 	}
 }
 func (s *serviceInstitution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
-	repoRes, err := s.institutionRepository.GetInstitution(req.InstitutionID)
+	repoRes, err := s.institutionRepository.GetInstitution(req.Id)
+	repoServices, _ := s.serviceInstitutionService.List(req.Id)
+	repoClients, _ := s.clientInstitutionService.List(req.Id)
+	repoRes.Clients = *repoClients
+	repoRes.Services = *repoServices
 
 	if err != nil {
 		return nil, err
@@ -116,13 +121,23 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 
 	return r, nil
 }
+func (s *serviceInstitution) UpdateAsesor(req *dto.UpdateAsesorInstitutionReq) (bool, error) {
+	repoReq := &sq.UpdateAsesorInstitutionParams{
+		InstitutionID: req.InstitutionID,
+		AsesorID:      pgtype.Int4{Int32: req.AsesorID, Valid: true},
+		UpdatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+	if err := s.institutionRepository.UpdateAsesorInstitution(repoReq); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
 
 func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error) {
 	repoReq := &sq.UpdateInstitutionParams{
 		InstitutionID: req.InstitutionID,
-	}
-	if req.AsesorID < 0 {
-		repoReq.AsesorID = pgtype.Int4{Int32: req.AsesorID, Valid: true}
+		UpdatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 	if req.InstitutionName != "" {
 		repoReq.InstitutionName = req.InstitutionName
@@ -156,13 +171,14 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 	if err != nil {
 		return false, err
 	}
+	err := s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionID: req.InstitutionID, Services: req.Services})
 
 	return true, nil
 }
 
 func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 	repoReq := &sq.DeleteInstitutionParams{
-		InstitutionID: req.InstitutionID,
+		InstitutionID: req.Id,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 

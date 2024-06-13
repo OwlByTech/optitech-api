@@ -15,7 +15,7 @@ func NewServiceServices(r interfaces.IServiceRepository) interfaces.IService {
 	}
 }
 func (s *serviceService) Get(req dto.GetServiceReq) (*dto.GetServiceRes, error) {
-	repoRes, err := s.servicesRepository.GetService(req.ServiceID)
+	repoRes, err := s.servicesRepository.GetService(req.Id)
 
 	if err != nil {
 		return nil, err

@@ -21,5 +21,8 @@ func (s *Server) RoutesInstitution() {
 	institutionRoute.Post("/", handler.Create)
 	institutionRoute.Get("/:id", handler.Get)
 	institutionRoute.Get("/", handler.List)
+	institutionRoute.Delete("/:id", handler.Delete)
+	institutionRoute.Put("/:id", handler.Update)
+	institutionRoute.Post("/asesor", handler.UpdateAsesor)
 
 }

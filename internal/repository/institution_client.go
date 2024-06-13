@@ -45,6 +45,11 @@ func (r *repositoryInstitutionClient) ExistsInstitutionClient(arg *sq.ExistsInst
 	return true
 
 }
+func (r *repositoryInstitutionClient) RecoverInstitutionClient(arg *sq.RecoverInstitutionClientParams) error {
+	ctx := context.Background()
+	return r.insititutionClientRepository.RecoverInstitutionClient(ctx, *arg)
+
+}
 
 func (r *repositoryInstitutionClient) CreateInstitutionClient(arg *[]sq.CreateInstitutionClientParams) error {
 	ctx := context.Background()
