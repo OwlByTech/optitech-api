@@ -11,6 +11,7 @@ type IInstitutionService interface {
 	Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error)
 	Create(req *dto.CreateInstitutionReq) (*dto.CreateInstitutionRes, error)
 	Update(req *dto.UpdateInstitutionReq) (bool, error)
+	UpdateAsesor(req *dto.UpdateAsesorInstitutionReq) (bool, error)
 	List() (*[]dto.GetInstitutionRes, error)
 	Delete(req dto.GetInstitutionReq) (bool, error)
 }
@@ -20,12 +21,14 @@ type IInstitutionRepository interface {
 	UpdateInstitution(arg *models.UpdateInstitutionParams) error
 	ListInstitutions() (*[]dto.GetInstitutionRes, error)
 	DeleteInstitution(arg *models.DeleteInstitutionParams) error
+	UpdateAsesorInstitution(arg *models.UpdateAsesorInstitutionParams) error
 }
 
-type IHandler interface {
+type IInstitutionHandler interface {
 	Get(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
+	UpdateAsesor(c *fiber.Ctx) error
 	List(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
 }
