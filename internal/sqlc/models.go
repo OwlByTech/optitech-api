@@ -152,7 +152,7 @@ type Asesor struct {
 }
 
 type Client struct {
-	ClientID  int64            `json:"client_id"`
+	ClientID  int32            `json:"client_id"`
 	GivenName string           `json:"given_name"`
 	Surname   string           `json:"surname"`
 	Email     string           `json:"email"`

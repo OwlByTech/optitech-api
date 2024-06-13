@@ -148,6 +148,23 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 	return items, nil
 }
 
+const updateAsesorInstitution = `-- name: UpdateAsesorInstitution :exec
+UPDATE institution
+SET asesor_id= $2 ,updated_at=$3
+WHERE institution_id = $1
+`
+
+type UpdateAsesorInstitutionParams struct {
+	InstitutionID int32            `json:"institution_id"`
+	AsesorID      pgtype.Int4      `json:"asesor_id"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+}
+
+func (q *Queries) UpdateAsesorInstitution(ctx context.Context, arg UpdateAsesorInstitutionParams) error {
+	_, err := q.db.Exec(ctx, updateAsesorInstitution, arg.InstitutionID, arg.AsesorID, arg.UpdatedAt)
+	return err
+}
+
 const updateInstitution = `-- name: UpdateInstitution :exec
 UPDATE institution
 SET institution_name = $2, logo = $3, description = $4,  updated_at=$5,asesor_id= $6

@@ -98,7 +98,7 @@ func (q *Queries) GetInstitutionClient(ctx context.Context, arg GetInstitutionCl
 
 const listInstitutionClients = `-- name: ListInstitutionClients :many
 SELECT client.given_name,client.surname ,institution_client.client_id FROM institution_client
-INNER JOIN client ON institution_client.client_id=client_id.client_id
+INNER JOIN client ON institution_client.client_id=client.client_id
 WHERE  institution_client.institution_id=$1
 `
 
