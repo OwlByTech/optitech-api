@@ -9,6 +9,5 @@ type UpdateInstitutionReq struct {
 	InstitutionName string `json:"institutionName" `
 	Description     string `json:"description"`
 	LogoFile        *multipart.FileHeader
-	AsesorID        int32    `json:"asesor_id"`
-	Services        []string `json:"services" `
+	Services        []int32 `json:"services" `
 }

@@ -1,8 +1,8 @@
 package dto
 
 type CreateInstitutionServicesReq struct {
-	InstitutionID int64 `json:"institution_id" validate:"required"`
-	ServiceId     int64 `json:"services_id" validate:"required"`
+	InstitutionID int32   `json:"institution_id" validate:"required"`
+	ServiceId     []int32 `json:"services_id" validate:"required"`
 }
 
 type CreateInstitutionServicesRes struct {

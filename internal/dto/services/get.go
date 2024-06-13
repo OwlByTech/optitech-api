@@ -1,7 +1,7 @@
 package dto
 
 type GetServiceReq struct {
-	ServiceID int32 `validate:"required"`
+	Id int32 `validate:"required"`
 }
 
 type GetServiceRes struct {

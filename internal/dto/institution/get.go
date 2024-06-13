@@ -1,13 +1,19 @@
 package dto
 
+import (
+	dto_client "optitech/internal/dto/client"
+	dto_services "optitech/internal/dto/services"
+)
+
 type GetInstitutionReq struct {
-	InstitutionID int32 `validate:"required"`
+	Id int32 `validate:"required"`
 }
 
 type GetInstitutionRes struct {
-	InstitutionID   int32
+	Id              int32
 	InstitutionName string
 	Logo            string
 	Description     string
-	Services        []string
+	Services        []dto_services.GetServiceRes
+	Clients         []dto_client.GetClientRes
 }
