@@ -12,7 +12,7 @@ type handlerInstitution struct {
 	institutionService interfaces.IInstitutionService
 }
 
-func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IHandler {
+func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IInstitutionHandler {
 	return &handlerInstitution{
 		institutionService: r,
 	}
@@ -60,6 +60,27 @@ func (h *handlerInstitution) Create(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+func (h *handlerInstitution) UpdateAsesor(c *fiber.Ctx) error {
+	req := &cdto.UpdateAsesorInstitutionReq{}
+
+	err := c.BodyParser(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	err = dto.ValidateDTO(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	r, err := h.institutionService.UpdateAsesor(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(r)
+
+}
 
 func (h *handlerInstitution) Update(c *fiber.Ctx) error {
 	params_id := c.AllParams()
@@ -68,7 +89,7 @@ func (h *handlerInstitution) Update(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	req := &cdto.UpdateInstitutionReq{
-		InstitutionID: req_id.InstitutionID,
+		InstitutionID: req_id.Id,
 	}
 	params := c.FormValue("data")
 	if err := json.Unmarshal([]byte(params), &req); err != nil {
