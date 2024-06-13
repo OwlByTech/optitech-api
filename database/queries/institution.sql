@@ -21,6 +21,12 @@ UPDATE institution
 SET institution_name = $2, logo = $3, description = $4,  updated_at=$5,asesor_id= $6
 WHERE institution_id = $1;
 
+
+-- name: UpdateAsesorInstitution :exec
+UPDATE institution
+SET asesor_id= $2 ,updated_at=$3
+WHERE institution_id = $1;
+
 -- name: DeleteInstitution :exec
 UPDATE institution
 SET deleted_at = $2

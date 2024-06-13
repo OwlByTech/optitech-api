@@ -1,6 +1,6 @@
 -- name: ListInstitutionServices :many
 SELECT services.service_name ,services.service_id FROM institution_services
-INNER JOIN services ON  institution_services.services_id=services.service_id
+INNER JOIN services ON  institution_services.service_id=services.service_id
 WHERE institution_services.institution_id= $1
 ORDER BY services.service_id;
 
