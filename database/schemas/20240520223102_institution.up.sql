@@ -1,5 +1,5 @@
 CREATE TABLE institution (
-  institution_id INT PRIMARY KEY,
+  institution_id SERIAL PRIMARY KEY,
   asesor_id INT REFERENCES asesor(asesor_id),
   institution_name VARCHAR(50) NOT NULL,
   logo VARCHAR(255),
