@@ -1,80 +1,36 @@
 package service
 
 import (
-	"context"
 	dto "optitech/internal/dto/client"
-	"optitech/internal/repository"
-	sq "optitech/internal/sqlc"
-	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"optitech/internal/interfaces"
 )
 
-func GetClientService(req dto.GetClientReq) (*dto.GetClientRes, error) {
-	ctx := context.Background()
-
-	repoRes, err := repository.Queries.GetClient(ctx, req.Id)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.GetClientRes{
-		Id:        repoRes.ClientID,
-		GivenName: repoRes.GivenName,
-		Surname:   repoRes.Surname,
-		Email:     repoRes.Email,
-	}, nil
+type serviceClient struct {
+	clientRepository interfaces.IClientRepository
 }
 
-func CreateClientService(req dto.CreateClientReq) (*sq.Client, error) {
-	ctx := context.Background()
-
-	// Time
-	createdAt := pgtype.Timestamp{
-		Time:  time.Now(),
-		Valid: true,
+func NewServiceClient(r interfaces.IClientRepository) interfaces.IClientService {
+	return &serviceClient{
+		clientRepository: r,
 	}
-
-	repoReq := sq.CreateClientParams{
-		GivenName: req.GivenName,
-		Surname:   req.Surname,
-		Email:     req.Email,
-		Password:  req.Password,
-		CreatedAt: createdAt,
-	}
-
-	r, err := repository.Queries.CreateClient(ctx, repoReq)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &r, nil
 }
 
-func UpdateClientService(req dto.UpdateClientReq) error {
-	ctx := context.Background()
+func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
+	return s.clientRepository.GetClient(req.Id)
+}
 
-	// Time
-	updatedAt := pgtype.Timestamp{
-		Time:  time.Now(),
-		Valid: true,
-	}
+func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
+	return nil, nil
+}
 
-	repoReq := sq.UpdateClientByIdParams{
-		ClientID:  req.ClientID,
-		GivenName: req.GivenName,
-		Password:  req.Password,
-		Surname:   req.Surname,
-		Email:     req.Email,
-		UpdatedAt: updatedAt,
-	}
+func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
+	return false, nil
+}
 
-	err := repository.Queries.UpdateClientById(ctx, repoReq)
-	if err != nil {
-		return err
-	}
+func (s *serviceClient) List() (*[]dto.GetClientRes, error) {
+	return nil, nil
+}
 
-	return nil
+func (s *serviceClient) Delete(req dto.GetClientReq) (bool, error) {
+	return false, nil
 }
