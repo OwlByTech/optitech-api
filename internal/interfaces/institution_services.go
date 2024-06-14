@@ -11,9 +11,9 @@ type IServiceInstitutionService interface {
 	Create(req *[]models.CreateInstitutionServicesParams) error
 	Exists(req *models.ExistsInstitutionServiceParams) bool
 	Recover(arg *models.RecoverInstitutionServiceParams) error
-	Update(req *dto.UpdateInstitutionServicesReq) bool
+	Update(req *dto.UpdateInstitutionServicesReq) error
 	DeleteById(req *dto.GetInstitutionServicesReq) error
-	DeleteByInstitution(InstitutionID int32) (bool, error)
+	DeleteByInstitution(InstitutionID int32) error
 }
 type IInstitutionServiceRepository interface {
 	ListInstitutionServices(institutionID int32) (*[]dto_service.GetServiceRes, error)
