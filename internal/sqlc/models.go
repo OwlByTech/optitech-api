@@ -253,28 +253,31 @@ type InstitutionClient struct {
 }
 
 type InstitutionService struct {
-	InstitutionServicesID int64            `json:"institution_services_id"`
-	InstitutionID         int32            `json:"institution_id"`
-	ServicesID            int32            `json:"services_id"`
-	CreatedAt             pgtype.Timestamp `json:"created_at"`
-	UpdatedAt             pgtype.Timestamp `json:"updated_at"`
-	DeletedAt             pgtype.Timestamp `json:"deleted_at"`
+	InstitutionServicesID int64        `json:"institution_services_id"`
+	InstitutionID         int32        `json:"institution_id"`
+	ServicesID            int32        `json:"services_id"`
+	CreatedAt             time.Time    `json:"created_at"`
+	UpdatedAt             sql.NullTime `json:"updated_at"`
+	DeletedAt             sql.NullTime `json:"deleted_at"`
 }
 
 type Permission struct {
-	PermissionID   int64            `json:"permission_id"`
-	PermissionType string           `json:"permission_type"`
-	CreatedAt      pgtype.Timestamp `json:"created_at"`
-	UpdatedAt      pgtype.Timestamp `json:"updated_at"`
-	DeletedAt      pgtype.Timestamp `json:"deleted_at"`
+	PermissionID int64        `json:"permission_id"`
+	Name         string       `json:"name"`
+	Code         string       `json:"code"`
+	Description  string       `json:"description"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    sql.NullTime `json:"updated_at"`
+	DeletedAt    sql.NullTime `json:"deleted_at"`
 }
 
 type Role struct {
-	RoleID    int64            `json:"role_id"`
-	RoleName  string           `json:"role_name"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+	RoleID      int64        `json:"role_id"`
+	RoleName    string       `json:"role_name"`
+	Description string       `json:"description"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   sql.NullTime `json:"updated_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
 }
 
 type RolePermission struct {
@@ -287,9 +290,26 @@ type RolePermission struct {
 }
 
 type Service struct {
-	ServicesID  int64            `json:"services_id"`
-	ServiceName string           `json:"service_name"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
+	ServicesID int64        `json:"services_id"`
+	Name       string       `json:"name"`
+	CreatedAt  time.Time    `json:"created_at"`
+	UpdatedAt  sql.NullTime `json:"updated_at"`
+	DeletedAt  sql.NullTime `json:"deleted_at"`
+}
+
+type Standard struct {
+	StandardID int64          `json:"standard_id"`
+	ServiceID  int32          `json:"service_id"`
+	Name       string         `json:"name"`
+	Complexity sql.NullString `json:"complexity"`
+	Modality   string         `json:"modality"`
+	Article    string         `json:"article"`
+	Section    string         `json:"section"`
+	Paragraph  sql.NullString `json:"paragraph"`
+	Criteria   string         `json:"criteria"`
+	Comply     sql.NullBool   `json:"comply"`
+	Applys     sql.NullBool   `json:"applys"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  sql.NullTime   `json:"updated_at"`
+	DeletedAt  sql.NullTime   `json:"deleted_at"`
 }

@@ -7,18 +7,18 @@ SELECT * FROM roles
 ORDER BY role_id;
 
 -- name: GetRoleByName :one
-SELECT role_name
+SELECT role_name, description
 FROM roles
 WHERE role_id = $1;
 
 -- name: CreateRole :one
-INSERT INTO roles(role_name, created_at)
-VALUES ($1, $2)
+INSERT INTO roles(role_name, description, created_at)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: UpdateRoleById :exec
 UPDATE roles
-SET role_name = $2, updated_at = $3
+SET role_name = $2, description = $3, updated_at = $4
 WHERE role_id = $1;
 
 -- name: DeleteRoleById :exec
