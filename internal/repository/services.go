@@ -25,8 +25,8 @@ func (r *repositoryService) GetService(ServiceID int32) (*dto.GetServiceRes, err
 		return nil, err
 	}
 	return &dto.GetServiceRes{
-		ServiceID:   repoRes.ServiceID,
-		ServiceName: repoRes.ServiceName,
+		Id:   repoRes.ServiceID,
+		Name: repoRes.Name,
 	}, nil
 }
 
@@ -40,35 +40,10 @@ func (r *repositoryService) ListServices() (*[]dto.GetServiceRes, error) {
 	services := make([]dto.GetServiceRes, len(repoRes))
 	for i, inst := range repoRes {
 		services[i] = dto.GetServiceRes{
-			ServiceID:   inst.ServiceID,
-			ServiceName: inst.ServiceName,
+			Id:   inst.ServiceID,
+			Name: inst.Name,
 		}
 	}
 
 	return &services, nil
-}
-
-func (r *repositoryService) CreateService(arg *sq.CreateServiceParams) (*dto.CreateServiceRes, error) {
-	ctx := context.Background()
-	res, err := r.serviceRepository.CreateService(ctx, *arg)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.CreateServiceRes{
-		ServiceName: res.ServiceName,
-	}, nil
-}
-
-func (r *repositoryService) UpdateService(arg *sq.UpdateServiceParams) error {
-	ctx := context.Background()
-	return r.serviceRepository.UpdateService(ctx, *arg)
-
-}
-
-func (r *repositoryService) DeleteService(arg *sq.DeleteServiceParams) error {
-	ctx := context.Background()
-	return r.serviceRepository.DeleteService(ctx, *arg)
-
 }

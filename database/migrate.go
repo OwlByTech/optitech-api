@@ -24,6 +24,8 @@ func Migrate(arg string) error {
 	p := fmt.Sprintf("file://%s", filepath.ToSlash(filepath.Join(wd, "database", "schemas")))
 
 	db, err := sql.Open("postgres", DBUrl())
+
+	defer db.Close()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

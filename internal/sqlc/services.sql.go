@@ -12,23 +12,23 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createService = `-- name: CreateService :one
-INSERT INTO services(service_name, created_at)
+const createServices = `-- name: CreateServices :one
+INSERT INTO services(name, created_at)
 VALUES ($1, $2)
-RETURNING service_id, service_name, created_at, updated_at, deleted_at
+RETURNING service_id, name, created_at, updated_at, deleted_at
 `
 
-type CreateServiceParams struct {
-	ServiceName string           `json:"service_name"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
+type CreateServicesParams struct {
+	Name      string           `json:"name"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
-func (q *Queries) CreateService(ctx context.Context, arg CreateServiceParams) (Service, error) {
-	row := q.db.QueryRow(ctx, createService, arg.ServiceName, arg.CreatedAt)
+func (q *Queries) CreateServices(ctx context.Context, arg CreateServicesParams) (Service, error) {
+	row := q.db.QueryRow(ctx, createServices, arg.Name, arg.CreatedAt)
 	var i Service
 	err := row.Scan(
 		&i.ServiceID,
-		&i.ServiceName,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -63,7 +63,7 @@ func (q *Queries) DeleteService(ctx context.Context, arg DeleteServiceParams) er
 }
 
 const getService = `-- name: GetService :one
-SELECT service_id, service_name, created_at, updated_at, deleted_at FROM services
+SELECT service_id, name, created_at, updated_at, deleted_at FROM services
 WHERE service_id = $1 AND deleted_at IS NULL
 LIMIT 1
 `
@@ -73,7 +73,7 @@ func (q *Queries) GetService(ctx context.Context, serviceID int32) (Service, err
 	var i Service
 	err := row.Scan(
 		&i.ServiceID,
-		&i.ServiceName,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -82,20 +82,20 @@ func (q *Queries) GetService(ctx context.Context, serviceID int32) (Service, err
 }
 
 const getServicesByName = `-- name: GetServicesByName :one
-SELECT service_name
+SELECT name
 FROM services
 WHERE service_id = $1
 `
 
 func (q *Queries) GetServicesByName(ctx context.Context, serviceID int32) (string, error) {
 	row := q.db.QueryRow(ctx, getServicesByName, serviceID)
-	var service_name string
-	err := row.Scan(&service_name)
-	return service_name, err
+	var name string
+	err := row.Scan(&name)
+	return name, err
 }
 
 const listServices = `-- name: ListServices :many
-SELECT service_id, service_name, created_at, updated_at, deleted_at FROM services
+SELECT service_id, name, created_at, updated_at, deleted_at FROM services
 ORDER BY service_id
 `
 
@@ -110,7 +110,7 @@ func (q *Queries) ListServices(ctx context.Context) ([]Service, error) {
 		var i Service
 		if err := rows.Scan(
 			&i.ServiceID,
-			&i.ServiceName,
+			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -127,17 +127,17 @@ func (q *Queries) ListServices(ctx context.Context) ([]Service, error) {
 
 const updateService = `-- name: UpdateService :exec
 UPDATE services
-SET service_name = $2, updated_at = $3
+SET name = $2, updated_at = $3
 WHERE service_id = $1
 `
 
 type UpdateServiceParams struct {
-	ServiceID   int32            `json:"service_id"`
-	ServiceName string           `json:"service_name"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	ServiceID int32            `json:"service_id"`
+	Name      string           `json:"name"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdateService(ctx context.Context, arg UpdateServiceParams) error {
-	_, err := q.db.Exec(ctx, updateService, arg.ServiceID, arg.ServiceName, arg.UpdatedAt)
+	_, err := q.db.Exec(ctx, updateService, arg.ServiceID, arg.Name, arg.UpdatedAt)
 	return err
 }

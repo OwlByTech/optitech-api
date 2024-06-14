@@ -6,6 +6,6 @@ type GetRolePermissionReq struct {
 
 type GetRolePermissionRes struct {
 	Id           int64
-	RoleId       int64
-	PermissionId string
+	RoleId       int32
+	PermissionId int32
 }

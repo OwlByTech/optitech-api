@@ -27,8 +27,8 @@ func (r *repositoryInstitutionService) ListInstitutionServices(InstitutionID int
 	institution_services := make([]dtoService.GetServiceRes, len(repoRes))
 	for i, inst := range repoRes {
 		institution_services[i] = dtoService.GetServiceRes{
-			ServiceID:   inst.ServiceID,
-			ServiceName: inst.ServiceName,
+			Id:   inst.ServiceID,
+			Name: inst.Name,
 		}
 	}
 	return &institution_services, nil

@@ -39,12 +39,12 @@ func (s *serviceInstitutionService) Update(req *dto.UpdateInstitutionServicesReq
 	var listValid []int32
 	var listCreate []sq.CreateInstitutionServicesParams
 	for _, service := range *res {
-		if slices.Index(req.Services, service.ServiceID) == -1 {
-			if s.DeleteById(&dto.GetInstitutionServicesReq{InstitutionID: req.InstitutionID, ServiceID: service.ServiceID}) != nil {
+		if slices.Index(req.Services, service.Id) == -1 {
+			if s.DeleteById(&dto.GetInstitutionServicesReq{InstitutionID: req.InstitutionID, ServiceID: service.Id}) != nil {
 				return err
 			}
 		} else {
-			listValid = append(listValid, service.ServiceID)
+			listValid = append(listValid, service.Id)
 		}
 	}
 	for _, service := range listValid {

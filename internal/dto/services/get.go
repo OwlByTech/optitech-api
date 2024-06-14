@@ -5,6 +5,6 @@ type GetServiceReq struct {
 }
 
 type GetServiceRes struct {
-	ServiceID   int32
-	ServiceName string
+	Id   int32
+	Name string
 }

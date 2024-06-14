@@ -85,7 +85,7 @@ func (q *Queries) ExistsInstitutionService(ctx context.Context, arg ExistsInstit
 }
 
 const listInstitutionServices = `-- name: ListInstitutionServices :many
-SELECT services.service_name ,services.service_id FROM institution_services
+SELECT services.name ,services.service_id FROM institution_services
 INNER JOIN services ON  institution_services.service_id=services.service_id
 WHERE institution_services.institution_id= $1
 AND institution_services.deleted_at IS NULL
@@ -93,8 +93,8 @@ ORDER BY services.service_id
 `
 
 type ListInstitutionServicesRow struct {
-	ServiceName string `json:"service_name"`
-	ServiceID   int32  `json:"service_id"`
+	Name      string `json:"name"`
+	ServiceID int32  `json:"service_id"`
 }
 
 func (q *Queries) ListInstitutionServices(ctx context.Context, institutionID int32) ([]ListInstitutionServicesRow, error) {
@@ -106,7 +106,7 @@ func (q *Queries) ListInstitutionServices(ctx context.Context, institutionID int
 	var items []ListInstitutionServicesRow
 	for rows.Next() {
 		var i ListInstitutionServicesRow
-		if err := rows.Scan(&i.ServiceName, &i.ServiceID); err != nil {
+		if err := rows.Scan(&i.Name, &i.ServiceID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

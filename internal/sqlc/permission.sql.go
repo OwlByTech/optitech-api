@@ -13,22 +13,31 @@ import (
 )
 
 const createPermission = `-- name: CreatePermission :one
-INSERT INTO permission(permission_type, created_at)
-VALUES ($1, $2)
-RETURNING permission_id, permission_type, created_at, updated_at, deleted_at
+INSERT INTO permission(name, code, description, created_at)
+VALUES ($1, $2, $3, $4)
+RETURNING permission_id, name, code, description, created_at, updated_at, deleted_at
 `
 
 type CreatePermissionParams struct {
-	PermissionType string           `json:"permission_type"`
-	CreatedAt      pgtype.Timestamp `json:"created_at"`
+	Name        string           `json:"name"`
+	Code        string           `json:"code"`
+	Description string           `json:"description"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreatePermission(ctx context.Context, arg CreatePermissionParams) (Permission, error) {
-	row := q.db.QueryRow(ctx, createPermission, arg.PermissionType, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createPermission,
+		arg.Name,
+		arg.Code,
+		arg.Description,
+		arg.CreatedAt,
+	)
 	var i Permission
 	err := row.Scan(
 		&i.PermissionID,
-		&i.PermissionType,
+		&i.Name,
+		&i.Code,
+		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -53,7 +62,7 @@ WHERE permission_id = $1
 `
 
 type DeletePermissionByIdParams struct {
-	PermissionID int64            `json:"permission_id"`
+	PermissionID int32            `json:"permission_id"`
 	DeletedAt    pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -63,16 +72,18 @@ func (q *Queries) DeletePermissionById(ctx context.Context, arg DeletePermission
 }
 
 const getPermission = `-- name: GetPermission :one
-SELECT permission_id, permission_type, created_at, updated_at, deleted_at FROM permission
+SELECT permission_id, name, code, description, created_at, updated_at, deleted_at FROM permission
 WHERE permission_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetPermission(ctx context.Context, permissionID int64) (Permission, error) {
+func (q *Queries) GetPermission(ctx context.Context, permissionID int32) (Permission, error) {
 	row := q.db.QueryRow(ctx, getPermission, permissionID)
 	var i Permission
 	err := row.Scan(
 		&i.PermissionID,
-		&i.PermissionType,
+		&i.Name,
+		&i.Code,
+		&i.Description,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -81,20 +92,26 @@ func (q *Queries) GetPermission(ctx context.Context, permissionID int64) (Permis
 }
 
 const getPermissionByName = `-- name: GetPermissionByName :one
-SELECT permission_type
+SELECT name, code, description
 FROM permission
 WHERE permission_id = $1
 `
 
-func (q *Queries) GetPermissionByName(ctx context.Context, permissionID int64) (string, error) {
+type GetPermissionByNameRow struct {
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetPermissionByName(ctx context.Context, permissionID int32) (GetPermissionByNameRow, error) {
 	row := q.db.QueryRow(ctx, getPermissionByName, permissionID)
-	var permission_type string
-	err := row.Scan(&permission_type)
-	return permission_type, err
+	var i GetPermissionByNameRow
+	err := row.Scan(&i.Name, &i.Code, &i.Description)
+	return i, err
 }
 
 const listPermissions = `-- name: ListPermissions :many
-SELECT permission_id, permission_type, created_at, updated_at, deleted_at FROM permission
+SELECT permission_id, name, code, description, created_at, updated_at, deleted_at FROM permission
 ORDER BY permission_id
 `
 
@@ -109,7 +126,9 @@ func (q *Queries) ListPermissions(ctx context.Context) ([]Permission, error) {
 		var i Permission
 		if err := rows.Scan(
 			&i.PermissionID,
-			&i.PermissionType,
+			&i.Name,
+			&i.Code,
+			&i.Description,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -126,17 +145,25 @@ func (q *Queries) ListPermissions(ctx context.Context) ([]Permission, error) {
 
 const updatePermissionById = `-- name: UpdatePermissionById :exec
 UPDATE permission
-SET permission_type = $2, updated_at = $3
+SET name = $2, code = $3, description = $4, updated_at = $5
 WHERE permission_id = $1
 `
 
 type UpdatePermissionByIdParams struct {
-	PermissionID   int64            `json:"permission_id"`
-	PermissionType string           `json:"permission_type"`
-	UpdatedAt      pgtype.Timestamp `json:"updated_at"`
+	PermissionID int32            `json:"permission_id"`
+	Name         string           `json:"name"`
+	Code         string           `json:"code"`
+	Description  string           `json:"description"`
+	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdatePermissionById(ctx context.Context, arg UpdatePermissionByIdParams) error {
-	_, err := q.db.Exec(ctx, updatePermissionById, arg.PermissionID, arg.PermissionType, arg.UpdatedAt)
+	_, err := q.db.Exec(ctx, updatePermissionById,
+		arg.PermissionID,
+		arg.Name,
+		arg.Code,
+		arg.Description,
+		arg.UpdatedAt,
+	)
 	return err
 }
