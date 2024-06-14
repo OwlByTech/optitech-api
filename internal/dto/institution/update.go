@@ -11,3 +11,8 @@ type UpdateInstitutionReq struct {
 	LogoFile        *multipart.FileHeader
 	Services        []int32 `json:"services" `
 }
+
+type UpdateAsesorInstitutionReq struct {
+	InstitutionID int32
+	AsesorID      int32
+}

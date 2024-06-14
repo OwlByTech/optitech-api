@@ -14,6 +14,7 @@ type GetInstitutionRes struct {
 	InstitutionName string
 	Logo            string
 	Description     string
+	AsesorId        int32
 	Services        []dto_services.GetServiceRes
 	Clients         []dto_client.GetClientRes
 }
