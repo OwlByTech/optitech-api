@@ -29,6 +29,7 @@ func (r *repositoryInstitution) GetInstitution(InstitutionID int32) (*dto.GetIns
 		InstitutionName: repoRes.InstitutionName,
 		Description:     repoRes.Description,
 		Logo:            repoRes.Logo.String,
+		AsesorId:        repoRes.AsesorID.Int32,
 	}, nil
 }
 
