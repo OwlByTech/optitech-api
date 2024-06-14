@@ -3,7 +3,7 @@ package handler
 import (
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/client"
-	"optitech/internal/service"
+	service "optitech/internal/service/client"
 
 	"github.com/gofiber/fiber/v2"
 )
