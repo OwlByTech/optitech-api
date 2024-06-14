@@ -30,6 +30,7 @@ func (r *repositoryInstitutionClient) ListInstitutionClient(InstitutionID int32)
 			ClientID:  inst.ClientID,
 			GivenName: inst.GivenName,
 			Surname:   inst.Surname,
+			Email:     inst.Email,
 		}
 	}
 
