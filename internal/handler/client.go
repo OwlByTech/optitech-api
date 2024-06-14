@@ -4,6 +4,7 @@ import (
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/client"
 	service "optitech/internal/service/client"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -47,4 +48,32 @@ func CreateClientHandler(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(r)
+}
+
+func UpdateClientHandler(c *fiber.Ctx) error {
+	clientIDStr := c.Params("id")
+	clientID, err := strconv.ParseInt(clientIDStr, 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid Client ID")
+	}
+
+	req := &cdto.UpdateClientReq{
+		ClientID: clientID,
+	}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := service.UpdateClientService(*req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Client updated successfully",
+	})
 }

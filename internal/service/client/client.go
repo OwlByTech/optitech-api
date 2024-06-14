@@ -52,3 +52,29 @@ func CreateClientService(req dto.CreateClientReq) (*sq.Client, error) {
 
 	return &r, nil
 }
+
+func UpdateClientService(req dto.UpdateClientReq) error {
+	ctx := context.Background()
+
+	// Time
+	updatedAt := pgtype.Timestamp{
+		Time:  time.Now(),
+		Valid: true,
+	}
+
+	repoReq := sq.UpdateClientByIdParams{
+		ClientID:  req.ClientID,
+		GivenName: req.GivenName,
+		Password:  req.Password,
+		Surname:   req.Surname,
+		Email:     req.Email,
+		UpdatedAt: updatedAt,
+	}
+
+	err := repository.Queries.UpdateClientById(ctx, repoReq)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
