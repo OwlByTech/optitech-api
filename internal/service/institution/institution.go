@@ -27,14 +27,13 @@ func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstituti
 }
 func (s *serviceInstitution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {
 	repoRes, err := s.institutionRepository.GetInstitution(req.Id)
+	if err != nil {
+		return nil, err
+	}
 	repoServices, _ := s.serviceInstitutionService.List(req.Id)
 	repoClients, _ := s.clientInstitutionService.List(req.Id)
 	repoRes.Clients = *repoClients
 	repoRes.Services = *repoServices
-
-	if err != nil {
-		return nil, err
-	}
 
 	return repoRes, err
 }
@@ -171,7 +170,7 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 	if err != nil {
 		return false, err
 	}
-	err := s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionID: req.InstitutionID, Services: req.Services})
+	err = s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionID: req.InstitutionID, Services: req.Services})
 
 	return true, nil
 }
@@ -182,11 +181,15 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	err := s.institutionRepository.DeleteInstitution(repoReq)
-
-	if err != nil {
+	if err := s.institutionRepository.DeleteInstitution(repoReq); err != nil {
+		return false, err
+	}
+	if err := s.clientInstitutionService.DeleteByInstitution(repoReq.InstitutionID); err != nil {
+		return false, err
+	}
+	if err := s.serviceInstitutionService.DeleteByInstitution(repoReq.InstitutionID); err != nil {
 		return false, err
 	}
 
-	return true, err
+	return true, nil
 }
