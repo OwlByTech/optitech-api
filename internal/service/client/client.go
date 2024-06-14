@@ -5,6 +5,9 @@ import (
 	dto "optitech/internal/dto/client"
 	"optitech/internal/repository"
 	sq "optitech/internal/sqlc"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func GetClientService(req dto.GetClientReq) (*dto.GetClientRes, error) {
@@ -27,15 +30,20 @@ func GetClientService(req dto.GetClientReq) (*dto.GetClientRes, error) {
 func CreateClientService(req dto.CreateClientReq) (*sq.Client, error) {
 	ctx := context.Background()
 
+	// Time
+	createdAt := pgtype.Timestamp{
+		Time:  time.Now(),
+		Valid: true,
+	}
+
 	repoReq := sq.CreateClientParams{
 		GivenName: req.GivenName,
 		Surname:   req.Surname,
 		Email:     req.Email,
 		Password:  req.Password,
+		CreatedAt: createdAt,
 	}
 
-	// TODO: after save get the id of inserted using sqlc because
-	// can i used the last inserted id
 	r, err := repository.Queries.CreateClient(ctx, repoReq)
 
 	if err != nil {
