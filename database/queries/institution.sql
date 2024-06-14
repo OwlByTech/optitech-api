@@ -1,10 +1,13 @@
 -- name: GetInstitution :one
 SELECT * FROM institution
-WHERE institution_id = $1 LIMIT 1;
+WHERE institution_id = $1
+AND deleted_at IS NULL
+LIMIT 1;
 
 -- name: ListInstitutions :many
 SELECT * FROM institution
-ORDER BY institution_name;
+WHERE deleted_at IS NULL
+ORDER BY institution_name ;
 
 -- name: GetInstitutionByName :one
 SELECT  institution_name, logo, description

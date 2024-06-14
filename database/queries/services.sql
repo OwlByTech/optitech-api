@@ -1,6 +1,7 @@
 -- name: GetService :one
 SELECT * FROM services
-WHERE service_id = $1 LIMIT 1;
+WHERE service_id = $1 AND deleted_at IS NULL
+LIMIT 1;
 
 -- name: ListServices :many
 SELECT * FROM services

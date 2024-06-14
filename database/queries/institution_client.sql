@@ -1,9 +1,9 @@
 -- name: GetInstitutionClient :one
 SELECT * FROM institution_client
-WHERE client_id = $1 AND institution_id=$2 and deleted_at IS NULL;
+WHERE client_id = $1 AND institution_id=$2 AND deleted_at IS NULL;
 
 -- name: ListInstitutionClients :many
-SELECT client.given_name,client.surname ,institution_client.client_id FROM institution_client
+SELECT client.given_name,client.surname,client.email ,institution_client.client_id FROM institution_client
 INNER JOIN client ON institution_client.client_id=client.client_id
 WHERE  institution_client.institution_id=$1;
 
