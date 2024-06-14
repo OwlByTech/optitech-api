@@ -7,8 +7,9 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createStandard = `-- name: CreateStandard :one
@@ -18,21 +19,21 @@ RETURNING standard_id, service_id, name, complexity, modality, article, section,
 `
 
 type CreateStandardParams struct {
-	ServiceID  int32          `json:"service_id"`
-	Name       string         `json:"name"`
-	Complexity sql.NullString `json:"complexity"`
-	Modality   string         `json:"modality"`
-	Article    string         `json:"article"`
-	Section    string         `json:"section"`
-	Paragraph  sql.NullString `json:"paragraph"`
-	Criteria   string         `json:"criteria"`
-	Comply     sql.NullBool   `json:"comply"`
-	Applys     sql.NullBool   `json:"applys"`
-	CreatedAt  time.Time      `json:"created_at"`
+	ServiceID  int32            `json:"service_id"`
+	Name       string           `json:"name"`
+	Complexity pgtype.Text      `json:"complexity"`
+	Modality   string           `json:"modality"`
+	Article    string           `json:"article"`
+	Section    string           `json:"section"`
+	Paragraph  pgtype.Text      `json:"paragraph"`
+	Criteria   string           `json:"criteria"`
+	Comply     pgtype.Bool      `json:"comply"`
+	Applys     pgtype.Bool      `json:"applys"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateStandard(ctx context.Context, arg CreateStandardParams) (Standard, error) {
-	row := q.db.QueryRowContext(ctx, createStandard,
+	row := q.db.QueryRow(ctx, createStandard,
 		arg.ServiceID,
 		arg.Name,
 		arg.Complexity,
@@ -71,8 +72,8 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL
 `
 
-func (q *Queries) DeleteAllStandards(ctx context.Context, deletedAt sql.NullTime) (sql.Result, error) {
-	return q.db.ExecContext(ctx, deleteAllStandards, deletedAt)
+func (q *Queries) DeleteAllStandards(ctx context.Context, deletedAt pgtype.Timestamp) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteAllStandards, deletedAt)
 }
 
 const deleteStandardById = `-- name: DeleteStandardById :exec
@@ -82,21 +83,21 @@ WHERE standard_id = $1
 `
 
 type DeleteStandardByIdParams struct {
-	StandardID int64          `json:"standard_id"`
-	Name       string         `json:"name"`
-	Complexity sql.NullString `json:"complexity"`
-	Modality   string         `json:"modality"`
-	Article    string         `json:"article"`
-	Section    string         `json:"section"`
-	Paragraph  sql.NullString `json:"paragraph"`
-	Criteria   string         `json:"criteria"`
-	Comply     sql.NullBool   `json:"comply"`
-	Applys     sql.NullBool   `json:"applys"`
-	UpdatedAt  sql.NullTime   `json:"updated_at"`
+	StandardID int64            `json:"standard_id"`
+	Name       string           `json:"name"`
+	Complexity pgtype.Text      `json:"complexity"`
+	Modality   string           `json:"modality"`
+	Article    string           `json:"article"`
+	Section    string           `json:"section"`
+	Paragraph  pgtype.Text      `json:"paragraph"`
+	Criteria   string           `json:"criteria"`
+	Comply     pgtype.Bool      `json:"comply"`
+	Applys     pgtype.Bool      `json:"applys"`
+	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) DeleteStandardById(ctx context.Context, arg DeleteStandardByIdParams) error {
-	_, err := q.db.ExecContext(ctx, deleteStandardById,
+	_, err := q.db.Exec(ctx, deleteStandardById,
 		arg.StandardID,
 		arg.Name,
 		arg.Complexity,
@@ -118,7 +119,7 @@ WHERE standard_id = $1 LIMIT 1
 `
 
 func (q *Queries) GetStandard(ctx context.Context, standardID int64) (Standard, error) {
-	row := q.db.QueryRowContext(ctx, getStandard, standardID)
+	row := q.db.QueryRow(ctx, getStandard, standardID)
 	var i Standard
 	err := row.Scan(
 		&i.StandardID,
@@ -146,19 +147,19 @@ WHERE standard_id = $1
 `
 
 type GetStandardByNameRow struct {
-	Name       string         `json:"name"`
-	Complexity sql.NullString `json:"complexity"`
-	Modality   string         `json:"modality"`
-	Article    string         `json:"article"`
-	Section    string         `json:"section"`
-	Paragraph  sql.NullString `json:"paragraph"`
-	Criteria   string         `json:"criteria"`
-	Comply     sql.NullBool   `json:"comply"`
-	Applys     sql.NullBool   `json:"applys"`
+	Name       string      `json:"name"`
+	Complexity pgtype.Text `json:"complexity"`
+	Modality   string      `json:"modality"`
+	Article    string      `json:"article"`
+	Section    string      `json:"section"`
+	Paragraph  pgtype.Text `json:"paragraph"`
+	Criteria   string      `json:"criteria"`
+	Comply     pgtype.Bool `json:"comply"`
+	Applys     pgtype.Bool `json:"applys"`
 }
 
 func (q *Queries) GetStandardByName(ctx context.Context, standardID int64) (GetStandardByNameRow, error) {
-	row := q.db.QueryRowContext(ctx, getStandardByName, standardID)
+	row := q.db.QueryRow(ctx, getStandardByName, standardID)
 	var i GetStandardByNameRow
 	err := row.Scan(
 		&i.Name,
@@ -180,7 +181,7 @@ ORDER BY standard_id
 `
 
 func (q *Queries) ListStandards(ctx context.Context) ([]Standard, error) {
-	rows, err := q.db.QueryContext(ctx, listStandards)
+	rows, err := q.db.Query(ctx, listStandards)
 	if err != nil {
 		return nil, err
 	}
@@ -208,9 +209,6 @@ func (q *Queries) ListStandards(ctx context.Context) ([]Standard, error) {
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -224,11 +222,11 @@ WHERE standard_id = $1
 `
 
 type UpdateStandardByIdParams struct {
-	StandardID int64        `json:"standard_id"`
-	DeletedAt  sql.NullTime `json:"deleted_at"`
+	StandardID int64            `json:"standard_id"`
+	DeletedAt  pgtype.Timestamp `json:"deleted_at"`
 }
 
 func (q *Queries) UpdateStandardById(ctx context.Context, arg UpdateStandardByIdParams) error {
-	_, err := q.db.ExecContext(ctx, updateStandardById, arg.StandardID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, updateStandardById, arg.StandardID, arg.DeletedAt)
 	return err
 }

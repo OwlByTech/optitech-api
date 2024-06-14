@@ -2,7 +2,6 @@ package seeders
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	json_reader "optitech/database/json_data"
@@ -10,6 +9,8 @@ import (
 	"optitech/internal/repository"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func RolePermissionUp(fileName string) error {
@@ -29,7 +30,10 @@ func RolePermissionUp(fileName string) error {
 		rolePermission := sq.CreateRolePermissionParams{
 			PermissionID: data.PermissionId,
 			RoleID:       data.RoleId,
-			CreatedAt:    curTime,
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqRolePermission = append(sqRolePermission, rolePermission)
 	}
@@ -47,7 +51,7 @@ func RolePermissionUp(fileName string) error {
 func RolePermissionDown() error {
 	ctx := context.Background()
 	curTime := time.Now()
-	deleteAt := sql.NullTime{
+	deleteAt := pgtype.Timestamp{
 		Time:  curTime,
 		Valid: true,
 	}
@@ -56,11 +60,7 @@ func RolePermissionDown() error {
 		return err
 	}
 
-	_, err = r.RowsAffected()
-
-	if err != nil {
-		return err
-	}
+	_ = r.RowsAffected()
 
 	log.Printf("Role Permission Down seeder run successfully")
 	return nil
