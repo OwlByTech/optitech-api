@@ -34,7 +34,22 @@ func (h *handlerClient) Get(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) Create(c *fiber.Ctx) error {
-	return nil
+	req := &cdto.CreateClientReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.clientService.Create(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }
 
 func (h *handlerClient) Update(c *fiber.Ctx) error {

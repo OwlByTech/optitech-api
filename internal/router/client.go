@@ -14,5 +14,6 @@ func (s *Server) RoutesClient() {
 	serviceRoute := r.Group("/api/client")
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Get("/", handler.List)
+	serviceRoute.Post("", handler.Create)
 
 }

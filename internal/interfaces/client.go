@@ -16,7 +16,7 @@ type IClientService interface {
 }
 type IClientRepository interface {
 	GetClient(institutionID int64) (*dto.GetClientRes, error)
-	CreateClient(arg *models.CreateInstitutionParams) (*dto.CreateClientRes, error)
+	CreateClient(arg *models.CreateClientParams) (*dto.CreateClientRes, error)
 	UpdateClient(arg *models.UpdateClientByIdParams) error
 	ListClient() (*[]dto.GetClientRes, error)
 	DeleteClient(arg *models.DeleteClientByIdParams) error

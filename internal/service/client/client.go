@@ -3,6 +3,10 @@ package service
 import (
 	dto "optitech/internal/dto/client"
 	"optitech/internal/interfaces"
+	sq "optitech/internal/sqlc"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
@@ -20,7 +24,21 @@ func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
 }
 
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
-	return nil, nil
+	repoReq := &sq.CreateClientParams{
+		GivenName: req.GivenName,
+		Surname:   req.Surname,
+		Email:     req.Email,
+		Password:  req.Password,
+		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	r, err := s.clientRepository.CreateClient(repoReq)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
