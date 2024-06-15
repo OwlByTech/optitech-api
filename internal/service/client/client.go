@@ -73,7 +73,11 @@ func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 }
 
 func (s *serviceClient) List() (*[]dto.GetClientRes, error) {
-	return nil, nil
+	repoRes, err := s.clientRepository.ListClient()
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
 }
 
 func (s *serviceClient) Delete(req dto.GetClientReq) (bool, error) {

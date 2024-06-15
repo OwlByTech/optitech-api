@@ -57,7 +57,23 @@ func (r *repositoryClient) UpdateClient(arg *sq.UpdateClientByIdParams) error {
 }
 
 func (r *repositoryClient) ListClient() (*[]dto.GetClientRes, error) {
-	return nil, nil
+	ctx := context.Background()
+	repoRes, err := r.clientRepository.ListClients(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	clients := make([]dto.GetClientRes, len(repoRes))
+	for i, inst := range repoRes {
+		clients[i] = dto.GetClientRes{
+			Id:        inst.ClientID,
+			GivenName: inst.GivenName,
+			Surname:   inst.Surname,
+			Email:     inst.Email,
+		}
+	}
+	return &clients, nil
 }
 
 func (r *repositoryClient) DeleteClient(arg *sq.DeleteClientByIdParams) error {

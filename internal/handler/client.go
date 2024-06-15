@@ -73,7 +73,12 @@ func (h *handlerClient) Update(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) List(c *fiber.Ctx) error {
-	return nil
+	res, err := h.clientService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }
 
 func (h *handlerClient) Delete(c *fiber.Ctx) error {
