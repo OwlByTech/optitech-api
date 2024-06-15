@@ -81,5 +81,14 @@ func (s *serviceClient) List() (*[]dto.GetClientRes, error) {
 }
 
 func (s *serviceClient) Delete(req dto.GetClientReq) (bool, error) {
-	return false, nil
+	repoReq := &sq.DeleteClientByIdParams{
+		ClientID:  req.Id,
+		DeletedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.clientRepository.DeleteClient(repoReq); err != nil {
+		return false, pgtype.ErrScanTargetTypeChanged
+	}
+
+	return true, nil
 }

@@ -82,5 +82,17 @@ func (h *handlerClient) List(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) Delete(c *fiber.Ctx) error {
-	return nil
+	params := c.AllParams()
+	req := &cdto.GetClientReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.clientService.Delete(*req)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }

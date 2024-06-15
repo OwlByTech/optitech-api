@@ -16,4 +16,5 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Get("/", handler.List)
 	serviceRoute.Post("", handler.Create)
 	serviceRoute.Put("/update/:id", handler.Update)
+	serviceRoute.Delete("/delete/:id", handler.Delete)
 }

@@ -77,5 +77,6 @@ func (r *repositoryClient) ListClient() (*[]dto.GetClientRes, error) {
 }
 
 func (r *repositoryClient) DeleteClient(arg *sq.DeleteClientByIdParams) error {
-	return nil
+	ctx := context.Background()
+	return r.clientRepository.DeleteClientById(ctx, *arg)
 }
