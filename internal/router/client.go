@@ -15,5 +15,5 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Get("/", handler.List)
 	serviceRoute.Post("", handler.Create)
-
+	serviceRoute.Put("/update/:id", handler.Update)
 }

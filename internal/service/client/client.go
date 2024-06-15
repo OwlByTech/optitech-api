@@ -42,7 +42,34 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
-	return false, nil
+	repoReq := &sq.UpdateClientByIdParams{
+		ClientID:  req.ClientID,
+		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if req.Email != "" {
+		repoReq.Email = req.Email
+	}
+
+	if req.Password != "" {
+		repoReq.Password = req.Password
+	}
+
+	if req.GivenName != "" {
+		repoReq.GivenName = req.GivenName
+	}
+
+	if req.Surname != "" {
+		repoReq.Surname = req.Surname
+	}
+
+	err := s.clientRepository.UpdateClient(repoReq)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (s *serviceClient) List() (*[]dto.GetClientRes, error) {

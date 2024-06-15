@@ -52,7 +52,8 @@ func (r *repositoryClient) CreateClient(arg *sq.CreateClientParams) (*dto.Create
 }
 
 func (r *repositoryClient) UpdateClient(arg *sq.UpdateClientByIdParams) error {
-	return nil
+	ctx := context.Background()
+	return r.clientRepository.UpdateClientById(ctx, *arg)
 }
 
 func (r *repositoryClient) ListClient() (*[]dto.GetClientRes, error) {

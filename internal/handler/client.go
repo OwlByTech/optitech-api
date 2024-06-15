@@ -53,7 +53,23 @@ func (h *handlerClient) Create(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) Update(c *fiber.Ctx) error {
-	return nil
+	params_id := c.AllParams()
+	req_id := &cdto.GetClientReq{}
+	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	req := &cdto.UpdateClientReq{
+		ClientID: req_id.Id,
+	}
+
+	res, err := h.clientService.Update(req)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }
 
 func (h *handlerClient) List(c *fiber.Ctx) error {
