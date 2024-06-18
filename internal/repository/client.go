@@ -80,3 +80,14 @@ func (r *repositoryClient) DeleteClient(arg *sq.DeleteClientByIdParams) error {
 	ctx := context.Background()
 	return r.clientRepository.DeleteClientById(ctx, *arg)
 }
+
+func (r *repositoryClient) LoginClient(email string) (*sq.Client, error) {
+	ctx := context.Background()
+	res, err := r.clientRepository.GetClientByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+
+}
