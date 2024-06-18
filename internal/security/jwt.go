@@ -8,7 +8,6 @@ import (
 
 type JWTPayload map[string]interface{}
 
-// TODO: add register claims
 func JWTSign(payload jwt.Claims, secret string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
