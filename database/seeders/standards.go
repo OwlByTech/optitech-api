@@ -2,7 +2,6 @@ package seeders
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	json_reader "optitech/database/json_data"
@@ -10,6 +9,8 @@ import (
 	"optitech/internal/repository"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func StandardUp(fileName string) error {
@@ -29,15 +30,18 @@ func StandardUp(fileName string) error {
 		standard := sq.CreateStandardParams{
 			ServiceID:  data.ServiceId,
 			Name:       data.Name,
-			Complexity: sql.NullString{String: data.Complexity},
+			Complexity: pgtype.Text{String: data.Complexity},
 			Modality:   data.Modality,
 			Article:    data.Article,
 			Section:    data.Section,
-			Paragraph:  sql.NullString{String: data.Paragraph},
+			Paragraph:  pgtype.Text{String: data.Paragraph},
 			Criteria:   data.Criteria,
-			Comply:     sql.NullBool{Bool: data.Comply},
-			Applys:     sql.NullBool{Bool: data.Applys},
-			CreatedAt:  curTime,
+			Comply:     pgtype.Bool{Bool: data.Comply},
+			Applys:     pgtype.Bool{Bool: data.Applys},
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqStandard = append(sqStandard, standard)
 	}
@@ -55,7 +59,7 @@ func StandardUp(fileName string) error {
 func StandardDown() error {
 	ctx := context.Background()
 	curTime := time.Now()
-	deleteAt := sql.NullTime{
+	deleteAt := pgtype.Timestamp{
 		Time:  curTime,
 		Valid: true,
 	}
@@ -64,11 +68,7 @@ func StandardDown() error {
 		return err
 	}
 
-	_, err = r.RowsAffected()
-
-	if err != nil {
-		return err
-	}
+	_ = r.RowsAffected()
 
 	log.Printf("Standard Down seeder run successfully")
 	return nil
