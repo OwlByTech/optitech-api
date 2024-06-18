@@ -1,12 +1,15 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
-	"golang.org/x/crypto/bcrypt"
+	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
 	"optitech/internal/interfaces"
+	"optitech/internal/security"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type serviceClient struct {
@@ -103,20 +106,27 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 		return nil, err
 	}
 
-	if checkPasswordHash(req.Password, res.Password) {
-		return &dto.LoginClientRes{
-			Name:  res.GivenName + " " + res.Surname,
-			Token: "kfsadl",
-		}, nil
+	client := &dto.ClientToken{
+		ID: int(res.ClientID),
 	}
-	return nil, nil
 
+	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkPasswordHash(req.Password, res.Password); err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginClientRes{
+		Token: token,
+	}, nil
 }
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
-func checkPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
+func checkPasswordHash(password, hash string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
