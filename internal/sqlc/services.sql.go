@@ -13,22 +13,22 @@ import (
 )
 
 const createServices = `-- name: CreateServices :one
-INSERT INTO services(service_name, created_at)
+INSERT INTO services(name, created_at)
 VALUES ($1, $2)
-RETURNING services_id, service_name, created_at, updated_at, deleted_at
+RETURNING services_id, name, created_at, updated_at, deleted_at
 `
 
 type CreateServicesParams struct {
-	ServiceName string           `json:"service_name"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	Name      string           `json:"name"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateServices(ctx context.Context, arg CreateServicesParams) (Service, error) {
-	row := q.db.QueryRow(ctx, createServices, arg.ServiceName, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createServices, arg.Name, arg.CreatedAt)
 	var i Service
 	err := row.Scan(
 		&i.ServicesID,
-		&i.ServiceName,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -63,7 +63,7 @@ func (q *Queries) DeleteServicesById(ctx context.Context, arg DeleteServicesById
 }
 
 const getServices = `-- name: GetServices :one
-SELECT services_id, service_name, created_at, updated_at, deleted_at FROM services
+SELECT services_id, name, created_at, updated_at, deleted_at FROM services
 WHERE services_id = $1 LIMIT 1
 `
 
@@ -72,7 +72,7 @@ func (q *Queries) GetServices(ctx context.Context, servicesID int64) (Service, e
 	var i Service
 	err := row.Scan(
 		&i.ServicesID,
-		&i.ServiceName,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -81,20 +81,20 @@ func (q *Queries) GetServices(ctx context.Context, servicesID int64) (Service, e
 }
 
 const getServicesByName = `-- name: GetServicesByName :one
-SELECT service_name
+SELECT name
 FROM services
 WHERE services_id = $1
 `
 
 func (q *Queries) GetServicesByName(ctx context.Context, servicesID int64) (string, error) {
 	row := q.db.QueryRow(ctx, getServicesByName, servicesID)
-	var service_name string
-	err := row.Scan(&service_name)
-	return service_name, err
+	var name string
+	err := row.Scan(&name)
+	return name, err
 }
 
 const listServicess = `-- name: ListServicess :many
-SELECT services_id, service_name, created_at, updated_at, deleted_at FROM services
+SELECT services_id, name, created_at, updated_at, deleted_at FROM services
 ORDER BY services_id
 `
 
@@ -109,7 +109,7 @@ func (q *Queries) ListServicess(ctx context.Context) ([]Service, error) {
 		var i Service
 		if err := rows.Scan(
 			&i.ServicesID,
-			&i.ServiceName,
+			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -126,17 +126,17 @@ func (q *Queries) ListServicess(ctx context.Context) ([]Service, error) {
 
 const updateServicesById = `-- name: UpdateServicesById :exec
 UPDATE services
-SET service_name = $2, updated_at = $3
+SET name = $2, updated_at = $3
 WHERE services_id = $1
 `
 
 type UpdateServicesByIdParams struct {
-	ServicesID  int64            `json:"services_id"`
-	ServiceName string           `json:"service_name"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	ServicesID int64            `json:"services_id"`
+	Name       string           `json:"name"`
+	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdateServicesById(ctx context.Context, arg UpdateServicesByIdParams) error {
-	_, err := q.db.Exec(ctx, updateServicesById, arg.ServicesID, arg.ServiceName, arg.UpdatedAt)
+	_, err := q.db.Exec(ctx, updateServicesById, arg.ServicesID, arg.Name, arg.UpdatedAt)
 	return err
 }

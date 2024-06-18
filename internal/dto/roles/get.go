@@ -5,6 +5,7 @@ type GetRoleReq struct {
 }
 
 type GetRoleRes struct {
-	Id             int64
-	PermissionType string
+	Id          int64
+	RoleName    string
+	Description string
 }

@@ -1,10 +1,10 @@
 package dto
 
-type CreateRoleReq struct {
-	ServiceName string `json:"service_name" validate:"required"`
+type CreateServiceReq struct {
+	Name string `json:"name" validate:"required"`
 }
 
-type CreateRoleRes struct {
-	Id          int64
-	ServiceName string
+type CreateServiceRes struct {
+	Id   int64
+	Name string
 }

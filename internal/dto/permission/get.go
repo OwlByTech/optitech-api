@@ -5,8 +5,8 @@ type GetPermissionReq struct {
 }
 
 type GetPermissionRes struct {
-	Id                    int64
-	PermissionName        string
-	PermissionCode        string
-	PermissionDescription string
+	Id          int64
+	Name        string
+	Code        string
+	Description string
 }

@@ -262,19 +262,22 @@ type InstitutionService struct {
 }
 
 type Permission struct {
-	PermissionID   int64            `json:"permission_id"`
-	PermissionType string           `json:"permission_type"`
-	CreatedAt      pgtype.Timestamp `json:"created_at"`
-	UpdatedAt      pgtype.Timestamp `json:"updated_at"`
-	DeletedAt      pgtype.Timestamp `json:"deleted_at"`
+	PermissionID int64            `json:"permission_id"`
+	Name         string           `json:"name"`
+	Code         string           `json:"code"`
+	Description  string           `json:"description"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
+	UpdatedAt    pgtype.Timestamp `json:"updated_at"`
+	DeletedAt    pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Role struct {
-	RoleID    int64            `json:"role_id"`
-	RoleName  string           `json:"role_name"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+	RoleID      int64            `json:"role_id"`
+	RoleName    string           `json:"role_name"`
+	Description string           `json:"description"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 }
 
 type RolePermission struct {
@@ -287,9 +290,26 @@ type RolePermission struct {
 }
 
 type Service struct {
-	ServicesID  int64            `json:"services_id"`
-	ServiceName string           `json:"service_name"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
+	ServicesID int64            `json:"services_id"`
+	Name       string           `json:"name"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
+	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
+	DeletedAt  pgtype.Timestamp `json:"deleted_at"`
+}
+
+type Standard struct {
+	StandardID int64            `json:"standard_id"`
+	ServiceID  int32            `json:"service_id"`
+	Name       string           `json:"name"`
+	Complexity pgtype.Text      `json:"complexity"`
+	Modality   string           `json:"modality"`
+	Article    string           `json:"article"`
+	Section    string           `json:"section"`
+	Paragraph  pgtype.Text      `json:"paragraph"`
+	Criteria   string           `json:"criteria"`
+	Comply     pgtype.Bool      `json:"comply"`
+	Applys     pgtype.Bool      `json:"applys"`
+	CreatedAt  pgtype.Timestamp `json:"created_at"`
+	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
+	DeletedAt  pgtype.Timestamp `json:"deleted_at"`
 }
