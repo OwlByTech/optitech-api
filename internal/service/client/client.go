@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type serviceClient struct {
@@ -27,7 +26,7 @@ func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
 }
 
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
-	hash, err := hashPassword(req.Password)
+	hash, err := security.BcryptHashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -126,18 +125,11 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 		return nil, err
 	}
 
-	if err := checkPasswordHash(req.Password, res.Password); err != nil {
+	if err := security.BcryptCheckPasswordHash(req.Password, res.Password); err != nil {
 		return nil, err
 	}
 
 	return &dto.LoginClientRes{
 		Token: token,
 	}, nil
-}
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes), err
-}
-func checkPasswordHash(password, hash string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
