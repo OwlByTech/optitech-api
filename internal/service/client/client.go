@@ -40,12 +40,23 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 	}
 
 	r, err := s.clientRepository.CreateClient(repoReq)
+	if err != nil {
+		return nil, err
+	}
+
+	client := &dto.ClientToken{
+		ID: int(r.Id),
+	}
+
+	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	return &dto.CreateClientRes{
+		Token: token,
+	}, nil
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {

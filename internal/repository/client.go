@@ -34,7 +34,7 @@ func (r *repositoryClient) GetClient(institutionID int64) (*dto.GetClientRes, er
 	}, nil
 }
 
-func (r *repositoryClient) CreateClient(arg *sq.CreateClientParams) (*dto.CreateClientRes, error) {
+func (r *repositoryClient) CreateClient(arg *sq.CreateClientParams) (*dto.CreateClient, error) {
 	ctx := context.Background()
 
 	res, err := r.clientRepository.CreateClient(ctx, *arg)
@@ -43,7 +43,7 @@ func (r *repositoryClient) CreateClient(arg *sq.CreateClientParams) (*dto.Create
 		return nil, err
 	}
 
-	return &dto.CreateClientRes{
+	return &dto.CreateClient{
 		Id:        res.ClientID,
 		GivenName: res.GivenName,
 		Surname:   res.Surname,
