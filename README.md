@@ -29,7 +29,21 @@ the seeder
  go run cmd/cli/main.go seed up
 ```
 
-and then
+and then install mjml in the container
+
+```bash
+apt-get update
+```
+now install npm and mjml
+
+```bash
+apt-get install -y nodejs npm
+```
+
+```bash
+npm install -g mjml
+```
+run this comant to execute convert-mjml
 
 ```bash
 go run cmd/cli/main.go convert-mjml
