@@ -1,12 +1,15 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
-	"golang.org/x/crypto/bcrypt"
 	dto "optitech/internal/dto/client"
+	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
+	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type serviceClient struct {
@@ -112,6 +115,23 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 	return nil, nil
 
 }
+
+func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
+	res, err := s.clientRepository.LoginClient(req.Email)
+	if err != nil {
+		return false, err
+	}
+	if err := mailing.SendResetPassword(&dto_mailing.ResetPasswordMailingReq{
+		Email:   res.Email,
+		Subject: "Resetear contrasena",
+		Link:    "http://localhost:3000",
+	}); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
