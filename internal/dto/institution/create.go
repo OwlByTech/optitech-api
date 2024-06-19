@@ -1,12 +1,12 @@
 package dto
 
-type CreateClientReq struct {
+type CreateInstitutionReq struct {
 	InstitutionName string   `json:"institutionName" validate:"required,institutionName"`
 	Description     string   `json:"description" validate:"required"`
 	Services        []string `json:"services" validate:"required"`
 }
 
-type CreateClientRes struct {
+type CreateInstitutionRes struct {
 	Id              int64
 	InstitutionName string
 	Description     string
