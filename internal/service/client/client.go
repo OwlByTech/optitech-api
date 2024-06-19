@@ -1,12 +1,12 @@
 package service
 
 import (
+	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/crypto/bcrypt"
 	dto "optitech/internal/dto/client"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
@@ -24,11 +24,15 @@ func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
 }
 
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
+	hash, err := hashPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
 	repoReq := &sq.CreateClientParams{
 		GivenName: req.GivenName,
 		Surname:   req.Surname,
 		Email:     req.Email,
-		Password:  req.Password,
+		Password:  hash,
 		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
@@ -91,4 +95,28 @@ func (s *serviceClient) Delete(req dto.GetClientReq) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, error) {
+	res, err := s.clientRepository.LoginClient(req.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	if checkPasswordHash(req.Password, res.Password) {
+		return &dto.LoginClientRes{
+			Name:  res.GivenName + " " + res.Surname,
+			Token: "kfsadl",
+		}, nil
+	}
+	return nil, nil
+
+}
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
+}
+func checkPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
