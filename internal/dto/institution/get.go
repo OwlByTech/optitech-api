@@ -1,10 +1,10 @@
 package dto
 
-type GetInstitutionReq struct {
+type GetClientReq struct {
 	Id int64 `validate:"required"`
 }
 
-type GetInstitutionRes struct {
+type GetClientRes struct {
 	Id              int64
 	InstitutionName string
 	Logo            string
