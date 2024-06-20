@@ -69,7 +69,7 @@ func Seeder(arg string) error {
 	case "down":
 		strategy = SeederDown{}
 	default:
-		return fmt.Errorf("You must provide up or down arguments")
+		return fmt.Errorf("you must provide up or down arguments")
 	}
 
 	return strategy.Execute()

@@ -17,10 +17,10 @@ func NewRepositoryClient(q *sq.Queries) interfaces.IClientRepository {
 	}
 }
 
-func (r *repositoryClient) GetClient(institutionID int64) (*dto.GetClientRes, error) {
+func (r *repositoryClient) GetClient(clientID int64) (*dto.GetClientRes, error) {
 	ctx := context.Background()
 
-	repoRes, err := r.clientRepository.GetClient(ctx, (institutionID))
+	repoRes, err := r.clientRepository.GetClient(ctx, (clientID))
 
 	if err != nil {
 		return nil, err
