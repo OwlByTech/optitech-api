@@ -28,8 +28,11 @@ func ServiceUp(fileName string) error {
 	var sqServices []sq.CreateServicesParams
 	for _, data := range services {
 		service := sq.CreateServicesParams{
-			Name:      data.Name,
-			CreatedAt: pgtype.Timestamp{Time: curTime, Valid: true},
+			Name: data.Name,
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqServices = append(sqServices, service)
 	}

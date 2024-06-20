@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -17,7 +18,6 @@ func (s *Server) New() {
 func (s *Server) ListenAndServe() error {
 	s.RoutesServices()
 	s.RoutesInstitution()
-	s.Routes()
 	s.RoutesInstitutionClient()
 	err := s.app.Listen(fmt.Sprintf(":%d", s.Port))
 

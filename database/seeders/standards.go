@@ -38,7 +38,10 @@ func StandardUp(fileName string) error {
 			Criteria:   data.Criteria,
 			Comply:     pgtype.Bool{Bool: data.Comply},
 			Applys:     pgtype.Bool{Bool: data.Applys},
-			CreatedAt:  pgtype.Timestamp{Time: curTime, Valid: true},
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqStandard = append(sqStandard, standard)
 	}

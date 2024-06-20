@@ -31,7 +31,10 @@ func PermissionUp(fileName string) error {
 			Name:        data.Name,
 			Code:        data.Code,
 			Description: data.Description,
-			CreatedAt:   pgtype.Timestamp{Time: curTime, Valid: true},
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqPermissions = append(sqPermissions, permission)
 	}
@@ -53,6 +56,7 @@ func PermissionDown() error {
 		Time:  curTime,
 		Valid: true,
 	}
+
 	r, err := repository.Queries.DeleteAllPermissions(ctx, deleteAt)
 	if err != nil {
 		return err

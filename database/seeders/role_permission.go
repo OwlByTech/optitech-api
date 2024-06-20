@@ -30,7 +30,10 @@ func RolePermissionUp(fileName string) error {
 		rolePermission := sq.CreateRolePermissionParams{
 			PermissionID: data.PermissionId,
 			RoleID:       data.RoleId,
-			CreatedAt:    pgtype.Timestamp{Time: curTime, Valid: true},
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqRolePermission = append(sqRolePermission, rolePermission)
 	}
@@ -58,10 +61,6 @@ func RolePermissionDown() error {
 	}
 
 	_ = r.RowsAffected()
-
-	if err != nil {
-		return err
-	}
 
 	log.Printf("Role Permission Down seeder run successfully")
 	return nil

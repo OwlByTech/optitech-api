@@ -30,7 +30,10 @@ func RoleUp(fileName string) error {
 		role := sq.CreateRoleParams{
 			RoleName:    data.RoleName,
 			Description: data.Description,
-			CreatedAt:   pgtype.Timestamp{Time: curTime, Valid: true},
+			CreatedAt: pgtype.Timestamp{
+				Time:  curTime,
+				Valid: true,
+			},
 		}
 		sqRoles = append(sqRoles, role)
 	}
@@ -58,10 +61,6 @@ func RoleDown() error {
 	}
 
 	_ = r.RowsAffected()
-
-	if err != nil {
-		return err
-	}
 
 	log.Printf("Role Down seeder run successfully")
 	return nil
