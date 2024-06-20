@@ -1,12 +1,14 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
-	"golang.org/x/crypto/bcrypt"
+	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
 	"optitech/internal/interfaces"
+	"optitech/internal/security"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
@@ -24,7 +26,7 @@ func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
 }
 
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
-	hash, err := hashPassword(req.Password)
+	hash, err := security.BcryptHashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -37,12 +39,23 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 	}
 
 	r, err := s.clientRepository.CreateClient(repoReq)
+	if err != nil {
+		return nil, err
+	}
+
+	client := &dto.ClientToken{
+		ID: int(r.Id),
+	}
+
+	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return r, nil
+	return &dto.CreateClientRes{
+		Token: token,
+	}, nil
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
@@ -103,20 +116,20 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 		return nil, err
 	}
 
-	if checkPasswordHash(req.Password, res.Password) {
-		return &dto.LoginClientRes{
-			Name:  res.GivenName + " " + res.Surname,
-			Token: "kfsadl",
-		}, nil
+	client := &dto.ClientToken{
+		ID: int(res.ClientID),
 	}
-	return nil, nil
 
-}
-func hashPassword(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(bytes), err
-}
-func checkPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
+	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := security.BcryptCheckPasswordHash(req.Password, res.Password); err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginClientRes{
+		Token: token,
+	}, nil
 }

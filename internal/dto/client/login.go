@@ -6,6 +6,5 @@ type LoginClientReq struct {
 }
 
 type LoginClientRes struct {
-	Name  string
 	Token string
 }

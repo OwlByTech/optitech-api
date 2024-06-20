@@ -1,5 +1,12 @@
 package dto
 
+type CreateClient struct {
+	Id        int64
+	GivenName string
+	Surname   string
+	Email     string
+}
+
 type CreateClientReq struct {
 	GivenName string `json:"given_name" validate:"required"`
 	Surname   string `json:"surname" validate:"required"`
@@ -8,8 +15,5 @@ type CreateClientReq struct {
 }
 
 type CreateClientRes struct {
-	Id        int64
-	GivenName string
-	Surname   string
-	Email     string
+	Token string
 }
