@@ -1,6 +1,6 @@
 package dto
 
-type CreateAsesortReq struct {
+type CreateAsesorReq struct {
 	ClientId int64  `json:"client_id" validate:"required"`
 	Username string `json:"username" validate:"required,username"`
 	Photo    string `json:"photo" validate:"required"`

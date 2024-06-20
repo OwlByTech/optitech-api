@@ -7,18 +7,18 @@ SELECT * FROM services
 ORDER BY services_id;
 
 -- name: GetServicesByName :one
-SELECT service_name
+SELECT name
 FROM services
 WHERE services_id = $1;
 
 -- name: CreateServices :one
-INSERT INTO services(service_name, created_at)
+INSERT INTO services(name, created_at)
 VALUES ($1, $2)
 RETURNING *;
 
 -- name: UpdateServicesById :exec
 UPDATE services
-SET service_name = $2, updated_at = $3
+SET name = $2, updated_at = $3
 WHERE services_id = $1;
 
 -- name: DeleteServicesById :exec
