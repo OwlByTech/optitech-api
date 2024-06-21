@@ -19,9 +19,14 @@ func (s *Server) RoutesClient() {
 		ClientService: sevice,
 	}
 
-	// TODO: protect the routes with middlewares
+	// The following routes must be use "clientId" locals to get
+	// the current user
+	// https://docs.gofiber.io/api/ctx/#locals
+	serviceRoute.Get("/", clientMiddleware.ClientJWT, handler.GetSecure)
+
+	// TODO: protect the following routes with middlewares
 	serviceRoute.Get("/:id", handler.Get)
-	serviceRoute.Get("/", clientMiddleware.ClientJWT, handler.List)
+	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Post("", handler.Create)
 	serviceRoute.Put("/update/:id", handler.Update)
 	serviceRoute.Delete("/delete/:id", handler.Delete)

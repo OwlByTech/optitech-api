@@ -57,5 +57,7 @@ func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 		return unauthorized
 	}
 
+	c.Locals("clientId", int64(clientVerified.ID))
+
 	return c.Next()
 }

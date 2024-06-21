@@ -33,6 +33,25 @@ func (h *handlerClient) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+func (h *handlerClient) GetSecure(c *fiber.Ctx) error {
+
+	data := c.Locals("clientId")
+	clientId, ok := data.(int64)
+
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+
+	req := &cdto.GetClientReq{Id: clientId}
+
+	res, err := h.clientService.Get(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
 func (h *handlerClient) Create(c *fiber.Ctx) error {
 	req := &cdto.CreateClientReq{}
 

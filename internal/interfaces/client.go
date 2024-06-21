@@ -25,6 +25,7 @@ type IClientRepository interface {
 }
 
 type IClientHandler interface {
+	GetSecure(c *fiber.Ctx) error
 	Get(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
