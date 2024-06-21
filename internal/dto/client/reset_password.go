@@ -5,5 +5,6 @@ type ResetPasswordReq struct {
 }
 
 type ResetPasswordTokenReq struct {
-	Token string `json:"email" validate:"required,email"`
+	Token    string `json:"token" validate:"required"`
+	Password string `json:"password" validate:"required,min=6"`
 }

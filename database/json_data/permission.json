@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Registro como Asesor",
+        "code": "register-as-advisor",
+        "description": "Permite a los usuarios registrarse como Asesor."
+    },
+    {
+        "name": "Registro como Institución/Independiente",
+        "code": "register-as-institution",
+        "description": "Permite a los usuarios registrarse como Institución o Independiente."
+    },
+    {
+        "name": "Gestión de Perfiles",
+        "code": "profile-management",
+        "description": "Permite a los usuarios agregar, eliminar o editar perfiles de Instituciones bajo su supervisión, así como acceder y actualizar su propio perfil."
+    },
+    {
+        "name": "Subida de Documentos",
+        "code": "upload-documents",
+        "description": "Permite a las Instituciones subir documentos según los formatos indicados por el Asesor o según sus servicios."
+    },
+    {
+        "name": "Revisión de Documentos",
+        "code": "review-documents",
+        "description": "Permite al Asesor revisar y verificar si los documentos subidos por las Instituciones cumplen con los requisitos establecidos."
+    },
+    {
+        "name": "Indicadores de Completitud",
+        "code": "completion-indicators",
+        "description": "Permite visualizar indicadores que muestran el progreso y completitud de los documentos requeridos tanto para el Asesor como para las Instituciones."
+    },
+    {
+        "name": "Actualización de Formatos",
+        "code": "update-formats",
+        "description": "Recibir notificaciones automáticas sobre cambios en los formatos o actualizaciones de los mismos."
+    },
+    {
+        "name": "Gestión de Formatos",
+        "code": "format-management",
+        "description": "Permite al Asesor cargar y modificar formatos necesarios para los documentos, establecer criterios específicos para cada formato y gestionar el banco de formatos."
+    },
+    {
+        "name": "Supervisión de Documentos",
+        "code": "document-supervision",
+        "description": "Permite al Asesor acceder a una lista de instituciones supervisadas y sus respectivos documentos organizados en módulos, así como revisar y aprobar los documentos subidos por cada institución."
+    },
+    {
+        "name": "Notificación de Cambios en Formatos",
+        "code": "format-changes-notification",
+        "description": "Permite al Asesor enviar notificaciones a todas las instituciones registradas sobre cambios en los formatos de documentos y seguir el estado de aceptación de los cambios por parte de las instituciones."
+    },
+    {
+        "name": "Listado Madre",
+        "code": "master-listing",
+        "description": "Permite visualizar todos los documentos sin importar la institución, con opciones de filtrado para facilitar la búsqueda."
+    },
+    {
+        "name": "Visualización de Indicadores",
+        "code": "view-indicators",
+        "description": "Permite a las Instituciones acceder a indicadores que muestran el estado de completitud de los documentos requeridos, organizados por módulos."
+    },
+    {
+        "name": "Aceptación de Cambios en Formatos",
+        "code": "accept-format-changes",
+        "description": "Permite a las Instituciones recibir notificaciones sobre cambios propuestos en los formatos de documentos por parte del Asesor y aceptar dichos cambios."
+    },
+    {
+        "name": "Gestión de Perfil",
+        "code": "profile-management",
+        "description": "Permite a las Instituciones acceder y actualizar información de perfil según sea necesario, así como gestionar la configuración de notificaciones y preferencias de cuenta."
+    }
+]

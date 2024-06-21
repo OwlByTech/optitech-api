@@ -13,6 +13,8 @@ type EnvStruct struct {
 	EmailSMTPHost     string
 	EmailSMTPPort     int
 	EmailSMTPPassword string
+	JWTSecret         string
+	JWTSecretPassword string
 }
 
 var Env *EnvStruct
@@ -29,6 +31,8 @@ func LoadConfig() error {
 		EmailSMTPHost:     os.Getenv("EMAIL_SMTP_HOST"),
 		EmailSMTPPort:     port,
 		EmailSMTPPassword: os.Getenv("EMAIL_SMTP_PASSWORD"),
+		JWTSecret:         os.Getenv("JWT_SECRET"),
+		JWTSecretPassword: os.Getenv("JWT_SECRET_PASSWORD"),
 	}
 
 	return err

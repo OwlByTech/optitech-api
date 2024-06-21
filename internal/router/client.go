@@ -12,6 +12,10 @@ func (s *Server) RoutesClient() {
 	sevice := service.NewServiceClient(repoService)
 	handler := handler.NewHandlerClient(sevice)
 	serviceRoute := r.Group("/api/client")
+
+	// We should initialize all the middlewares here
+
+	// TODO: protect the routes with middlewares
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Get("/", handler.List)
 	serviceRoute.Post("", handler.Create)
@@ -19,4 +23,5 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)
 	serviceRoute.Post("/reset-password", handler.ResetPassword)
+	serviceRoute.Post("/reset-password-token", handler.ResetPasswordToken)
 }

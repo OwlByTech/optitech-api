@@ -15,10 +15,11 @@ type IClientService interface {
 	Delete(req dto.GetClientReq) (bool, error)
 	Login(req *dto.LoginClientReq) (*dto.LoginClientRes, error)
 	ResetPassword(req dto.ResetPasswordReq) (bool, error)
+	ResetPasswordToken(req dto.ResetPasswordTokenReq) (bool, error)
 }
 type IClientRepository interface {
-	GetClient(institutionID int64) (*dto.GetClientRes, error)
-	CreateClient(arg *models.CreateClientParams) (*dto.CreateClientRes, error)
+	GetClient(clientID int64) (*dto.GetClientRes, error)
+	CreateClient(arg *models.CreateClientParams) (*dto.CreateClient, error)
 	UpdateClient(arg *models.UpdateClientByIdParams) error
 	ListClient() (*[]dto.GetClientRes, error)
 	DeleteClient(arg *models.DeleteClientByIdParams) error
@@ -33,4 +34,5 @@ type IClientHandler interface {
 	Delete(c *fiber.Ctx) error
 	Login(c *fiber.Ctx) error
 	ResetPassword(c *fiber.Ctx) error
+	ResetPasswordToken(c *fiber.Ctx) error
 }
