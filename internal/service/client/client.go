@@ -44,7 +44,7 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 	}
 
 	client := &dto.ClientToken{
-		ID: int(r.Id),
+		ID: r.Id,
 	}
 
 	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
@@ -117,7 +117,7 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 	}
 
 	client := &dto.ClientToken{
-		ID: int(res.ClientID),
+		ID: res.ClientID,
 	}
 
 	token, err := security.JWTSign(client, cfg.Env.JWTSecret)

@@ -25,9 +25,10 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Get("/", clientMiddleware.ClientJWT, handler.GetSecure)
 
 	// TODO: protect the following routes with middlewares
-	serviceRoute.Get("/:id", handler.Get)
+	// The following route must be first than the /:id
 	serviceRoute.Get("/all", handler.List)
-	serviceRoute.Post("", handler.Create)
+	serviceRoute.Get("/:id", handler.Get)
+	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Put("/update/:id", handler.Update)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)
