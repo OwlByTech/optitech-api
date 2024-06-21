@@ -132,6 +132,11 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 	return true, nil
 }
 
+func (s *serviceClient) ResetPasswordToken(req dto.ResetPasswordTokenReq) (bool, error) {
+
+	return true, nil
+}
+
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
