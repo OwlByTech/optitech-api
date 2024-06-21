@@ -23,7 +23,7 @@ SET deleted_at = NULL,updated_at= $2
 WHERE institution_id= $1 AND client_id= $3 ;
 
 
--- name: DeleteinstInstitutionClientByClientAndInstitution :exec
+-- name: DeleteInstitutionByClient :exec
 UPDATE institution_client
 SET deleted_at = $2
 WHERE institution_id= $1 AND client_id= $3 ;
