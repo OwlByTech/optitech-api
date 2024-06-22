@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/client"
 	"optitech/internal/interfaces"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type handlerClient struct {
@@ -164,7 +166,20 @@ func (h *handlerClient) ResetPasswordToken(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.clientService.ResetPasswordToken(*req)
+	res, err := h.clientService.ResetPasswordToken(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+func (h *handlerClient) ValidateResetPasswordToken(c *fiber.Ctx) error {
+	token := c.Query("token")
+	log.Info(token, "token")
+	req := &cdto.ValidateResetPasswordTokenReq{
+		Token: token,
+	}
+	res, err := h.clientService.ValidateResetPasswordToken(*req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
