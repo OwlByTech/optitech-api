@@ -33,28 +33,27 @@ func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 	}
 
 	token := splitToken[1]
-	unauthorized := c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
 
 	payloadClaims, err := security.JWTVerify(token, cfg.Env.JWTSecret)
 
 	if err != nil {
-		return unauthorized
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
 	}
 
 	var clientVerified cdto.ClientToken
 	bytes, err := json.Marshal(payloadClaims.Claims)
 
 	if err != nil {
-		return unauthorized
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
 	}
 
 	if err := json.Unmarshal(bytes, &clientVerified); err != nil {
-		return unauthorized
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
 	}
 
 	_, err = cm.ClientService.Get(cdto.GetClientReq{Id: clientVerified.ID})
 	if err != nil {
-		return unauthorized
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
 	}
 
 	c.Locals("clientId", clientVerified.ID)
