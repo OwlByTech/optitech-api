@@ -7,6 +7,6 @@ type CreateClientRoleReq struct {
 
 type CreateClientRoleRes struct {
 	Id       int64 `json:"id"`
-	ClientId int64 `json:"clientId"`
-	RoleId   int64 `json:"roleId"`
+	ClientId int32 `json:"clientId"`
+	RoleId   int32 `json:"roleId"`
 }
