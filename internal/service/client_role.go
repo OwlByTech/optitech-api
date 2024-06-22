@@ -5,6 +5,7 @@ import (
 	dto "optitech/internal/dto/client_role"
 	r "optitech/internal/dto/roles"
 	"optitech/internal/interfaces"
+	"optitech/internal/sqlc"
 )
 
 type serviceClientRole struct {
@@ -15,6 +16,16 @@ func NewServiceClientRole(r interfaces.IClientRoleRepository) interfaces.IClient
 	return &serviceClientRole{
 		ClientRoleRepository: r,
 	}
+}
+
+func (s *serviceClientRole) Create(arg *sqlc.CreateClientRoleParams) (*dto.CreateClientRoleRes, error) {
+	repoRes, err := s.ClientRoleRepository.CreateClientRole(arg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return repoRes, nil
 }
 
 func (s *serviceClientRole) GetByClientId(clientId int32) (*dto.GetClientRole, error) {
