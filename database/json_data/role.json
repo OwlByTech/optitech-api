@@ -1,22 +1,22 @@
 [
     {
-        "role_name": "asesor",
+        "roleName": "asesor",
         "description": "Usuario encargado de supervisar y gestionar la documentación de las Instituciones."
     },
     {
-        "role_name": "institución",
+        "roleName": "institución",
         "description": "Usuario que representa a una organización, responsable de subir y mantener la documentación requerida."
     },
     {
-        "role_name": "independiente",
+        "roleName": "independiente",
         "description": "Usuario que actúa de forma individual y no está afiliado a ninguna Institución."
     },
     {
-        "role_name": "bot",
+        "roleName": "bot",
         "description": "Usuario automatizado que realiza tareas repetitivas o programadas dentro del sistema."
     },
     {
-        "role_name": "admin",
+        "roleName": "admin",
         "description": "Usuario con permisos completos para gestionar y configurar todos los aspectos del sistema."
     }
 ]
