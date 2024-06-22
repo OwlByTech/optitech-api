@@ -31,7 +31,7 @@ UPDATE client_role
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
--- name: GetClientRoleByClientId :one
+-- name: GetClientRoleByClientId :many
 SELECT sqlc.embed(c), sqlc.embed(r), sqlc.embed(cr)
 FROM client_role cr
 JOIN client c ON cr.client_id = c.client_id

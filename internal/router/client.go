@@ -31,18 +31,18 @@ func (s *Server) RoutesClient() {
 		now := time.Now()
 		serviceClientRole.Create(&sqlc.CreateClientRoleParams{
 			ClientID:  1,
-			RoleID:    1,
+			RoleID:    5,
 			CreatedAt: pgtype.Timestamp{Time: now, Valid: true},
 		})
 
-		res, err := serviceClientRole.GetByClientId(1)
+		res, err := serviceClientRole.ListByClientId(1)
 		if err != nil {
 			log.Println(err)
 		}
 
 		log.Println(res)
 
-		res2, err := serviceRolePermission.GetByRoleId(int32(res.Role.Id))
+		res2, err := serviceRolePermission.GetByRoleId(int32((*res)[6].Id))
 
 		if err != nil {
 			log.Println(err)

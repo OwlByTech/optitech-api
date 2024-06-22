@@ -11,7 +11,7 @@ type repositoryClientRole struct {
 	ClientRoleRepository *sq.Queries
 }
 
-func (r *repositoryClientRole) GetByClientId(clientId int32) (*sq.GetClientRoleByClientIdRow, error) {
+func (r *repositoryClientRole) ListByClientId(clientId int32) (*[]sq.GetClientRoleByClientIdRow, error) {
 	ctx := context.Background()
 	res, err := r.ClientRoleRepository.GetClientRoleByClientId(ctx, clientId)
 

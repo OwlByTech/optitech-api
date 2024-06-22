@@ -83,7 +83,7 @@ func (q *Queries) GetRolePermission(ctx context.Context, rolePermissionID int64)
 }
 
 const listPermissionByRoleId = `-- name: ListPermissionByRoleId :many
-SELECT p.permission_id, p.name, p.code, p.description, p.created_at, p.updated_at, p.deleted_at
+SELECT p.permission_id, p.name, p.code, p.description, p.created_at, p.updated_at, p.deleted_at, r.role_id, r.role_name, r.description, r.created_at, r.updated_at, r.deleted_at, rp.role_permission_id, rp.role_id, rp.permission_id, rp.created_at, rp.updated_at, rp.deleted_at
 FROM role_permission rp
 JOIN permission p ON rp.permission_id = p.permission_id
 JOIN roles r ON rp.role_id = r.role_id
@@ -91,7 +91,9 @@ WHERE rp.role_id = $1
 `
 
 type ListPermissionByRoleIdRow struct {
-	Permission Permission `json:"permission"`
+	Permission     Permission     `json:"permission"`
+	Role           Role           `json:"role"`
+	RolePermission RolePermission `json:"role_permission"`
 }
 
 func (q *Queries) ListPermissionByRoleId(ctx context.Context, roleID int32) ([]ListPermissionByRoleIdRow, error) {
@@ -111,6 +113,18 @@ func (q *Queries) ListPermissionByRoleId(ctx context.Context, roleID int32) ([]L
 			&i.Permission.CreatedAt,
 			&i.Permission.UpdatedAt,
 			&i.Permission.DeletedAt,
+			&i.Role.RoleID,
+			&i.Role.RoleName,
+			&i.Role.Description,
+			&i.Role.CreatedAt,
+			&i.Role.UpdatedAt,
+			&i.Role.DeletedAt,
+			&i.RolePermission.RolePermissionID,
+			&i.RolePermission.RoleID,
+			&i.RolePermission.PermissionID,
+			&i.RolePermission.CreatedAt,
+			&i.RolePermission.UpdatedAt,
+			&i.RolePermission.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

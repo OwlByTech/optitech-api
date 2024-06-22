@@ -1,7 +1,6 @@
 package service
 
 import (
-	c "optitech/internal/dto/client"
 	dto "optitech/internal/dto/client_role"
 	r "optitech/internal/dto/roles"
 	"optitech/internal/interfaces"
@@ -28,26 +27,25 @@ func (s *serviceClientRole) Create(arg *sqlc.CreateClientRoleParams) (*dto.Creat
 	return repoRes, nil
 }
 
-func (s *serviceClientRole) GetByClientId(clientId int32) (*dto.GetClientRole, error) {
-	repoRes, err := s.ClientRoleRepository.GetByClientId(clientId)
+func (s *serviceClientRole) ListByClientId(clientId int32) (*[]r.GetRoleRes, error) {
+	repoRes, err := s.ClientRoleRepository.ListByClientId(clientId)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.GetClientRole{
-		Client: c.GetClientRes{
-			Id:        repoRes.Client.ClientID,
-			GivenName: repoRes.Client.GivenName,
-			Surname:   repoRes.Client.Surname,
-			Email:     repoRes.Client.Email,
-		},
-		Role: r.GetRoleRes{
-			Id:          repoRes.Role.RoleID,
-			RoleName:    repoRes.Role.RoleName,
-			Description: repoRes.Role.Description,
-		},
-	}, nil
+	roles := make([]r.GetRoleRes, len(*repoRes))
+
+	for i, inst := range *repoRes {
+		roles[i] =
+			r.GetRoleRes{
+				Id:          inst.Role.RoleID,
+				RoleName:    inst.Role.RoleName,
+				Description: inst.Role.Description,
+			}
+	}
+
+	return &roles, nil
 }
 
 func (s *serviceClientRole) List() (*[]dto.GetClientRoleRes, error) {

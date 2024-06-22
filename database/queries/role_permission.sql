@@ -32,7 +32,7 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
 -- name: ListPermissionByRoleId :many
-SELECT sqlc.embed(p)
+SELECT sqlc.embed(p), sqlc.embed(r), sqlc.embed(rp)
 FROM role_permission rp
 JOIN permission p ON rp.permission_id = p.permission_id
 JOIN roles r ON rp.role_id = r.role_id
