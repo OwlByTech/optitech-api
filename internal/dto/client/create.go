@@ -8,12 +8,12 @@ type CreateClient struct {
 }
 
 type CreateClientReq struct {
-	GivenName string `json:"given_name" validate:"required"`
+	GivenName string `json:"givenName" validate:"required"`
 	Surname   string `json:"surname" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=6"`
 }
 
 type CreateClientRes struct {
-	Token string
+	Token string `json:"token"`
 }

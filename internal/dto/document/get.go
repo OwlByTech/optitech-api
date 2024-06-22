@@ -1,14 +1,14 @@
 package dto
 
 type GetDocumentReq struct {
-	Id int64 `validate:"required"`
+	Id int64 `json:"id" validate:"required"`
 }
 
 type GetDocumentRes struct {
-	Id            int64
-	FormatId      int64
-	InstitutionId int64
-	ClientId      int64
-	FileRute      string
-	Status        string
+	Id            int64  `json:"id"`
+	FormatId      int64  `json:"formatId"`
+	InstitutionId int64  `json:"institutionId"`
+	ClientId      int64  `json:"clientId"`
+	FileRute      string `json:"fileRute"`
+	Status        string `json:"status"`
 }

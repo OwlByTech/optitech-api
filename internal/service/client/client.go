@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
 	dto_mailing "optitech/internal/dto/mailing"
@@ -10,6 +9,8 @@ import (
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
@@ -61,7 +62,7 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 	repoReq := &sq.UpdateClientByIdParams{
-		ClientID:  req.ClientID,
+		ClientID:  req.ClientId,
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
@@ -176,7 +177,7 @@ func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool
 		return false, err
 	}
 	res, err := s.Update(&dto.UpdateClientReq{
-		ClientID:  client.Id,
+		ClientId:  client.Id,
 		Password:  hash,
 		Email:     client.Email,
 		GivenName: client.GivenName,
