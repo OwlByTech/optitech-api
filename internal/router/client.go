@@ -24,4 +24,5 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Post("/login", handler.Login)
 	serviceRoute.Post("/reset-password", handler.ResetPassword)
 	serviceRoute.Post("/reset-password-token", handler.ResetPasswordToken)
+	serviceRoute.Get("/validate/reset-password-token", handler.ValidateResetPasswordToken)
 }

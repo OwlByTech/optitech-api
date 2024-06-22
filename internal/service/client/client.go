@@ -116,6 +116,9 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 	if err != nil {
 		return nil, err
 	}
+	if security.BcryptCheckPasswordHash(req.Password, res.Password) != nil {
+		return nil, err
+	}
 
 	client := &dto.ClientToken{
 		ID: int(res.ClientID),
@@ -150,8 +153,8 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 
 	if err := mailing.SendResetPassword(&dto_mailing.ResetPasswordMailingReq{
 		Email:   res.Email,
-		Subject: "Restablecer contrasena",
-		Link:    "http://localhost:3001/reset-password?id=" + token,
+		Subject: "Owlbytech Restablecer contrasena",
+		Link:    "http://localhost:3001/change-password?token=" + token,
 	}); err != nil {
 		return false, err
 	}
@@ -159,7 +162,7 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 	return true, nil
 }
 
-func (s *serviceClient) ResetPasswordToken(req dto.ResetPasswordTokenReq) (bool, error) {
+func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool, error) {
 	_, payload, err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword)
 	if err != nil {
 		return false, err
@@ -168,9 +171,13 @@ func (s *serviceClient) ResetPasswordToken(req dto.ResetPasswordTokenReq) (bool,
 	if err != nil {
 		return false, err
 	}
+	hash, err := security.BcryptHashPassword(req.Password)
+	if err != nil {
+		return false, err
+	}
 	res, err := s.Update(&dto.UpdateClientReq{
 		ClientID:  client.Id,
-		Password:  req.Password,
+		Password:  hash,
 		Email:     client.Email,
 		GivenName: client.GivenName,
 		Surname:   client.Surname,
@@ -180,4 +187,11 @@ func (s *serviceClient) ResetPasswordToken(req dto.ResetPasswordTokenReq) (bool,
 	}
 
 	return res, nil
+}
+func (s *serviceClient) ValidateResetPasswordToken(req dto.ValidateResetPasswordTokenReq) (bool, error) {
+	_, err := security.JWTVerify(req.Token, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
