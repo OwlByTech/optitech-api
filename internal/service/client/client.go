@@ -1,14 +1,15 @@
 package service
 
 import (
+	"github.com/jackc/pgx/v5/pgtype"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
+	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
 	"optitech/internal/security"
+	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
@@ -121,15 +122,62 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 	}
 
 	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
-	if err != nil {
-		return nil, err
-	}
 
-	if err := security.BcryptCheckPasswordHash(req.Password, res.Password); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
 	return &dto.LoginClientRes{
 		Token: token,
 	}, nil
+
+}
+
+func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
+	res, err := s.clientRepository.LoginClient(req.Email)
+	if err != nil {
+		return false, err
+	}
+	client := &dto.ClientTokenResetPassword{
+		ID:  int(res.ClientID),
+		Exp: time.Now().Add(time.Hour / 2).Unix(),
+	}
+
+	token, err := security.JWTSign(client, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+
+	if err := mailing.SendResetPassword(&dto_mailing.ResetPasswordMailingReq{
+		Email:   res.Email,
+		Subject: "Restablecer contrasena",
+		Link:    "http://localhost:3001/reset-password?id=" + token,
+	}); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *serviceClient) ResetPasswordToken(req dto.ResetPasswordTokenReq) (bool, error) {
+	_, payload, err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+	client, err := s.Get(dto.GetClientReq{Id: int64(payload.ID)})
+	if err != nil {
+		return false, err
+	}
+	res, err := s.Update(&dto.UpdateClientReq{
+		ClientID:  client.Id,
+		Password:  req.Password,
+		Email:     client.Email,
+		GivenName: client.GivenName,
+		Surname:   client.Surname,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return res, nil
 }

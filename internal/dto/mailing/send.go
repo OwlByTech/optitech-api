@@ -5,3 +5,9 @@ type PasswordMailingReq struct {
 	Password string `json:"password" binding:"required"`
 	Subject  string `json:"subject" binding:"required"`
 }
+
+type ResetPasswordMailingReq struct {
+	Email   string `json:"email" validate:"required,email"`
+	Subject string `json:"subject" binding:"required"`
+	Link    string `json:"link" binding:"required"`
+}

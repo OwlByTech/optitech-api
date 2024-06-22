@@ -2,6 +2,7 @@ package security
 
 import (
 	"fmt"
+	dto "optitech/internal/dto/client"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -31,4 +32,17 @@ func JWTVerify(token string, secret string) (*jwt.Token, error) {
 	}
 
 	return tokenParsed, nil
+}
+func JWTGetPayload(token string, secret string) (*jwt.Token, *dto.ClientTokenResetPassword, error) {
+
+	var payload dto.ClientTokenResetPassword
+	tokenParsed, err := jwt.ParseWithClaims(token, &payload, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return tokenParsed, &payload, nil
 }
