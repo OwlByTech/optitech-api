@@ -5,7 +5,7 @@ type GetRolePermissionReq struct {
 }
 
 type GetRolePermissionRes struct {
-	Id           int64 `json:"id"`
+	Id           int32 `json:"id"`
 	RoleId       int32 `json:"roleId"`
 	PermissionId int32 `json:"permissionId"`
 }

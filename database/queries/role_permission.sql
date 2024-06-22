@@ -6,7 +6,7 @@ WHERE role_permission_id = $1 LIMIT 1;
 SELECT * FROM role_permission
 ORDER BY role_permission_id;
 
--- name: GetRolePermissionByName :one
+-- name: GetRolePermission :one
 SELECT role_id, permission_id
 FROM role_permission
 WHERE role_permission_id = $1;

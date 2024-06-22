@@ -64,20 +64,20 @@ func (q *Queries) DeleteRolePermissionById(ctx context.Context, arg DeleteRolePe
 	return err
 }
 
-const getRolePermissionByName = `-- name: GetRolePermissionByName :one
+const getRolePermission = `-- name: GetRolePermission :one
 SELECT role_id, permission_id
 FROM role_permission
 WHERE role_permission_id = $1
 `
 
-type GetRolePermissionByNameRow struct {
+type GetRolePermissionRow struct {
 	RoleID       int32 `json:"role_id"`
 	PermissionID int32 `json:"permission_id"`
 }
 
-func (q *Queries) GetRolePermissionByName(ctx context.Context, rolePermissionID int64) (GetRolePermissionByNameRow, error) {
-	row := q.db.QueryRow(ctx, getRolePermissionByName, rolePermissionID)
-	var i GetRolePermissionByNameRow
+func (q *Queries) GetRolePermission(ctx context.Context, rolePermissionID int64) (GetRolePermissionRow, error) {
+	row := q.db.QueryRow(ctx, getRolePermission, rolePermissionID)
+	var i GetRolePermissionRow
 	err := row.Scan(&i.RoleID, &i.PermissionID)
 	return i, err
 }
