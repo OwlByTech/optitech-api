@@ -2,7 +2,6 @@ package dto
 
 import (
 	p "optitech/internal/dto/permission"
-	r "optitech/internal/dto/roles"
 )
 
 type GetRolePermissionReq struct {
@@ -17,5 +16,4 @@ type GetRolePermissionRes struct {
 
 type GetRolePermission struct {
 	Permission p.GetPermissionRes `json:"permission"`
-	Role       r.GetRoleRes       `json:"role"`
 }

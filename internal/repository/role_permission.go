@@ -17,9 +17,9 @@ func NewRepositoryRolePermission(q *sq.Queries) interfaces.IRolePermissionReposi
 	}
 }
 
-func (r *repositoryRolePermission) GetRolePermissionByRoleId(roleId int32) (*sq.GetRolePermissionByRoleIdRow, error) {
+func (r *repositoryRolePermission) ListPermissionByRoleId(roleId int32) (*[]sq.ListPermissionByRoleIdRow, error) {
 	ctx := context.Background()
-	res, err := r.RolePermissionRepository.GetRolePermissionByRoleId(ctx, roleId)
+	res, err := r.RolePermissionRepository.ListPermissionByRoleId(ctx, roleId)
 	if err != nil {
 		return nil, err
 	}

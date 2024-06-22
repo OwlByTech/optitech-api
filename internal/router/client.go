@@ -1,18 +1,57 @@
 package router
 
 import (
+	"log"
 	"optitech/internal/handler"
 	"optitech/internal/middleware"
 	"optitech/internal/repository"
-	service "optitech/internal/service/client"
+	"optitech/internal/service"
+	cs "optitech/internal/service/client"
+	"optitech/internal/sqlc"
+	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (s *Server) RoutesClient() {
 	r := s.app
 	repoService := repository.NewRepositoryClient(&repository.Queries)
-	sevice := service.NewServiceClient(repoService)
+	sevice := cs.NewServiceClient(repoService)
 	handler := handler.NewHandlerClient(sevice)
 	serviceRoute := r.Group("/api/client")
+
+	repoRolePermission := repository.NewRepositoryRolePermission(&repository.Queries)
+	serviceRolePermission := service.NewServiceRolePermission(repoRolePermission)
+
+	repoClientRole := repository.NewRepositoryClientRole(&repository.Queries)
+	serviceClientRole := service.NewServiceClientRole(repoClientRole)
+
+	serviceRoute.Get("/test", func(c *fiber.Ctx) error {
+		now := time.Now()
+		serviceClientRole.Create(&sqlc.CreateClientRoleParams{
+			ClientID:  1,
+			RoleID:    1,
+			CreatedAt: pgtype.Timestamp{Time: now, Valid: true},
+		})
+
+		res, err := serviceClientRole.GetByClientId(1)
+		if err != nil {
+			log.Println(err)
+		}
+
+		log.Println(res)
+
+		res2, err := serviceRolePermission.GetByRoleId(int32(res.Role.Id))
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		c.JSON(res2)
+
+		return nil
+	})
 
 	// We should initialize all the middlewares here
 	clientMiddleware := middleware.ClientMiddleware{
