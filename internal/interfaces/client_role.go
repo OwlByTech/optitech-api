@@ -7,6 +7,7 @@ import (
 
 type IClientRoleService interface {
 	Create(arg *models.CreateClientRoleParams) (*dto.CreateClientRoleRes, error)
+	Delete(arg *models.DeleteClientRoleByIdParams) error
 	List() (*[]dto.GetClientRoleRes, error)
 	GetByClientId(clientId int32) (*dto.GetClientRole, error)
 }

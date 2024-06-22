@@ -58,3 +58,7 @@ func (s *serviceClientRole) List() (*[]dto.GetClientRoleRes, error) {
 
 	return repoRes, nil
 }
+
+func (s *serviceClientRole) Delete(arg *sqlc.DeleteClientRoleByIdParams) error {
+	return s.ClientRoleRepository.DeleteClientRole(arg)
+}
