@@ -6,11 +6,13 @@ import (
 )
 
 type IRolePermissionService interface {
+	GetByRoleId(roleId int32) (*dto.GetRolePermission, error)
 	List() (*[]dto.GetRolePermissionRes, error)
 }
 
 type IRolePermissionRepository interface {
 	GetRolePermission(id int64) (*dto.GetRolePermissionRes, error)
+	GetRolePermissionByRoleId(roleId int32) (*models.GetRolePermissionByRoleIdRow, error)
 	CreateRolePermission(arg *models.CreateRolePermissionParams) (*dto.CreateRolePermissionRes, error)
 	UpdateRolePermission(arg *models.UpdateRolePermissionByIdParams) error
 	ListRolePermissions() (*[]dto.GetRolePermissionRes, error)
