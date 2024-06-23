@@ -2,6 +2,7 @@ package router
 
 import (
 	"optitech/internal/handler"
+	"optitech/internal/middleware"
 	"optitech/internal/repository"
 	service "optitech/internal/service/client"
 )
@@ -14,11 +15,20 @@ func (s *Server) RoutesClient() {
 	serviceRoute := r.Group("/api/client")
 
 	// We should initialize all the middlewares here
+	clientMiddleware := middleware.ClientMiddleware{
+		ClientService: sevice,
+	}
 
-	// TODO: protect the routes with middlewares
+	// The following routes must be use "clientId" locals to get
+	// the current user
+	// https://docs.gofiber.io/api/ctx/#locals
+	serviceRoute.Get("/", clientMiddleware.ClientJWT, handler.GetSecure)
+
+	// TODO: protect the following routes with middlewares
+	// The following route must be first than the /:id
+	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/:id", handler.Get)
-	serviceRoute.Get("/", handler.List)
-	serviceRoute.Post("", handler.Create)
+	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Put("/update/:id", handler.Update)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)
