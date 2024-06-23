@@ -1,13 +1,14 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	dtoClient "optitech/internal/dto/client"
 	dto "optitech/internal/dto/institution_client"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"slices"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceInstitutionClient struct {
@@ -34,8 +35,8 @@ func (s *serviceInstitutionClient) Create(req *[]sq.CreateInstitutionClientParam
 
 func (s *serviceInstitutionClient) DeleteById(req *dto.GetInstitutionClientReq) error {
 	arg := &sq.DeleteInstitutionByClientParams{
-		InstitutionID: req.InstitutionID,
-		ClientID:      req.ClientID,
+		InstitutionID: req.InstitutionId,
+		ClientID:      req.ClientId,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 	return s.institutionClientRepository.DeleteInstitutionClientById(arg)
@@ -50,13 +51,13 @@ func (s *serviceInstitutionClient) Update(req dto.UpdateInstitutionClientReq) (b
 
 	listClients := []int32{}
 	for _, client := range *res {
-		listClients = append(listClients, client.ClientID)
+		listClients = append(listClients, client.Id)
 	}
 	var listCreate []sq.CreateInstitutionClientParams
 	deleteClient, createClient := FindMissing(listClients, req.Clients)
 
 	for _, client := range deleteClient {
-		if err := s.DeleteById(&dto.GetInstitutionClientReq{InstitutionID: req.InstitutionID, ClientID: client}); err != nil {
+		if err := s.DeleteById(&dto.GetInstitutionClientReq{InstitutionId: req.InstitutionID, ClientId: client}); err != nil {
 			return false, err
 		}
 	}

@@ -80,7 +80,7 @@ func (h *handlerClient) Update(c *fiber.Ctx) error {
 	}
 
 	req := &cdto.UpdateClientReq{
-		ClientID: req_id.Id,
+		ClientId: req_id.Id,
 	}
 
 	res, err := h.clientService.Update(req)

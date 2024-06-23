@@ -62,7 +62,7 @@ func (r *repositoryInstitution) CreateInstitution(arg *sq.CreateInstitutionParam
 	}
 
 	return &dto.CreateInstitutionRes{
-		InstitutionID:   res.InstitutionID,
+		InstitutionId:   res.InstitutionID,
 		InstitutionName: res.InstitutionName,
 		Description:     res.Description,
 	}, nil

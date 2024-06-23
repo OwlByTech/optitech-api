@@ -1,13 +1,14 @@
 package service
 
 import (
-	"github.com/stretchr/testify/assert"
 	"optitech/database"
 	dto "optitech/internal/dto/institution"
 	"optitech/internal/repository"
 	institutionClient "optitech/internal/service/institution_client"
 	serviceInstitutionTest "optitech/internal/service/institution_services"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClient(t *testing.T) {
@@ -41,7 +42,7 @@ func TestClient(t *testing.T) {
 	})
 	t.Run("Update institution service", func(t *testing.T) {
 		req := &dto.UpdateInstitutionReq{
-			InstitutionID:   institution.InstitutionID,
+			InstitutionID:   institution.InstitutionId,
 			InstitutionName: "Test udpadte",
 			Description:     "Test is test update",
 			Services:        []int32{1},
@@ -52,7 +53,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("Get  institution", func(t *testing.T) {
-		res, err := service.Get(dto.GetInstitutionReq{Id: institution.InstitutionID})
+		res, err := service.Get(dto.GetInstitutionReq{Id: institution.InstitutionId})
 		assert.NotNil(t, res)
 		assert.Nil(t, err)
 	})

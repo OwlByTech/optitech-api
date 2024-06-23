@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
 	"io"
 	dto "optitech/internal/dto/institution"
 	dto_services "optitech/internal/dto/institution_services"
@@ -10,6 +9,8 @@ import (
 	sq "optitech/internal/sqlc"
 	"os"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceInstitution struct {
@@ -86,7 +87,7 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	services := make([]sq.CreateInstitutionServicesParams, len(req.Services))
 	for i, ser := range req.Services {
 		services[i] = sq.CreateInstitutionServicesParams{
-			InstitutionID: r.InstitutionID,
+			InstitutionID: r.InstitutionId,
 			ServiceID:     ser,
 			CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 		}
@@ -95,7 +96,7 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	if err := s.serviceInstitutionService.Create(&services); err != nil {
 		return nil, err
 	}
-	if services, err := s.serviceInstitutionService.List(r.InstitutionID); err != nil {
+	if services, err := s.serviceInstitutionService.List(r.InstitutionId); err != nil {
 		return nil, err
 	} else {
 		r.Services = *services
@@ -103,7 +104,7 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	clients := make([]sq.CreateInstitutionClientParams, len(req.Clients))
 	for i, client := range req.Clients {
 		clients[i] = sq.CreateInstitutionClientParams{
-			InstitutionID: r.InstitutionID,
+			InstitutionID: r.InstitutionId,
 			ClientID:      client,
 			CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 		}
@@ -112,7 +113,7 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	if err := s.clientInstitutionService.Create(&clients); err != nil {
 		return nil, err
 	}
-	if clients, err := s.clientInstitutionService.List(r.InstitutionID); err != nil {
+	if clients, err := s.clientInstitutionService.List(r.InstitutionId); err != nil {
 		return nil, err
 	} else {
 		r.Clients = *clients
@@ -170,7 +171,11 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 	if err != nil {
 		return false, err
 	}
-	err = s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionID: req.InstitutionID, Services: req.Services})
+	err = s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionId: req.InstitutionID, Services: req.Services})
+
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
