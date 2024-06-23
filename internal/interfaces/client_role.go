@@ -10,7 +10,7 @@ type IClientRoleService interface {
 	Create(arg *models.CreateClientRoleParams) (*dto.CreateClientRoleRes, error)
 	Delete(arg *models.DeleteClientRoleByIdParams) error
 	List() (*[]dto.GetClientRoleRes, error)
-	ListByClientId(clientId int32) (*[]r.GetRoleRes, error)
+	ListRolesByClientId(clientId int32) (*[]r.GetRoleRes, error)
 }
 
 type IClientRoleRepository interface {

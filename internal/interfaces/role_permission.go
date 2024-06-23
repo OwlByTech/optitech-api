@@ -7,7 +7,7 @@ import (
 )
 
 type IRolePermissionService interface {
-	GetByRoleId(roleId int32) (*[]p.GetPermissionRes, error)
+	ListPermissionsByRoleId(roleId int32) (*[]p.GetPermissionRes, error)
 	List() (*[]dto.GetRolePermissionRes, error)
 }
 

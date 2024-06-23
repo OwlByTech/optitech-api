@@ -27,7 +27,7 @@ func (s *serviceClientRole) Create(arg *sqlc.CreateClientRoleParams) (*dto.Creat
 	return repoRes, nil
 }
 
-func (s *serviceClientRole) ListByClientId(clientId int32) (*[]r.GetRoleRes, error) {
+func (s *serviceClientRole) ListRolesByClientId(clientId int32) (*[]r.GetRoleRes, error) {
 	repoRes, err := s.ClientRoleRepository.ListByClientId(clientId)
 
 	if err != nil {

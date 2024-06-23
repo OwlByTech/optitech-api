@@ -16,7 +16,7 @@ func NewServiceRolePermission(r interfaces.IRolePermissionRepository) interfaces
 	}
 }
 
-func (s *serviceRolePermission) GetByRoleId(roleId int32) (*[]p.GetPermissionRes, error) {
+func (s *serviceRolePermission) ListPermissionsByRoleId(roleId int32) (*[]p.GetPermissionRes, error) {
 	repoRes, err := s.RolePermissionRepository.ListPermissionByRoleId(roleId)
 
 	if err != nil {
