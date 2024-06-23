@@ -1,8 +1,8 @@
 package dto
 
 type CreateInstitutionClientReq struct {
-	ClientId      string `json:"client_id" validate:"required"`
-	InstitutionId string `json:"institution_id" validate:"required"`
+	ClientId      string
+	InstitutionId string
 }
 
 type CreateInstitutionClientRes struct {

@@ -1,10 +1,10 @@
 package dto
 
 type GetServiceReq struct {
-	Id int64 `validate:"required"`
+	Id int32 `validate:"required"`
 }
 
 type GetServiceRes struct {
-	Id   int64
+	Id   int32
 	Name string
 }

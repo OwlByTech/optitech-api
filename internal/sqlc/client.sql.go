@@ -65,7 +65,7 @@ WHERE client_id = $1
 `
 
 type DeleteClientByIdParams struct {
-	ClientID  int64            `json:"client_id"`
+	ClientID  int32            `json:"client_id"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -79,7 +79,7 @@ SELECT client_id, given_name, surname, email, password, created_at, updated_at, 
 WHERE client_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error) {
+func (q *Queries) GetClient(ctx context.Context, clientID int32) (Client, error) {
 	row := q.db.QueryRow(ctx, getClient, clientID)
 	var i Client
 	err := row.Scan(
@@ -183,7 +183,7 @@ WHERE client_id = $1
 `
 
 type UpdateClientByIdParams struct {
-	ClientID  int64            `json:"client_id"`
+	ClientID  int32            `json:"client_id"`
 	GivenName string           `json:"given_name"`
 	Password  string           `json:"password"`
 	Surname   string           `json:"surname"`

@@ -62,7 +62,7 @@ WHERE permission_id = $1
 `
 
 type DeletePermissionByIdParams struct {
-	PermissionID int64            `json:"permission_id"`
+	PermissionID int32            `json:"permission_id"`
 	DeletedAt    pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -76,7 +76,7 @@ SELECT permission_id, name, code, description, created_at, updated_at, deleted_a
 WHERE permission_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetPermission(ctx context.Context, permissionID int64) (Permission, error) {
+func (q *Queries) GetPermission(ctx context.Context, permissionID int32) (Permission, error) {
 	row := q.db.QueryRow(ctx, getPermission, permissionID)
 	var i Permission
 	err := row.Scan(
@@ -103,7 +103,7 @@ type GetPermissionByNameRow struct {
 	Description string `json:"description"`
 }
 
-func (q *Queries) GetPermissionByName(ctx context.Context, permissionID int64) (GetPermissionByNameRow, error) {
+func (q *Queries) GetPermissionByName(ctx context.Context, permissionID int32) (GetPermissionByNameRow, error) {
 	row := q.db.QueryRow(ctx, getPermissionByName, permissionID)
 	var i GetPermissionByNameRow
 	err := row.Scan(&i.Name, &i.Code, &i.Description)
@@ -150,7 +150,7 @@ WHERE permission_id = $1
 `
 
 type UpdatePermissionByIdParams struct {
-	PermissionID int64            `json:"permission_id"`
+	PermissionID int32            `json:"permission_id"`
 	Name         string           `json:"name"`
 	Code         string           `json:"code"`
 	Description  string           `json:"description"`
