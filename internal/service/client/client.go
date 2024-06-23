@@ -154,7 +154,7 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 	if err := mailing.SendResetPassword(&dto_mailing.ResetPasswordMailingReq{
 		Email:   res.Email,
 		Subject: "Owlbytech Restablecer contrasena",
-		Link:    "http://localhost:3001/change-password?token=" + token,
+		Link:    cfg.Env.WebUrl + "/change-password?token=" + token,
 	}); err != nil {
 		return false, err
 	}
