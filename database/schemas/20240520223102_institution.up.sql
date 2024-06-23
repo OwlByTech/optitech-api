@@ -1,5 +1,5 @@
 CREATE TABLE institution (
-  institution_id BIGSERIAL PRIMARY KEY,
+  institution_id SERIAL PRIMARY KEY,
   asesor_id INT REFERENCES asesor(asesor_id),
   institution_name VARCHAR(50) NOT NULL,
   logo VARCHAR(255),
@@ -8,3 +8,4 @@ CREATE TABLE institution (
   updated_at TIMESTAMP,
   deleted_at TIMESTAMP
 );
+
