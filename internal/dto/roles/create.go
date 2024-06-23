@@ -6,7 +6,7 @@ type CreateRoleReq struct {
 }
 
 type CreateRoleRes struct {
-	Id          int64  `json:"id"`
+	Id          int32  `json:"id"`
 	RoleName    string `json:"roleName"`
 	Description string `json:"description"`
 }

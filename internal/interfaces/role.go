@@ -10,7 +10,7 @@ type IRoleService interface {
 }
 
 type IRoleRepository interface {
-	GetRole(id int64) (*dto.GetRoleRes, error)
+	GetRole(id int32) (*dto.GetRoleRes, error)
 	CreateRole(arg *models.CreateRoleParams) (*dto.CreateRoleRes, error)
 	UpdateRole(arg *models.UpdateRoleByIdParams) error
 	ListRoles() (*[]dto.GetRoleRes, error)
