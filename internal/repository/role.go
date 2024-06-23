@@ -37,7 +37,7 @@ func (r *repositoryRole) DeleteRole(arg *sq.DeleteRoleByIdParams) error {
 	return r.RoleRepository.DeleteRoleById(ctx, *arg)
 }
 
-func (r *repositoryRole) GetRole(id int64) (*dto.GetRoleRes, error) {
+func (r *repositoryRole) GetRole(id int32) (*dto.GetRoleRes, error) {
 	ctx := context.Background()
 	res, err := r.RoleRepository.GetRole(ctx, id)
 

@@ -55,7 +55,7 @@ WHERE role_id = $1
 `
 
 type DeleteRoleByIdParams struct {
-	RoleID    int64            `json:"role_id"`
+	RoleID    int32            `json:"role_id"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -69,7 +69,7 @@ SELECT role_id, role_name, description, created_at, updated_at, deleted_at FROM 
 WHERE role_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetRole(ctx context.Context, roleID int64) (Role, error) {
+func (q *Queries) GetRole(ctx context.Context, roleID int32) (Role, error) {
 	row := q.db.QueryRow(ctx, getRole, roleID)
 	var i Role
 	err := row.Scan(
@@ -94,7 +94,7 @@ type GetRoleByNameRow struct {
 	Description string `json:"description"`
 }
 
-func (q *Queries) GetRoleByName(ctx context.Context, roleID int64) (GetRoleByNameRow, error) {
+func (q *Queries) GetRoleByName(ctx context.Context, roleID int32) (GetRoleByNameRow, error) {
 	row := q.db.QueryRow(ctx, getRoleByName, roleID)
 	var i GetRoleByNameRow
 	err := row.Scan(&i.RoleName, &i.Description)
@@ -140,7 +140,7 @@ WHERE role_id = $1
 `
 
 type UpdateRoleByIdParams struct {
-	RoleID      int64            `json:"role_id"`
+	RoleID      int32            `json:"role_id"`
 	RoleName    string           `json:"role_name"`
 	Description string           `json:"description"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`

@@ -311,7 +311,7 @@ type Permission struct {
 }
 
 type Role struct {
-	RoleID      int64            `json:"role_id"`
+	RoleID      int32            `json:"role_id"`
 	RoleName    string           `json:"role_name"`
 	Description string           `json:"description"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
