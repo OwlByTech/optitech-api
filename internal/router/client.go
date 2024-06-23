@@ -4,13 +4,13 @@ import (
 	"optitech/internal/handler"
 	"optitech/internal/middleware"
 	"optitech/internal/repository"
-	service "optitech/internal/service/client"
+	cs "optitech/internal/service/client"
 )
 
 func (s *Server) RoutesClient() {
 	r := s.app
 	repoService := repository.NewRepositoryClient(&repository.Queries)
-	sevice := service.NewServiceClient(repoService)
+	sevice := cs.NewServiceClient(repoService)
 	handler := handler.NewHandlerClient(sevice)
 	serviceRoute := r.Group("/api/client")
 

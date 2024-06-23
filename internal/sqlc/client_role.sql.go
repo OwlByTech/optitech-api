@@ -83,6 +83,62 @@ func (q *Queries) GetClientRole(ctx context.Context, clientRoleID int64) (Client
 	return i, err
 }
 
+const getClientRoleByClientId = `-- name: GetClientRoleByClientId :many
+SELECT c.client_id, c.given_name, c.surname, c.email, c.password, c.status, c.created_at, c.updated_at, c.deleted_at, r.role_id, r.role_name, r.description, r.created_at, r.updated_at, r.deleted_at, cr.client_role_id, cr.client_id, cr.role_id, cr.created_at, cr.updated_at, cr.deleted_at
+FROM client_role cr
+JOIN client c ON cr.client_id = c.client_id
+JOIN roles r ON cr.role_id = r.role_id
+WHERE cr.client_id = $1
+`
+
+type GetClientRoleByClientIdRow struct {
+	Client     Client     `json:"client"`
+	Role       Role       `json:"role"`
+	ClientRole ClientRole `json:"client_role"`
+}
+
+func (q *Queries) GetClientRoleByClientId(ctx context.Context, clientID int32) ([]GetClientRoleByClientIdRow, error) {
+	rows, err := q.db.Query(ctx, getClientRoleByClientId, clientID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetClientRoleByClientIdRow
+	for rows.Next() {
+		var i GetClientRoleByClientIdRow
+		if err := rows.Scan(
+			&i.Client.ClientID,
+			&i.Client.GivenName,
+			&i.Client.Surname,
+			&i.Client.Email,
+			&i.Client.Password,
+			&i.Client.Status,
+			&i.Client.CreatedAt,
+			&i.Client.UpdatedAt,
+			&i.Client.DeletedAt,
+			&i.Role.RoleID,
+			&i.Role.RoleName,
+			&i.Role.Description,
+			&i.Role.CreatedAt,
+			&i.Role.UpdatedAt,
+			&i.Role.DeletedAt,
+			&i.ClientRole.ClientRoleID,
+			&i.ClientRole.ClientID,
+			&i.ClientRole.RoleID,
+			&i.ClientRole.CreatedAt,
+			&i.ClientRole.UpdatedAt,
+			&i.ClientRole.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getClientRoleByName = `-- name: GetClientRoleByName :one
 SELECT client_id, role_id
 FROM client_role

@@ -6,7 +6,7 @@ WHERE role_permission_id = $1 LIMIT 1;
 SELECT * FROM role_permission
 ORDER BY role_permission_id;
 
--- name: GetRolePermissionByName :one
+-- name: GetRolePermission :one
 SELECT role_id, permission_id
 FROM role_permission
 WHERE role_permission_id = $1;
@@ -31,4 +31,9 @@ UPDATE role_permission
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
-
+-- name: ListPermissionByRoleId :many
+SELECT sqlc.embed(p), sqlc.embed(r), sqlc.embed(rp)
+FROM role_permission rp
+JOIN permission p ON rp.permission_id = p.permission_id
+JOIN roles r ON rp.role_id = r.role_id
+WHERE rp.role_id = $1;

@@ -44,7 +44,6 @@ func RolePermissionUp(fileName string) error {
 		}
 	}
 
-	log.Printf("Role Permission Up seeder run successfully")
 	return nil
 }
 

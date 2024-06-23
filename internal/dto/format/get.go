@@ -1,14 +1,14 @@
 package dto
 
 type GetFormatReq struct {
-	Id int64 `validate:"required"`
+	Id int64 `json:"id" validate:"required"`
 }
 
 type GetFormatRes struct {
-	Id          int64
-	AsesorId    string
-	Description string
-	Items       []string
-	Extension   string
-	Version     string
+	Id          int64    `json:"id"`
+	AsesorId    string   `json:"asesorId"`
+	Description string   `json:"description"`
+	Items       []string `json:"items"`
+	Extension   string   `json:"extension"`
+	Version     string   `json:"version"`
 }

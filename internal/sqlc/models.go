@@ -192,7 +192,7 @@ type Asesor struct {
 }
 
 type Client struct {
-	ClientID  int64            `json:"client_id"`
+	ClientID  int32            `json:"client_id"`
 	GivenName string           `json:"given_name"`
 	Surname   string           `json:"surname"`
 	Email     string           `json:"email"`
@@ -274,7 +274,7 @@ type Format struct {
 }
 
 type Institution struct {
-	InstitutionID   int64            `json:"institution_id"`
+	InstitutionID   int32            `json:"institution_id"`
 	AsesorID        pgtype.Int4      `json:"asesor_id"`
 	InstitutionName string           `json:"institution_name"`
 	Logo            pgtype.Text      `json:"logo"`
@@ -285,25 +285,23 @@ type Institution struct {
 }
 
 type InstitutionClient struct {
-	InstitutionClientID int64            `json:"institution_client_id"`
-	ClientID            int32            `json:"client_id"`
-	InstitutionID       int32            `json:"institution_id"`
-	CreatedAt           pgtype.Timestamp `json:"created_at"`
-	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
-	DeletedAt           pgtype.Timestamp `json:"deleted_at"`
+	ClientID      int32            `json:"client_id"`
+	InstitutionID int32            `json:"institution_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 type InstitutionService struct {
-	InstitutionServicesID int64            `json:"institution_services_id"`
-	InstitutionID         int32            `json:"institution_id"`
-	ServicesID            int32            `json:"services_id"`
-	CreatedAt             pgtype.Timestamp `json:"created_at"`
-	UpdatedAt             pgtype.Timestamp `json:"updated_at"`
-	DeletedAt             pgtype.Timestamp `json:"deleted_at"`
+	InstitutionID int32            `json:"institution_id"`
+	ServiceID     int32            `json:"service_id"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Permission struct {
-	PermissionID int64            `json:"permission_id"`
+	PermissionID int32            `json:"permission_id"`
 	Name         string           `json:"name"`
 	Code         string           `json:"code"`
 	Description  string           `json:"description"`
@@ -331,15 +329,15 @@ type RolePermission struct {
 }
 
 type Service struct {
-	ServicesID int64            `json:"services_id"`
-	Name       string           `json:"name"`
-	CreatedAt  pgtype.Timestamp `json:"created_at"`
-	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
-	DeletedAt  pgtype.Timestamp `json:"deleted_at"`
+	ServiceID int32            `json:"service_id"`
+	Name      string           `json:"name"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Standard struct {
-	StandardID int64            `json:"standard_id"`
+	StandardID int32            `json:"standard_id"`
 	ServiceID  int32            `json:"service_id"`
 	Name       string           `json:"name"`
 	Complexity pgtype.Text      `json:"complexity"`

@@ -37,7 +37,7 @@ func (h *handlerClient) Get(c *fiber.Ctx) error {
 func (h *handlerClient) GetSecure(c *fiber.Ctx) error {
 
 	data := c.Locals("clientId")
-	clientId, ok := data.(int64)
+	clientId, ok := data.(int32)
 
 	if !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
@@ -80,7 +80,7 @@ func (h *handlerClient) Update(c *fiber.Ctx) error {
 	}
 
 	req := &cdto.UpdateClientReq{
-		ClientID: req_id.Id,
+		ClientId: req_id.Id,
 	}
 
 	res, err := h.clientService.Update(req)

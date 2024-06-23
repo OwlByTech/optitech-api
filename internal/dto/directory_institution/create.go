@@ -1,12 +1,12 @@
 package dto
 
 type CreateDirectoryInstitutionReq struct {
-	InstitutionID string `json:"institution_id" validate:"required"`
-	DirectoryID   string `json:"directory_id" validate:"required"`
+	InstitutionID string `json:"institutionId" validate:"required"`
+	DirectoryID   string `json:"directoryId" validate:"required"`
 }
 
 type CreateDirectoryInstitutionRes struct {
-	Id            int64
-	InstitutionID int64
-	DirectoryID   int64
+	Id            int64 `json:"id"`
+	InstitutionID int64 `json:"institutionId"`
+	DirectoryID   int64 `json:"directoryId"`
 }

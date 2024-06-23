@@ -1,12 +1,12 @@
 package dto
 
 type GetDocumentClientReq struct {
-	Id int64 `validate:"required"`
+	Id int64 `json:"id" validate:"required"`
 }
 
 type GetDocumentClientRes struct {
-	Id         int64
-	ClientId   int64
-	DocumentId int64
-	Action     string
+	Id         int64  `json:"id"`
+	ClientId   int64  `json:"clientId"`
+	DocumentId int64  `json:"documentId"`
+	Action     string `json:"action"`
 }
