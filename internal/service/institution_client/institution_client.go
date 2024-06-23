@@ -33,7 +33,7 @@ func (s *serviceInstitutionClient) Create(req *[]sq.CreateInstitutionClientParam
 }
 
 func (s *serviceInstitutionClient) DeleteById(req *dto.GetInstitutionClientReq) error {
-	arg := &sq.DeleteinstInstitutionClientByClientAndInstitutionParams{
+	arg := &sq.DeleteInstitutionByClientParams{
 		InstitutionID: req.InstitutionID,
 		ClientID:      req.ClientID,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
@@ -79,7 +79,7 @@ func (s *serviceInstitutionClient) Update(req dto.UpdateInstitutionClientReq) (b
 }
 
 func (s *serviceInstitutionClient) DeleteByInstitution(InstitutionID int32) error {
-	arg := &sq.DeleteInstitutionClientByInstitutionParams{
+	arg := &sq.DeleteInstitutionClientParams{
 		InstitutionID: InstitutionID,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}

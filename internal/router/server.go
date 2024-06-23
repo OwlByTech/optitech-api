@@ -16,6 +16,7 @@ func (s *Server) New() {
 }
 
 func (s *Server) ListenAndServe() error {
+	s.RoutesClient()
 	s.RoutesServices()
 	s.RoutesInstitution()
 	s.RoutesInstitutionClient()
