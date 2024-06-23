@@ -12,8 +12,8 @@ import (
 )
 
 const createInstitution = `-- name: CreateInstitution :one
-INSERT INTO institution (institution_name, logo, description, created_at)
-VALUES ($1, $2, $3, $4)
+INSERT INTO institution (institution_name, logo, description, created_at,asesor_id)
+VALUES ($1, $2, $3, $4,$5)
 RETURNING institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at
 `
 
@@ -22,6 +22,7 @@ type CreateInstitutionParams struct {
 	Logo            pgtype.Text      `json:"logo"`
 	Description     string           `json:"description"`
 	CreatedAt       pgtype.Timestamp `json:"created_at"`
+	AsesorID        pgtype.Int4      `json:"asesor_id"`
 }
 
 func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionParams) (Institution, error) {
@@ -30,6 +31,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		arg.Logo,
 		arg.Description,
 		arg.CreatedAt,
+		arg.AsesorID,
 	)
 	var i Institution
 	err := row.Scan(
@@ -47,7 +49,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 
 const deleteAllInstitutions = `-- name: DeleteAllInstitutions :exec
 UPDATE institution
-set deleted_at = $1 
+set deleted_at = $1
 where deleted_at is NULL
 `
 
@@ -56,28 +58,30 @@ func (q *Queries) DeleteAllInstitutions(ctx context.Context, deletedAt pgtype.Ti
 	return err
 }
 
-const deleteInstitutionById = `-- name: DeleteInstitutionById :exec
+const deleteInstitution = `-- name: DeleteInstitution :exec
 UPDATE institution
 SET deleted_at = $2
 WHERE institution_id = $1 AND deleted_at IS NULL
 `
 
-type DeleteInstitutionByIdParams struct {
-	InstitutionID int64            `json:"institution_id"`
+type DeleteInstitutionParams struct {
+	InstitutionID int32            `json:"institution_id"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
-func (q *Queries) DeleteInstitutionById(ctx context.Context, arg DeleteInstitutionByIdParams) error {
-	_, err := q.db.Exec(ctx, deleteInstitutionById, arg.InstitutionID, arg.DeletedAt)
+func (q *Queries) DeleteInstitution(ctx context.Context, arg DeleteInstitutionParams) error {
+	_, err := q.db.Exec(ctx, deleteInstitution, arg.InstitutionID, arg.DeletedAt)
 	return err
 }
 
 const getInstitution = `-- name: GetInstitution :one
 SELECT institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
-WHERE institution_id = $1 LIMIT 1
+WHERE institution_id = $1
+AND deleted_at IS NULL
+LIMIT 1
 `
 
-func (q *Queries) GetInstitution(ctx context.Context, institutionID int64) (Institution, error) {
+func (q *Queries) GetInstitution(ctx context.Context, institutionID int32) (Institution, error) {
 	row := q.db.QueryRow(ctx, getInstitution, institutionID)
 	var i Institution
 	err := row.Scan(
@@ -114,6 +118,7 @@ func (q *Queries) GetInstitutionByName(ctx context.Context, institutionName stri
 
 const listInstitutions = `-- name: ListInstitutions :many
 SELECT institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
+WHERE deleted_at IS NULL
 ORDER BY institution_name
 `
 
@@ -146,27 +151,46 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 	return items, nil
 }
 
-const updateInstitutionById = `-- name: UpdateInstitutionById :exec
+const updateAsesorInstitution = `-- name: UpdateAsesorInstitution :exec
 UPDATE institution
-SET institution_name = $2, logo = $3, description = $4,  updated_at=$5
+SET asesor_id= $2 ,updated_at=$3
 WHERE institution_id = $1
 `
 
-type UpdateInstitutionByIdParams struct {
-	InstitutionID   int64            `json:"institution_id"`
+type UpdateAsesorInstitutionParams struct {
+	InstitutionID int32            `json:"institution_id"`
+	AsesorID      pgtype.Int4      `json:"asesor_id"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+}
+
+func (q *Queries) UpdateAsesorInstitution(ctx context.Context, arg UpdateAsesorInstitutionParams) error {
+	_, err := q.db.Exec(ctx, updateAsesorInstitution, arg.InstitutionID, arg.AsesorID, arg.UpdatedAt)
+	return err
+}
+
+const updateInstitution = `-- name: UpdateInstitution :exec
+UPDATE institution
+SET institution_name = $2, logo = $3, description = $4,  updated_at=$5,asesor_id= $6
+WHERE institution_id = $1
+`
+
+type UpdateInstitutionParams struct {
+	InstitutionID   int32            `json:"institution_id"`
 	InstitutionName string           `json:"institution_name"`
 	Logo            pgtype.Text      `json:"logo"`
 	Description     string           `json:"description"`
 	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
+	AsesorID        pgtype.Int4      `json:"asesor_id"`
 }
 
-func (q *Queries) UpdateInstitutionById(ctx context.Context, arg UpdateInstitutionByIdParams) error {
-	_, err := q.db.Exec(ctx, updateInstitutionById,
+func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionParams) error {
+	_, err := q.db.Exec(ctx, updateInstitution,
 		arg.InstitutionID,
 		arg.InstitutionName,
 		arg.Logo,
 		arg.Description,
 		arg.UpdatedAt,
+		arg.AsesorID,
 	)
 	return err
 }

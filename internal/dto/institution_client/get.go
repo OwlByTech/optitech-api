@@ -1,7 +1,8 @@
 package dto
 
 type GetInstitutionClientReq struct {
-	Id int64 `json:"id" validate:"required"`
+	InstitutionId int32 `json:"institutionId"`
+	ClientId      int32 `json:"clientId"`
 }
 
 type GetInstitutionClientRes struct {

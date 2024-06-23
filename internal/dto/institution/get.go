@@ -1,13 +1,20 @@
 package dto
 
-type GetClientReq struct {
-	Id int64 `json:"id" validate:"required"`
+import (
+	dto_client "optitech/internal/dto/client"
+	dto_services "optitech/internal/dto/services"
+)
+
+type GetInstitutionReq struct {
+	Id int32 `json:"id" validate:"required"`
 }
 
-type GetClientRes struct {
-	Id              int64    `json:"id"`
-	InstitutionName string   `json:"institutionName"`
-	Logo            string   `json:"logo"`
-	Description     string   `json:"description"`
-	Services        []string `json:"services"`
+type GetInstitutionRes struct {
+	Id              int32                        `json:"id"`
+	InstitutionName string                       `json:"institutionName"`
+	Logo            string                       `json:"logo"`
+	Description     string                       `json:"description"`
+	Services        []dto_services.GetServiceRes `json:"services"`
+	AsesorId        int32
+	Clients         []dto_client.GetClientRes `json:"clients"`
 }

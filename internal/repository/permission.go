@@ -38,7 +38,7 @@ func (r *repositoryPermission) DeletePermission(arg *sq.DeletePermissionByIdPara
 	return r.permissionRepository.DeletePermissionById(ctx, *arg)
 }
 
-func (r *repositoryPermission) GetPermission(id int64) (*dto.GetPermissionRes, error) {
+func (r *repositoryPermission) GetPermission(id int32) (*dto.GetPermissionRes, error) {
 	ctx := context.Background()
 	res, err := r.permissionRepository.GetPermission(ctx, id)
 

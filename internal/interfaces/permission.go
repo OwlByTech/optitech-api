@@ -10,7 +10,7 @@ type IPermissionService interface {
 }
 
 type IPermissionRepository interface {
-	GetPermission(id int64) (*dto.GetPermissionRes, error)
+	GetPermission(id int32) (*dto.GetPermissionRes, error)
 	CreatePermission(arg *models.CreatePermissionParams) (*dto.CreatePermissionRes, error)
 	UpdatePermission(arg *models.UpdatePermissionByIdParams) error
 	ListPermissions() (*[]dto.GetPermissionRes, error)

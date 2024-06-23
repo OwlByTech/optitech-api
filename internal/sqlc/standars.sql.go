@@ -83,7 +83,7 @@ WHERE standard_id = $1
 `
 
 type DeleteStandardByIdParams struct {
-	StandardID int64            `json:"standard_id"`
+	StandardID int32            `json:"standard_id"`
 	Name       string           `json:"name"`
 	Complexity pgtype.Text      `json:"complexity"`
 	Modality   string           `json:"modality"`
@@ -118,7 +118,7 @@ SELECT standard_id, service_id, name, complexity, modality, article, section, pa
 WHERE standard_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetStandard(ctx context.Context, standardID int64) (Standard, error) {
+func (q *Queries) GetStandard(ctx context.Context, standardID int32) (Standard, error) {
 	row := q.db.QueryRow(ctx, getStandard, standardID)
 	var i Standard
 	err := row.Scan(
@@ -158,7 +158,7 @@ type GetStandardByNameRow struct {
 	Applys     pgtype.Bool `json:"applys"`
 }
 
-func (q *Queries) GetStandardByName(ctx context.Context, standardID int64) (GetStandardByNameRow, error) {
+func (q *Queries) GetStandardByName(ctx context.Context, standardID int32) (GetStandardByNameRow, error) {
 	row := q.db.QueryRow(ctx, getStandardByName, standardID)
 	var i GetStandardByNameRow
 	err := row.Scan(
@@ -222,7 +222,7 @@ WHERE standard_id = $1
 `
 
 type UpdateStandardByIdParams struct {
-	StandardID int64            `json:"standard_id"`
+	StandardID int32            `json:"standard_id"`
 	DeletedAt  pgtype.Timestamp `json:"deleted_at"`
 }
 

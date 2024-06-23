@@ -1,7 +1,7 @@
 package dto
 
 type CreateClient struct {
-	Id        int64
+	Id        int32
 	GivenName string
 	Surname   string
 	Email     string

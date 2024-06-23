@@ -5,12 +5,12 @@ import (
 )
 
 type ClientToken struct {
-	ID int64 `json:"id"`
+	ID int32 `json:"id"`
 	jwt.RegisteredClaims
 }
 
 type ClientTokenResetPassword struct {
 	jwt.RegisteredClaims
-	ID  int   `json:"id"`
+	ID  int32 `json:"id"`
 	Exp int64 `json:"exp"`
 }

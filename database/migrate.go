@@ -51,6 +51,7 @@ func Migrate(arg string) error {
 	default:
 		return fmt.Errorf("You must provide up or down argument")
 	}
+	defer db.Close()
 
 	return nil
 }
