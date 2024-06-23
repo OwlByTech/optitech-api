@@ -168,7 +168,7 @@ func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool
 	if err != nil {
 		return false, err
 	}
-	client, err := s.Get(dto.GetClientReq{Id: int32(payload.ID)})
+	client, err := s.Get(dto.GetClientReq{Id: payload.ID})
 	if err != nil {
 		return false, err
 	}
