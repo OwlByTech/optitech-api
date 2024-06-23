@@ -27,7 +27,7 @@ func (r *repositoryInstitutionClient) ListInstitutionClient(InstitutionID int32)
 	institutionClient := make([]dtoClient.GetClientRes, len(repoRes))
 	for i, inst := range repoRes {
 		institutionClient[i] = dtoClient.GetClientRes{
-			ClientID:  inst.ClientID,
+			Id:        inst.ClientID,
 			GivenName: inst.GivenName,
 			Surname:   inst.Surname,
 			Email:     inst.Email,

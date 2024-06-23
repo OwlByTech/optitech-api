@@ -1,12 +1,12 @@
 package dto
 
 type GetPermissionReq struct {
-	Id int64 `validate:"required"`
+	Id int64 `json:"id" validate:"required"`
 }
 
 type GetPermissionRes struct {
-	Id          int64
-	Name        string
-	Code        string
-	Description string
+	Id          int64  `json:"id"`
+	Name        string `json:"name"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
 }

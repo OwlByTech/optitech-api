@@ -27,7 +27,7 @@ func (r *repositoryClient) GetClient(clientID int32) (*dto.GetClientRes, error) 
 	}
 
 	return &dto.GetClientRes{
-		ClientID:  repoRes.ClientID,
+		Id:        repoRes.ClientID,
 		GivenName: repoRes.GivenName,
 		Surname:   repoRes.Surname,
 		Email:     repoRes.Email,
@@ -67,7 +67,7 @@ func (r *repositoryClient) ListClient() (*[]dto.GetClientRes, error) {
 	clients := make([]dto.GetClientRes, len(repoRes))
 	for i, inst := range repoRes {
 		clients[i] = dto.GetClientRes{
-			ClientID:  inst.ClientID,
+			Id:        inst.ClientID,
 			GivenName: inst.GivenName,
 			Surname:   inst.Surname,
 			Email:     inst.Email,

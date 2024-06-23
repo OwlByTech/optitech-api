@@ -41,7 +41,7 @@ func TestClientServices(t *testing.T) {
 	})
 
 	t.Run("Delete services by institution and service", func(t *testing.T) {
-		err := service.DeleteById(&dto.GetInstitutionServicesReq{ServiceID: 3, InstitutionID: InstitutionID})
+		err := service.DeleteById(&dto.GetInstitutionServicesReq{ServiceId: 3, InstitutionId: InstitutionID})
 		assert.NotNil(t, err)
 		assert.Nil(t, err)
 	})

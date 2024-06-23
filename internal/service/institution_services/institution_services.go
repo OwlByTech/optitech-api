@@ -32,7 +32,7 @@ func (s *serviceInstitutionService) Create(req *[]sq.CreateInstitutionServicesPa
 }
 
 func (s *serviceInstitutionService) Update(req *dto.UpdateInstitutionServicesReq) error {
-	res, err := s.List(req.InstitutionID)
+	res, err := s.List(req.InstitutionId)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (s *serviceInstitutionService) Update(req *dto.UpdateInstitutionServicesReq
 	var listCreate []sq.CreateInstitutionServicesParams
 	for _, service := range *res {
 		if slices.Index(req.Services, service.Id) == -1 {
-			if s.DeleteById(&dto.GetInstitutionServicesReq{InstitutionID: req.InstitutionID, ServiceID: service.Id}) != nil {
+			if s.DeleteById(&dto.GetInstitutionServicesReq{InstitutionId: req.InstitutionId, ServiceId: service.Id}) != nil {
 				return err
 			}
 		} else {
@@ -48,12 +48,12 @@ func (s *serviceInstitutionService) Update(req *dto.UpdateInstitutionServicesReq
 		}
 	}
 	for _, service := range listValid {
-		if s.Exists(&sq.ExistsInstitutionServiceParams{ServiceID: service, InstitutionID: req.InstitutionID}) {
-			if err := s.Recover(&sq.RecoverInstitutionServiceParams{ServiceID: service, InstitutionID: req.InstitutionID}); err != nil {
+		if s.Exists(&sq.ExistsInstitutionServiceParams{ServiceID: service, InstitutionID: req.InstitutionId}) {
+			if err := s.Recover(&sq.RecoverInstitutionServiceParams{ServiceID: service, InstitutionID: req.InstitutionId}); err != nil {
 				return err
 			}
 		} else {
-			listCreate = append(listCreate, sq.CreateInstitutionServicesParams{InstitutionID: req.InstitutionID, ServiceID: service})
+			listCreate = append(listCreate, sq.CreateInstitutionServicesParams{InstitutionID: req.InstitutionId, ServiceID: service})
 		}
 	}
 	if err := s.Create(&listCreate); err != nil {
@@ -66,8 +66,8 @@ func (s *serviceInstitutionService) Update(req *dto.UpdateInstitutionServicesReq
 
 func (s *serviceInstitutionService) DeleteById(req *dto.GetInstitutionServicesReq) error {
 	arg := &sq.DeleteInstitutionServiceByIdParams{
-		ServiceID:     req.ServiceID,
-		InstitutionID: req.InstitutionID,
+		ServiceID:     req.ServiceId,
+		InstitutionID: req.InstitutionId,
 		DeletedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 	return s.institutionServiceRepository.DeleteInstitutionServiceById(arg)

@@ -16,9 +16,9 @@ type CreateInstitutionReq struct {
 }
 
 type CreateInstitutionRes struct {
-	InstitutionID   int32
-	InstitutionName string
-	Description     string
-	Services        []dto.GetServiceRes
-	Clients         []dto_client.GetClientRes
+	InstitutionId   int32                     `json:"institutionId"`
+	InstitutionName string                    `json:"institutionName"`
+	Description     string                    `json:"description"`
+	Services        []dto.GetServiceRes       `json:"services"`
+	Clients         []dto_client.GetClientRes `json:"clients"`
 }
