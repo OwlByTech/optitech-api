@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
 	dto_mailing "optitech/internal/dto/mailing"
@@ -10,6 +9,8 @@ import (
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
@@ -142,7 +143,7 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 		return false, err
 	}
 	client := &dto.ClientTokenResetPassword{
-		ID:  int(res.ClientID),
+		ID:  res.ClientID,
 		Exp: time.Now().Add(time.Hour / 2).Unix(),
 	}
 
@@ -167,7 +168,7 @@ func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool
 	if err != nil {
 		return false, err
 	}
-	client, err := s.Get(dto.GetClientReq{Id: int64(payload.ID)})
+	client, err := s.Get(dto.GetClientReq{Id: int32(payload.ID)})
 	if err != nil {
 		return false, err
 	}
@@ -176,7 +177,7 @@ func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool
 		return false, err
 	}
 	res, err := s.Update(&dto.UpdateClientReq{
-		ClientID:  client.Id,
+		ClientID:  client.ClientID,
 		Password:  hash,
 		Email:     client.Email,
 		GivenName: client.GivenName,
