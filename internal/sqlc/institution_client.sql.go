@@ -17,36 +17,36 @@ type CreateInstitutionClientParams struct {
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 }
 
-const deleteInstitutionClientByInstitution = `-- name: DeleteInstitutionClientByInstitution :exec
-UPDATE institution_client
-SET deleted_at = $2
-WHERE institution_id = $1
-`
-
-type DeleteInstitutionClientByInstitutionParams struct {
-	InstitutionID int32            `json:"institution_id"`
-	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
-}
-
-func (q *Queries) DeleteInstitutionClientByInstitution(ctx context.Context, arg DeleteInstitutionClientByInstitutionParams) error {
-	_, err := q.db.Exec(ctx, deleteInstitutionClientByInstitution, arg.InstitutionID, arg.DeletedAt)
-	return err
-}
-
-const deleteinstInstitutionClientByClientAndInstitution = `-- name: DeleteinstInstitutionClientByClientAndInstitution :exec
+const deleteInstitutionByClient = `-- name: DeleteInstitutionByClient :exec
 UPDATE institution_client
 SET deleted_at = $2
 WHERE institution_id= $1 AND client_id= $3
 `
 
-type DeleteinstInstitutionClientByClientAndInstitutionParams struct {
+type DeleteInstitutionByClientParams struct {
 	InstitutionID int32            `json:"institution_id"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 	ClientID      int32            `json:"client_id"`
 }
 
-func (q *Queries) DeleteinstInstitutionClientByClientAndInstitution(ctx context.Context, arg DeleteinstInstitutionClientByClientAndInstitutionParams) error {
-	_, err := q.db.Exec(ctx, deleteinstInstitutionClientByClientAndInstitution, arg.InstitutionID, arg.DeletedAt, arg.ClientID)
+func (q *Queries) DeleteInstitutionByClient(ctx context.Context, arg DeleteInstitutionByClientParams) error {
+	_, err := q.db.Exec(ctx, deleteInstitutionByClient, arg.InstitutionID, arg.DeletedAt, arg.ClientID)
+	return err
+}
+
+const deleteInstitutionClient = `-- name: DeleteInstitutionClient :exec
+UPDATE institution_client
+SET deleted_at = $2
+WHERE institution_id = $1
+`
+
+type DeleteInstitutionClientParams struct {
+	InstitutionID int32            `json:"institution_id"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteInstitutionClient(ctx context.Context, arg DeleteInstitutionClientParams) error {
+	_, err := q.db.Exec(ctx, deleteInstitutionClient, arg.InstitutionID, arg.DeletedAt)
 	return err
 }
 

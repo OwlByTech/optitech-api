@@ -58,13 +58,13 @@ func (r *repositoryInstitutionClient) CreateInstitutionClient(arg *[]sq.CreateIn
 	return err
 }
 
-func (r *repositoryInstitutionClient) DeleteInstitutionClientById(arg *sq.DeleteinstInstitutionClientByClientAndInstitutionParams) error {
+func (r *repositoryInstitutionClient) DeleteInstitutionClientById(arg *sq.DeleteInstitutionByClientParams) error {
 	ctx := context.Background()
-	return r.insititutionClientRepository.DeleteinstInstitutionClientByClientAndInstitution(ctx, *arg)
+	return r.insititutionClientRepository.DeleteInstitutionByClient(ctx, *arg)
 
 }
-func (r *repositoryInstitutionClient) DeleteInstitutionClientByInstitution(arg *sq.DeleteInstitutionClientByInstitutionParams) error {
+func (r *repositoryInstitutionClient) DeleteInstitutionClientByInstitution(arg *sq.DeleteInstitutionClientParams) error {
 	ctx := context.Background()
-	return r.insititutionClientRepository.DeleteInstitutionClientByInstitution(ctx, *arg)
+	return r.insititutionClientRepository.DeleteInstitutionClient(ctx, *arg)
 
 }

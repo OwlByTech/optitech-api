@@ -22,8 +22,8 @@ type IInstitutionClientRepository interface {
 	CreateInstitutionClient(arg *[]models.CreateInstitutionClientParams) error
 	ExistsInstitutionClient(arg *models.ExistsInstitutionClientParams) bool
 	RecoverInstitutionClient(arg *models.RecoverInstitutionClientParams) error
-	DeleteInstitutionClientById(arg *models.DeleteinstInstitutionClientByClientAndInstitutionParams) error
-	DeleteInstitutionClientByInstitution(arg *models.DeleteInstitutionClientByInstitutionParams) error
+	DeleteInstitutionClientById(arg *models.DeleteInstitutionByClientParams) error
+	DeleteInstitutionClientByInstitution(arg *models.DeleteInstitutionClientParams) error
 }
 type IInstitutionClientHandler interface {
 	Update(c *fiber.Ctx) error
