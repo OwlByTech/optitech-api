@@ -15,7 +15,7 @@ import (
 const createClient = `-- name: CreateClient :one
 INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING client_id, given_name, surname, email, password, created_at, updated_at, deleted_at
+RETURNING client_id, given_name, surname, email, password, status, created_at, updated_at, deleted_at
 `
 
 type CreateClientParams struct {
@@ -41,6 +41,7 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 		&i.Surname,
 		&i.Email,
 		&i.Password,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -75,7 +76,7 @@ func (q *Queries) DeleteClientById(ctx context.Context, arg DeleteClientByIdPara
 }
 
 const getClient = `-- name: GetClient :one
-SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, password, status, created_at, updated_at, deleted_at FROM client
 WHERE client_id = $1 LIMIT 1
 `
 
@@ -88,6 +89,7 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 		&i.Surname,
 		&i.Email,
 		&i.Password,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -96,7 +98,7 @@ func (q *Queries) GetClient(ctx context.Context, clientID int64) (Client, error)
 }
 
 const getClientByEmail = `-- name: GetClientByEmail :one
-SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, password, status, created_at, updated_at, deleted_at FROM client
 WHERE email = $1
 `
 
@@ -109,6 +111,7 @@ func (q *Queries) GetClientByEmail(ctx context.Context, email string) (Client, e
 		&i.Surname,
 		&i.Email,
 		&i.Password,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -117,7 +120,7 @@ func (q *Queries) GetClientByEmail(ctx context.Context, email string) (Client, e
 }
 
 const listClients = `-- name: ListClients :many
-SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, password, status, created_at, updated_at, deleted_at FROM client
 ORDER BY given_name
 `
 
@@ -136,6 +139,7 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 			&i.Surname,
 			&i.Email,
 			&i.Password,
+			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -151,7 +155,7 @@ func (q *Queries) ListClients(ctx context.Context) ([]Client, error) {
 }
 
 const loginClient = `-- name: LoginClient :one
-SELECT client_id, given_name, surname, email, password, created_at, updated_at, deleted_at FROM client
+SELECT client_id, given_name, surname, email, password, status, created_at, updated_at, deleted_at FROM client
 WHERE password = $1 AND email= $2 LIMIT 1
 `
 
@@ -169,6 +173,7 @@ func (q *Queries) LoginClient(ctx context.Context, arg LoginClientParams) (Clien
 		&i.Surname,
 		&i.Email,
 		&i.Password,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,

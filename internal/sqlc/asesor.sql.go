@@ -13,14 +13,13 @@ import (
 )
 
 const createAsesor = `-- name: CreateAsesor :one
-INSERT INTO asesor (client_id, username, photo, about, created_at)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING asesor_id, client_id, username, photo, about, created_at, updated_at, deleted_at
+INSERT INTO asesor (asesor_id, photo, about, created_at)
+VALUES ($1, $2, $3, $4)
+RETURNING asesor_id, photo, about, created_at, updated_at, deleted_at
 `
 
 type CreateAsesorParams struct {
-	ClientID  int32            `json:"client_id"`
-	Username  string           `json:"username"`
+	AsesorID  int32            `json:"asesor_id"`
 	Photo     string           `json:"photo"`
 	About     string           `json:"about"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
@@ -28,8 +27,7 @@ type CreateAsesorParams struct {
 
 func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Asesor, error) {
 	row := q.db.QueryRow(ctx, createAsesor,
-		arg.ClientID,
-		arg.Username,
+		arg.AsesorID,
 		arg.Photo,
 		arg.About,
 		arg.CreatedAt,
@@ -37,8 +35,6 @@ func (q *Queries) CreateAsesor(ctx context.Context, arg CreateAsesorParams) (Ase
 	var i Asesor
 	err := row.Scan(
 		&i.AsesorID,
-		&i.ClientID,
-		&i.Username,
 		&i.Photo,
 		&i.About,
 		&i.CreatedAt,
@@ -65,7 +61,7 @@ WHERE asesor_id = $1
 `
 
 type DeleteAsesorByIdParams struct {
-	AsesorID  int64            `json:"asesor_id"`
+	AsesorID  int32            `json:"asesor_id"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -75,17 +71,15 @@ func (q *Queries) DeleteAsesorById(ctx context.Context, arg DeleteAsesorByIdPara
 }
 
 const getAsesor = `-- name: GetAsesor :one
-SELECT asesor_id, client_id, username, photo, about, created_at, updated_at, deleted_at FROM asesor
+SELECT asesor_id, photo, about, created_at, updated_at, deleted_at FROM asesor
 WHERE asesor_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAsesor(ctx context.Context, asesorID int64) (Asesor, error) {
+func (q *Queries) GetAsesor(ctx context.Context, asesorID int32) (Asesor, error) {
 	row := q.db.QueryRow(ctx, getAsesor, asesorID)
 	var i Asesor
 	err := row.Scan(
 		&i.AsesorID,
-		&i.ClientID,
-		&i.Username,
 		&i.Photo,
 		&i.About,
 		&i.CreatedAt,
@@ -95,27 +89,9 @@ func (q *Queries) GetAsesor(ctx context.Context, asesorID int64) (Asesor, error)
 	return i, err
 }
 
-const getAsesorByUsername = `-- name: GetAsesorByUsername :one
-SELECT username photo, about
-FROM asesor
-WHERE username = $1
-`
-
-type GetAsesorByUsernameRow struct {
-	Photo string `json:"photo"`
-	About string `json:"about"`
-}
-
-func (q *Queries) GetAsesorByUsername(ctx context.Context, username string) (GetAsesorByUsernameRow, error) {
-	row := q.db.QueryRow(ctx, getAsesorByUsername, username)
-	var i GetAsesorByUsernameRow
-	err := row.Scan(&i.Photo, &i.About)
-	return i, err
-}
-
 const listAsesors = `-- name: ListAsesors :many
-SELECT asesor_id, client_id, username, photo, about, created_at, updated_at, deleted_at FROM asesor
-ORDER BY username
+SELECT asesor_id, photo, about, created_at, updated_at, deleted_at FROM asesor
+ORDER BY asesor_id
 `
 
 func (q *Queries) ListAsesors(ctx context.Context) ([]Asesor, error) {
@@ -129,8 +105,6 @@ func (q *Queries) ListAsesors(ctx context.Context) ([]Asesor, error) {
 		var i Asesor
 		if err := rows.Scan(
 			&i.AsesorID,
-			&i.ClientID,
-			&i.Username,
 			&i.Photo,
 			&i.About,
 			&i.CreatedAt,
@@ -149,13 +123,12 @@ func (q *Queries) ListAsesors(ctx context.Context) ([]Asesor, error) {
 
 const updateAsesorById = `-- name: UpdateAsesorById :exec
 UPDATE asesor
-SET username = $2, photo = $3, about = $4, updated_at = $5
+SET  photo = $2, about = $3, updated_at = $4
 WHERE asesor_id = $1
 `
 
 type UpdateAsesorByIdParams struct {
-	AsesorID  int64            `json:"asesor_id"`
-	Username  string           `json:"username"`
+	AsesorID  int32            `json:"asesor_id"`
 	Photo     string           `json:"photo"`
 	About     string           `json:"about"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
@@ -164,7 +137,6 @@ type UpdateAsesorByIdParams struct {
 func (q *Queries) UpdateAsesorById(ctx context.Context, arg UpdateAsesorByIdParams) error {
 	_, err := q.db.Exec(ctx, updateAsesorById,
 		arg.AsesorID,
-		arg.Username,
 		arg.Photo,
 		arg.About,
 		arg.UpdatedAt,

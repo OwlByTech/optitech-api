@@ -1,12 +1,11 @@
 package dto
 
 type GetAsesorReq struct {
-	Id int64 `validate:"required"`
+	Id int32 `validate:"required"`
 }
 
 type GetAsesorRes struct {
-	Id       int64
-	Username string
-	Photo    string
-	About    string
+	Id    int32
+	Photo string
+	About string
 }
