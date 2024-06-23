@@ -1,11 +1,11 @@
 package dto
 
 type GetClientReq struct {
-	Id int64 `validate:"required"`
+	Id int32 `validate:"required"`
 }
 
 type GetClientRes struct {
-	Id        int64
+	ClientID  int32
 	GivenName string
 	Surname   string
 	Email     string
