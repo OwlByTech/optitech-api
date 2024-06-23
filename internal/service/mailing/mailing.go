@@ -26,6 +26,20 @@ func SendPassword(send dto.PasswordMailingReq) error {
 
 	return nil
 }
+func SendResetPassword(send *dto.ResetPasswordMailingReq) error {
+
+	html, err := parseHTML(send, "template-reset-password")
+	if err != nil {
+		return fmt.Errorf("could not read HTML: %w", err)
+	}
+
+	err = SendEmail(send.Email, send.Subject, html)
+	if err != nil {
+		return fmt.Errorf("could not send email: %w", err)
+	}
+
+	return nil
+}
 
 func parseHTML(data interface{}, templatePath string) (string, error) {
 	htmlContent, err := os.ReadFile(fmt.Sprintf("./internal/service/mailing/templates/%s.html", templatePath))

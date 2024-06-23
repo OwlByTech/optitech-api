@@ -3,8 +3,10 @@ package service
 import (
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
+	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
 	"optitech/internal/security"
+	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
 	"time"
 
@@ -115,21 +117,82 @@ func (s *serviceClient) Login(req *dto.LoginClientReq) (*dto.LoginClientRes, err
 	if err != nil {
 		return nil, err
 	}
+	if security.BcryptCheckPasswordHash(req.Password, res.Password) != nil {
+		return nil, err
+	}
 
 	client := &dto.ClientToken{
 		ID: res.ClientID,
 	}
 
 	token, err := security.JWTSign(client, cfg.Env.JWTSecret)
-	if err != nil {
-		return nil, err
-	}
 
-	if err := security.BcryptCheckPasswordHash(req.Password, res.Password); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
 	return &dto.LoginClientRes{
 		Token: token,
 	}, nil
+
+}
+
+func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
+	res, err := s.clientRepository.LoginClient(req.Email)
+	if err != nil {
+		return false, err
+	}
+	client := &dto.ClientTokenResetPassword{
+		ID:  res.ClientID,
+		Exp: time.Now().Add(time.Hour / 2).Unix(),
+	}
+
+	token, err := security.JWTSign(client, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+
+	if err := mailing.SendResetPassword(&dto_mailing.ResetPasswordMailingReq{
+		Email:   res.Email,
+		Subject: "Restablecer contraseña",
+		Link:    cfg.Env.WebUrl + "/change-password?token=" + token,
+	}); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool, error) {
+	_, payload, err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+	client, err := s.Get(dto.GetClientReq{Id: payload.ID})
+	if err != nil {
+		return false, err
+	}
+	hash, err := security.BcryptHashPassword(req.Password)
+	if err != nil {
+		return false, err
+	}
+	res, err := s.Update(&dto.UpdateClientReq{
+		ClientID:  client.ClientID,
+		Password:  hash,
+		Email:     client.Email,
+		GivenName: client.GivenName,
+		Surname:   client.Surname,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	return res, nil
+}
+func (s *serviceClient) ValidateResetPasswordToken(req dto.ValidateResetPasswordTokenReq) (bool, error) {
+	_, err := security.JWTVerify(req.Token, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

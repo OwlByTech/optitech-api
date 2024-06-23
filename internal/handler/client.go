@@ -6,6 +6,7 @@ import (
 	"optitech/internal/interfaces"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type handlerClient struct {
@@ -115,4 +116,54 @@ func (h *handlerClient) Login(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 
+}
+
+func (h *handlerClient) ResetPassword(c *fiber.Ctx) error {
+	req := &cdto.ResetPasswordReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.clientService.ResetPassword(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+func (h *handlerClient) ResetPasswordToken(c *fiber.Ctx) error {
+	req := &cdto.ResetPasswordTokenReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.clientService.ResetPasswordToken(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+func (h *handlerClient) ValidateResetPasswordToken(c *fiber.Ctx) error {
+	token := c.Query("token")
+	log.Info(token, "token")
+	req := &cdto.ValidateResetPasswordTokenReq{
+		Token: token,
+	}
+	res, err := h.clientService.ValidateResetPasswordToken(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }
