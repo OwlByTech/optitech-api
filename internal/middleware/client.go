@@ -52,7 +52,7 @@ func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 		return unauthorized
 	}
 
-	_, err = cm.ClientService.Get(cdto.GetClientReq{Id: int64(clientVerified.ID)})
+	_, err = cm.ClientService.Get(cdto.GetClientReq{Id: int32(clientVerified.ID)})
 	if err != nil {
 		return unauthorized
 	}

@@ -12,30 +12,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const createInstitutionService = `-- name: CreateInstitutionService :one
-INSERT INTO institution_services(institution_id, services_id, created_at)
-VALUES ($1, $2, $3)
-RETURNING institution_services_id, institution_id, services_id, created_at, updated_at, deleted_at
-`
-
-type CreateInstitutionServiceParams struct {
+type CreateInstitutionServicesParams struct {
 	InstitutionID int32            `json:"institution_id"`
-	ServicesID    int32            `json:"services_id"`
+	ServiceID     int32            `json:"service_id"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
-}
-
-func (q *Queries) CreateInstitutionService(ctx context.Context, arg CreateInstitutionServiceParams) (InstitutionService, error) {
-	row := q.db.QueryRow(ctx, createInstitutionService, arg.InstitutionID, arg.ServicesID, arg.CreatedAt)
-	var i InstitutionService
-	err := row.Scan(
-		&i.InstitutionServicesID,
-		&i.InstitutionID,
-		&i.ServicesID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
 }
 
 const deleteAllInstitutionServices = `-- name: DeleteAllInstitutionServices :execresult
@@ -51,31 +31,52 @@ func (q *Queries) DeleteAllInstitutionServices(ctx context.Context, deletedAt pg
 const deleteInstitutionServiceById = `-- name: DeleteInstitutionServiceById :exec
 UPDATE institution_services
 SET deleted_at = $2
-WHERE institution_services_id = $1
+WHERE institution_id= $1 AND service_id= $3
 `
 
 type DeleteInstitutionServiceByIdParams struct {
-	InstitutionServicesID int64            `json:"institution_services_id"`
-	DeletedAt             pgtype.Timestamp `json:"deleted_at"`
+	InstitutionID int32            `json:"institution_id"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
+	ServiceID     int32            `json:"service_id"`
 }
 
 func (q *Queries) DeleteInstitutionServiceById(ctx context.Context, arg DeleteInstitutionServiceByIdParams) error {
-	_, err := q.db.Exec(ctx, deleteInstitutionServiceById, arg.InstitutionServicesID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, deleteInstitutionServiceById, arg.InstitutionID, arg.DeletedAt, arg.ServiceID)
 	return err
 }
 
-const getInstitutionService = `-- name: GetInstitutionService :one
-SELECT institution_services_id, institution_id, services_id, created_at, updated_at, deleted_at FROM institution_services
-WHERE institution_services_id = $1 LIMIT 1
+const deleteInstitutionServicesByInstitution = `-- name: DeleteInstitutionServicesByInstitution :exec
+UPDATE institution_services
+SET deleted_at = $2
+WHERE institution_id= $1
 `
 
-func (q *Queries) GetInstitutionService(ctx context.Context, institutionServicesID int64) (InstitutionService, error) {
-	row := q.db.QueryRow(ctx, getInstitutionService, institutionServicesID)
+type DeleteInstitutionServicesByInstitutionParams struct {
+	InstitutionID int32            `json:"institution_id"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
+}
+
+func (q *Queries) DeleteInstitutionServicesByInstitution(ctx context.Context, arg DeleteInstitutionServicesByInstitutionParams) error {
+	_, err := q.db.Exec(ctx, deleteInstitutionServicesByInstitution, arg.InstitutionID, arg.DeletedAt)
+	return err
+}
+
+const existsInstitutionService = `-- name: ExistsInstitutionService :one
+SELECT institution_id, service_id, created_at, updated_at, deleted_at FROM institution_services
+WHERE service_id = $1 AND institution_id=$2 and deleted_at IS NOT NULL
+`
+
+type ExistsInstitutionServiceParams struct {
+	ServiceID     int32 `json:"service_id"`
+	InstitutionID int32 `json:"institution_id"`
+}
+
+func (q *Queries) ExistsInstitutionService(ctx context.Context, arg ExistsInstitutionServiceParams) (InstitutionService, error) {
+	row := q.db.QueryRow(ctx, existsInstitutionService, arg.ServiceID, arg.InstitutionID)
 	var i InstitutionService
 	err := row.Scan(
-		&i.InstitutionServicesID,
 		&i.InstitutionID,
-		&i.ServicesID,
+		&i.ServiceID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -83,46 +84,29 @@ func (q *Queries) GetInstitutionService(ctx context.Context, institutionServices
 	return i, err
 }
 
-const getInstitutionServiceByName = `-- name: GetInstitutionServiceByName :one
-SELECT institution_id, services_id
-FROM institution_services
-WHERE institution_services_id = $1
-`
-
-type GetInstitutionServiceByNameRow struct {
-	InstitutionID int32 `json:"institution_id"`
-	ServicesID    int32 `json:"services_id"`
-}
-
-func (q *Queries) GetInstitutionServiceByName(ctx context.Context, institutionServicesID int64) (GetInstitutionServiceByNameRow, error) {
-	row := q.db.QueryRow(ctx, getInstitutionServiceByName, institutionServicesID)
-	var i GetInstitutionServiceByNameRow
-	err := row.Scan(&i.InstitutionID, &i.ServicesID)
-	return i, err
-}
-
 const listInstitutionServices = `-- name: ListInstitutionServices :many
-SELECT institution_services_id, institution_id, services_id, created_at, updated_at, deleted_at FROM institution_services
-ORDER BY institution_services_id
+SELECT services.name ,services.service_id FROM institution_services
+INNER JOIN services ON  institution_services.service_id=services.service_id
+WHERE institution_services.institution_id= $1
+AND institution_services.deleted_at IS NULL
+ORDER BY services.service_id
 `
 
-func (q *Queries) ListInstitutionServices(ctx context.Context) ([]InstitutionService, error) {
-	rows, err := q.db.Query(ctx, listInstitutionServices)
+type ListInstitutionServicesRow struct {
+	Name      string `json:"name"`
+	ServiceID int32  `json:"service_id"`
+}
+
+func (q *Queries) ListInstitutionServices(ctx context.Context, institutionID int32) ([]ListInstitutionServicesRow, error) {
+	rows, err := q.db.Query(ctx, listInstitutionServices, institutionID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []InstitutionService
+	var items []ListInstitutionServicesRow
 	for rows.Next() {
-		var i InstitutionService
-		if err := rows.Scan(
-			&i.InstitutionServicesID,
-			&i.InstitutionID,
-			&i.ServicesID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
+		var i ListInstitutionServicesRow
+		if err := rows.Scan(&i.Name, &i.ServiceID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -131,4 +115,21 @@ func (q *Queries) ListInstitutionServices(ctx context.Context) ([]InstitutionSer
 		return nil, err
 	}
 	return items, nil
+}
+
+const recoverInstitutionService = `-- name: RecoverInstitutionService :exec
+UPDATE institution_services
+SET deleted_at = NULL,updated_at= $2
+WHERE institution_id= $1 AND service_id= $3
+`
+
+type RecoverInstitutionServiceParams struct {
+	InstitutionID int32            `json:"institution_id"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	ServiceID     int32            `json:"service_id"`
+}
+
+func (q *Queries) RecoverInstitutionService(ctx context.Context, arg RecoverInstitutionServiceParams) error {
+	_, err := q.db.Exec(ctx, recoverInstitutionService, arg.InstitutionID, arg.UpdatedAt, arg.ServiceID)
+	return err
 }
