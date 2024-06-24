@@ -81,6 +81,9 @@ func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 	if req.Surname != "" {
 		repoReq.Surname = req.Surname
 	}
+	if req.Status != "" {
+		repoReq.Surname = req.Surname
+	}
 
 	err := s.clientRepository.UpdateClient(repoReq)
 
