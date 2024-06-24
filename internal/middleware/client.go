@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"encoding/json"
 	cdto "optitech/internal/dto/client"
 
 	"optitech/internal/interfaces"
@@ -33,21 +32,10 @@ func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 	}
 
 	token := splitToken[1]
-
-	payloadClaims, err := security.JWTVerify(token, cfg.Env.JWTSecret)
-
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
-	}
-
 	var clientVerified cdto.ClientToken
-	bytes, err := json.Marshal(payloadClaims.Claims)
+	err := security.JWTGetPayload(token, cfg.Env.JWTSecret, &clientVerified)
 
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
-	}
-
-	if err := json.Unmarshal(bytes, &clientVerified); err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
 	}
 

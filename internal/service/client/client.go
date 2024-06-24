@@ -157,7 +157,7 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 
 	if err := mailing.SendResetPassword(&dto_mailing.ResetPasswordMailingReq{
 		Email:   res.Email,
-		Subject: "Owlbytech Restablecer contrasena",
+		Subject: "Restablecer contraseña",
 		Link:    cfg.Env.WebUrl + "/change-password?token=" + token,
 	}); err != nil {
 		return false, err
@@ -167,7 +167,8 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 }
 
 func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool, error) {
-	_, payload, err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword)
+	var payload dto.ClientTokenResetPassword
+	err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword, &payload)
 	if err != nil {
 		return false, err
 	}
