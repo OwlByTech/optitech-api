@@ -164,7 +164,8 @@ func (s *serviceClient) ResetPassword(req dto.ResetPasswordReq) (bool, error) {
 }
 
 func (s *serviceClient) ResetPasswordToken(req *dto.ResetPasswordTokenReq) (bool, error) {
-	_, payload, err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword)
+	var payload dto.ClientTokenResetPassword
+	err := security.JWTGetPayload(req.Token, cfg.Env.JWTSecretPassword, &payload)
 	if err != nil {
 		return false, err
 	}
