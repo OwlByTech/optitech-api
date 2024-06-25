@@ -9,7 +9,7 @@ import (
 
 type IDirectoryService interface {
 	Get(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
-	Create(req dto.CreateDirectoryTreeReq) (*dto.CreateDirectoryTreeRes, error)
+	Create(req *dto.CreateDirectoryTreeReq) (*dto.CreateDirectoryTreeRes, error)
 }
 
 type IDirectoryRepositoy interface {
