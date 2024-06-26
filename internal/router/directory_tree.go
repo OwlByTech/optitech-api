@@ -6,14 +6,13 @@ import (
 	dts "optitech/internal/service/directory_tree"
 )
 
-func (s *Server) RoutesDirectoryClient() {
+func (s *Server) RoutesDirectoryTree() {
 	r := s.app
 	repoService := repository.NewRepositoryDirectoryTree(&repository.Queries)
-	service := dts.NewServicDirectory(repoService)
-	handler := handler.NewHnadlerDirectoryTree(service)
+	service := dts.NewServiceDirectory(repoService)
+	handler := handler.NewHandlerDirectoryTree(service)
 	serviceRoute := r.Group("/api/directory-tree")
 
 	serviceRoute.Get("/", handler.Get)
 	serviceRoute.Post("/", handler.Create)
-
 }

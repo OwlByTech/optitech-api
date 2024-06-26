@@ -12,9 +12,9 @@ type IDirectoryService interface {
 	Create(req *dto.CreateDirectoryTreeReq) (*dto.CreateDirectoryTreeRes, error)
 }
 
-type IDirectoryRepositoy interface {
-	GetDirectroy(directoryID int64) (*dto.GetDirectoryTreeRes, error)
-	CreateDirectoy(arg *models.CreateDirectoryTreeParams) (*dto.CreateDirectoryTreeRes, error)
+type IDirectoryRepository interface {
+	GetDirectory(directoryID int64) (*dto.GetDirectoryTreeRes, error)
+	CreateDirectory(arg *models.CreateDirectoryTreeParams) (*dto.CreateDirectoryTreeRes, error)
 }
 
 type IDirectoryHandler interface {

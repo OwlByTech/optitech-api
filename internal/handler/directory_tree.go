@@ -12,7 +12,7 @@ type handlerDirectoryTree struct {
 	directoryTreeService interfaces.IDirectoryService
 }
 
-func NewHnadlerDirectoryTree(r interfaces.IDirectoryService) interfaces.IDirectoryHandler {
+func NewHandlerDirectoryTree(r interfaces.IDirectoryService) interfaces.IDirectoryHandler {
 	return &handlerDirectoryTree{
 		directoryTreeService: r,
 	}
@@ -37,7 +37,7 @@ func (h *handlerDirectoryTree) Create(c *fiber.Ctx) error {
 	req := &ddto.CreateDirectoryTreeReq{}
 
 	if err := c.BodyParser(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida: "+err.Error())
 	}
 
 	if err := dto.ValidateDTO(req); err != nil {
