@@ -49,3 +49,23 @@ func (r *repositoryDirectoryTree) CreateDirectory(arg *sq.CreateDirectoryTreePar
 		Name:        res.Name.String,
 	}, nil
 }
+
+func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.directoryRepository.ListDirectoryTrees(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	directorys := make([]dto.GetDirectoryTreeRes, len(repoRes))
+	for i, inst := range repoRes {
+		directorys[i] = dto.GetDirectoryTreeRes{
+			Id:       inst.DirectoryID,
+			ParentID: int64(inst.ParentID.Int32),
+			Name:     inst.Name.String,
+		}
+	}
+	return &directorys, nil
+
+}

@@ -51,3 +51,12 @@ func (h *handlerDirectoryTree) Create(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerDirectoryTree) List(c *fiber.Ctx) error {
+	res, err := h.directoryTreeService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

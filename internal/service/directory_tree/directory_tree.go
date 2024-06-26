@@ -44,3 +44,11 @@ func (s *serviceDirectoryTree) Create(req *dto.CreateDirectoryTreeReq) (*dto.Cre
 
 	return r, nil
 }
+
+func (s *serviceDirectoryTree) List() (*[]dto.GetDirectoryTreeRes, error) {
+	repoRes, err := s.directoryTreeRepository.ListDirectory()
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
+}
