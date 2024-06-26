@@ -27,8 +27,9 @@ func (r *repositoryDirectoryTree) GetDirectory(directoryID int64) (*dto.GetDirec
 	}
 
 	return &dto.GetDirectoryTreeRes{
-		Id:          repoRes.DirectoryID,
-		DirectoryId: repoRes.DirectoryID,
+		Id:       repoRes.DirectoryID,
+		ParentID: int64(repoRes.ParentID.Int32),
+		Name:     repoRes.Name.String,
 	}, nil
 }
 

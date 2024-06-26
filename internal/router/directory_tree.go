@@ -13,6 +13,6 @@ func (s *Server) RoutesDirectoryTree() {
 	handler := handler.NewHandlerDirectoryTree(service)
 	serviceRoute := r.Group("/api/directory-tree")
 
-	serviceRoute.Get("/", handler.Get)
+	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
 }

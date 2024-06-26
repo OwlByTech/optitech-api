@@ -5,6 +5,7 @@ type GetDirectoryTreeReq struct {
 }
 
 type GetDirectoryTreeRes struct {
-	Id          int64 `json:"id"`
-	DirectoryId int64 `json:"directoryId"`
+	Id       int64  `json:"id"`
+	ParentID int64  `json:"directoryId"`
+	Name     string `jston:name`
 }
