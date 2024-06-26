@@ -52,3 +52,16 @@ func (s *serviceDirectoryTree) List() (*[]dto.GetDirectoryTreeRes, error) {
 	}
 	return repoRes, nil
 }
+
+func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error) {
+	repoReq := &sq.DeleteDirectoryTreeByIdParams{
+		DirectoryID: req.Id,
+		DeletedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.directoryTreeRepository.DeleteDirectory(repoReq); err != nil {
+		return false, pgtype.ErrScanTargetTypeChanged
+	}
+
+	return true, nil
+}

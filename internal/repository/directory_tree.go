@@ -67,5 +67,9 @@ func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, e
 		}
 	}
 	return &directorys, nil
+}
 
+func (r *repositoryDirectoryTree) DeleteDirectory(arg *sq.DeleteDirectoryTreeByIdParams) error {
+	ctx := context.Background()
+	return r.directoryRepository.DeleteDirectoryTreeById(ctx, *arg)
 }

@@ -16,4 +16,5 @@ func (s *Server) RoutesDirectoryTree() {
 	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
+	serviceRoute.Delete("/delete/:id", handler.Delete)
 }
