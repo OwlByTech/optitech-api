@@ -172,7 +172,7 @@ type ClientRole struct {
 }
 
 type DirectoryInstitution struct {
-	DirectoryInstitutionID int64            `json:"directory_institution_id"`
+	DirectoryInstitutionID int32            `json:"directory_institution_id"`
 	InstitutionID          int32            `json:"institution_id"`
 	DirectoryID            int32            `json:"directory_id"`
 	CreatedAt              pgtype.Timestamp `json:"created_at"`
