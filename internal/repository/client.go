@@ -29,6 +29,8 @@ func (r *repositoryClient) GetClient(clientID int32) (*dto.GetClientRes, error) 
 	return &dto.GetClientRes{
 		Id:        repoRes.ClientID,
 		GivenName: repoRes.GivenName,
+		Photo:     repoRes.Photo.String,
+		Status:    dto.StatusClient(repoRes.Status),
 		Surname:   repoRes.Surname,
 		Email:     repoRes.Email,
 	}, nil
@@ -54,6 +56,15 @@ func (r *repositoryClient) CreateClient(arg *sq.CreateClientParams) (*dto.Create
 func (r *repositoryClient) UpdateClient(arg *sq.UpdateClientByIdParams) error {
 	ctx := context.Background()
 	return r.clientRepository.UpdateClientById(ctx, *arg)
+}
+func (r *repositoryClient) UpdateStatusClient(arg *sq.UpdateClientStatusByIdParams) error {
+	ctx := context.Background()
+	return r.clientRepository.UpdateClientStatusById(ctx, *arg)
+}
+
+func (r *repositoryClient) UpdatePhotoClient(arg *sq.UpdateClientPhotoParams) error {
+	ctx := context.Background()
+	return r.clientRepository.UpdateClientPhoto(ctx, *arg)
 }
 
 func (r *repositoryClient) ListClient() (*[]dto.GetClientRes, error) {

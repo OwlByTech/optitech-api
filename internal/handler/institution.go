@@ -51,7 +51,14 @@ func (h *handlerInstitution) Create(c *fiber.Ctx) error {
 	if err := json.Unmarshal([]byte(params), &req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+	err := dto.ValidateDTO(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
 	file, err := c.FormFile("file")
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
 	req.LogoFile = file
 	res, err := h.institutionService.Create(req)
 	if err != nil {

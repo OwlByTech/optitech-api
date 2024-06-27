@@ -5,12 +5,16 @@ import (
 	"optitech/internal/middleware"
 	"optitech/internal/repository"
 	cs "optitech/internal/service/client"
+	service "optitech/internal/service/client_role"
 )
 
 func (s *Server) RoutesClient() {
 	r := s.app
+
+	repoServiceClient := repository.NewRepositoryClientRole(&repository.Queries)
+	serviceClientRole := service.NewServiceClientRole(repoServiceClient)
 	repoService := repository.NewRepositoryClient(&repository.Queries)
-	sevice := cs.NewServiceClient(repoService)
+	sevice := cs.NewServiceClient(repoService, serviceClientRole)
 	handler := handler.NewHandlerClient(sevice)
 	serviceRoute := r.Group("/api/client")
 
@@ -30,6 +34,8 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Put("/update/:id", handler.Update)
+	serviceRoute.Post("/photo/:id", handler.UpdatePhoto)
+	serviceRoute.Post("/status", handler.UpdateStatus)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)
 	serviceRoute.Post("/reset-password", handler.ResetPassword)

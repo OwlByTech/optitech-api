@@ -84,7 +84,7 @@ func (q *Queries) GetClientRole(ctx context.Context, clientRoleID int64) (Client
 }
 
 const getClientRoleByClientId = `-- name: GetClientRoleByClientId :many
-SELECT c.client_id, c.given_name, c.surname, c.email, c.password, c.status, c.created_at, c.updated_at, c.deleted_at, r.role_id, r.role_name, r.description, r.created_at, r.updated_at, r.deleted_at, cr.client_role_id, cr.client_id, cr.role_id, cr.created_at, cr.updated_at, cr.deleted_at
+SELECT c.client_id, c.given_name, c.surname, c.photo, c.email, c.password, c.status, c.created_at, c.updated_at, c.deleted_at, r.role_id, r.role_name, r.description, r.created_at, r.updated_at, r.deleted_at, cr.client_role_id, cr.client_id, cr.role_id, cr.created_at, cr.updated_at, cr.deleted_at
 FROM client_role cr
 JOIN client c ON cr.client_id = c.client_id
 JOIN roles r ON cr.role_id = r.role_id
@@ -110,6 +110,7 @@ func (q *Queries) GetClientRoleByClientId(ctx context.Context, clientID int32) (
 			&i.Client.ClientID,
 			&i.Client.GivenName,
 			&i.Client.Surname,
+			&i.Client.Photo,
 			&i.Client.Email,
 			&i.Client.Password,
 			&i.Client.Status,
@@ -159,7 +160,7 @@ func (q *Queries) GetClientRoleByName(ctx context.Context, clientRoleID int64) (
 
 const listClientRoles = `-- name: ListClientRoles :many
 SELECT client_role_id, client_id, role_id, created_at, updated_at, deleted_at FROM client_role
-ORDER BY client_role_id
+ORDER BY role_id
 `
 
 func (q *Queries) ListClientRoles(ctx context.Context) ([]ClientRole, error) {
