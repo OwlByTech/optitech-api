@@ -183,7 +183,7 @@ func (q *Queries) LoginClient(ctx context.Context, arg LoginClientParams) (Clien
 
 const updateClientById = `-- name: UpdateClientById :exec
 UPDATE client
-SET given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
+SET  given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
 WHERE client_id = $1
 `
 

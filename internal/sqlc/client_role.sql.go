@@ -159,7 +159,7 @@ func (q *Queries) GetClientRoleByName(ctx context.Context, clientRoleID int64) (
 
 const listClientRoles = `-- name: ListClientRoles :many
 SELECT client_role_id, client_id, role_id, created_at, updated_at, deleted_at FROM client_role
-ORDER BY client_role_id
+ORDER BY role_id
 `
 
 func (q *Queries) ListClientRoles(ctx context.Context) ([]ClientRole, error) {
