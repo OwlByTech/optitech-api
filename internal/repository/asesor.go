@@ -28,7 +28,6 @@ func (r *repositoryAsesor) GetAsesor(asesorID int32) (*dto.GetAsesorRes, error) 
 
 	return &dto.GetAsesorRes{
 		Id:    repoRes.AsesorID,
-		Photo: repoRes.Photo,
 		About: repoRes.About,
 	}, nil
 }
@@ -44,7 +43,6 @@ func (r *repositoryAsesor) CreateAsesor(arg *sq.CreateAsesorParams) (*dto.Create
 
 	return &dto.CreateAsesorRes{
 		Id:    res.AsesorID,
-		Photo: res.Photo,
 		About: res.About,
 	}, nil
 }
@@ -66,7 +64,6 @@ func (r *repositoryAsesor) ListAsesor() (*[]dto.GetAsesorRes, error) {
 	for i, inst := range repoRes {
 		asesors[i] = dto.GetAsesorRes{
 			Id:    inst.AsesorID,
-			Photo: inst.Photo,
 			About: inst.About,
 		}
 	}

@@ -33,25 +33,6 @@ func (h *handlerAsesor) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (h *handlerAsesor) GetSecure(c *fiber.Ctx) error {
-
-	data := c.Locals("asesorId")
-	asesorId, ok := data.(int32)
-
-	if !ok {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting asesor id")
-	}
-
-	req := &cdto.GetAsesorReq{Id: asesorId}
-
-	res, err := h.asesorService.Get(*req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(res)
-}
-
 func (h *handlerAsesor) Create(c *fiber.Ctx) error {
 	req := &cdto.CreateAsesorReq{}
 
@@ -82,8 +63,15 @@ func (h *handlerAsesor) Update(c *fiber.Ctx) error {
 		AsesorID: req_id.Id,
 	}
 
-	res, err := h.asesorService.Update(req)
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
 
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.asesorService.Update(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

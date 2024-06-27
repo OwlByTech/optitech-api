@@ -25,7 +25,6 @@ func (s *serviceAsesor) Get(req dto.GetAsesorReq) (*dto.GetAsesorRes, error) {
 func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, error) {
 	repoReq := &sq.CreateAsesorParams{
 		AsesorID:  req.ClientId,
-		Photo:     req.Photo,
 		About:     req.About,
 		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
@@ -40,15 +39,8 @@ func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, 
 func (s *serviceAsesor) Update(req *dto.UpdateAsesorReq) (bool, error) {
 	repoReq := &sq.UpdateAsesorByIdParams{
 		AsesorID:  req.AsesorID,
+		About:     req.About,
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
-	}
-
-	if req.Photo != "" {
-		repoReq.Photo = req.Photo
-	}
-
-	if req.About != "" {
-		repoReq.About = req.About
 	}
 
 	err := s.clientRepository.UpdateAsesor(repoReq)

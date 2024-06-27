@@ -23,7 +23,6 @@ type IAsesorRepository interface {
 }
 
 type IAsesorHandler interface {
-	GetSecure(c *fiber.Ctx) error
 	Get(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error

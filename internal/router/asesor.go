@@ -16,6 +16,6 @@ func (s *Server) RoutesAsesor() {
 	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
-	serviceRoute.Put("/update/:id", handler.Update)
+	serviceRoute.Put("/:id", handler.Update)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 }
