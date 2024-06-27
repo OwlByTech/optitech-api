@@ -21,7 +21,17 @@ RETURNING *;
 
 -- name: UpdateClientById :exec
 UPDATE client
-SET given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
+SET  given_name = $2, password = $3, surname = $4, email = $5, updated_at = $6
+WHERE client_id = $1;
+
+-- name: UpdateClientPhoto :exec
+UPDATE client
+SET  photo= $2, updated_at = $3
+WHERE client_id = $1;
+
+-- name: UpdateClientStatusById :exec
+UPDATE client
+SET status= $2, updated_at = $3
 WHERE client_id = $1;
 
 -- name: DeleteClientById :exec

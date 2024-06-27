@@ -4,7 +4,7 @@ WHERE client_role_id = $1 LIMIT 1;
 
 -- name: ListClientRoles :many
 SELECT * FROM client_role
-ORDER BY client_role_id;
+ORDER BY role_id;
 
 -- name: GetClientRoleByName :one
 SELECT client_id, role_id

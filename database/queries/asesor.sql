@@ -7,13 +7,13 @@ SELECT * FROM asesor
 ORDER BY asesor_id;
 
 -- name: CreateAsesor :one
-INSERT INTO asesor (asesor_id, photo, about, created_at)
-VALUES ($1, $2, $3, $4)
+INSERT INTO asesor (asesor_id, about, created_at)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: UpdateAsesorById :exec
 UPDATE asesor
-SET  photo = $2, about = $3, updated_at = $4
+SET   about = $2, updated_at = $3
 WHERE asesor_id = $1;
 
 -- name: DeleteAsesorById :exec
