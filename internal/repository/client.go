@@ -80,6 +80,7 @@ func (r *repositoryClient) ListClient() (*[]dto.GetClientRes, error) {
 		clients[i] = dto.GetClientRes{
 			Id:        inst.ClientID,
 			GivenName: inst.GivenName,
+			Status:    dto.StatusClient(inst.Status),
 			Surname:   inst.Surname,
 			Email:     inst.Email,
 		}

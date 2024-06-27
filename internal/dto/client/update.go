@@ -1,5 +1,7 @@
 package dto
 
+import "mime/multipart"
+
 type StatusClient string
 
 const (
@@ -20,4 +22,13 @@ type UpdateClientRes struct {
 	Surname   string       `json:"surname" validate:"required"`
 	Status    StatusClient `json:"status" validate:"required"`
 	Email     string       `json:"email" validate:"required,email"`
+}
+type UpdateClientStatusReq struct {
+	ClientId int32
+	Status   StatusClient `json:"email" validate:"required"`
+}
+
+type UpdateClientPhotoReq struct {
+	ClientId int32
+	Photo    *multipart.FileHeader
 }
