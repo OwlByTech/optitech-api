@@ -8,6 +8,7 @@ import (
 	"optitech/internal/security"
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -61,6 +62,13 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
+	token := strings.TrimSpace(req.Token)
+
+	_, err := security.JWTVerify(token, cfg.Env.JWTSecretPassword)
+	if err != nil {
+		return false, err
+	}
+
 	client, err := s.Get(dto.GetClientReq{Id: req.ClientId})
 
 	if err != nil {
