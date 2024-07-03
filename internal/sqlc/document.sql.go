@@ -13,15 +13,15 @@ import (
 )
 
 const createDocument = `-- name: CreateDocument :one
-INSERT INTO document(directory_id, format_id, url, status, created_at)
+INSERT INTO document(directory_id, format_id, file_rute, status, created_at)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING document_id, directory_id, format_id, url, status, created_at, updated_at, deleted_at
+RETURNING document_id, directory_id, format_id, file_rute, status, created_at, updated_at, deleted_at
 `
 
 type CreateDocumentParams struct {
 	DirectoryID int32            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
-	Url         string           `json:"url"`
+	FileRute    string           `json:"file_rute"`
 	Status      Status           `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 }
@@ -30,7 +30,7 @@ func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) 
 	row := q.db.QueryRow(ctx, createDocument,
 		arg.DirectoryID,
 		arg.FormatID,
-		arg.Url,
+		arg.FileRute,
 		arg.Status,
 		arg.CreatedAt,
 	)
@@ -39,7 +39,7 @@ func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) 
 		&i.DocumentID,
 		&i.DirectoryID,
 		&i.FormatID,
-		&i.Url,
+		&i.FileRute,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -75,7 +75,7 @@ func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentById
 }
 
 const getDocument = `-- name: GetDocument :one
-SELECT document_id, directory_id, format_id, url, status, created_at, updated_at, deleted_at FROM document
+SELECT document_id, directory_id, format_id, file_rute, status, created_at, updated_at, deleted_at FROM document
 WHERE document_id = $1 LIMIT 1
 `
 
@@ -86,7 +86,7 @@ func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, 
 		&i.DocumentID,
 		&i.DirectoryID,
 		&i.FormatID,
-		&i.Url,
+		&i.FileRute,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -96,7 +96,7 @@ func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, 
 }
 
 const getDocumentByName = `-- name: GetDocumentByName :one
-SELECT directory_id, format_id, url, status
+SELECT directory_id, format_id, file_rute, status
 FROM document
 WHERE document_id = $1
 `
@@ -104,7 +104,7 @@ WHERE document_id = $1
 type GetDocumentByNameRow struct {
 	DirectoryID int32       `json:"directory_id"`
 	FormatID    pgtype.Int4 `json:"format_id"`
-	Url         string      `json:"url"`
+	FileRute    string      `json:"file_rute"`
 	Status      Status      `json:"status"`
 }
 
@@ -114,14 +114,14 @@ func (q *Queries) GetDocumentByName(ctx context.Context, documentID int64) (GetD
 	err := row.Scan(
 		&i.DirectoryID,
 		&i.FormatID,
-		&i.Url,
+		&i.FileRute,
 		&i.Status,
 	)
 	return i, err
 }
 
 const listDocuments = `-- name: ListDocuments :many
-SELECT document_id, directory_id, format_id, url, status, created_at, updated_at, deleted_at FROM document
+SELECT document_id, directory_id, format_id, file_rute, status, created_at, updated_at, deleted_at FROM document
 ORDER BY document_id
 `
 
@@ -138,7 +138,7 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 			&i.DocumentID,
 			&i.DirectoryID,
 			&i.FormatID,
-			&i.Url,
+			&i.FileRute,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -156,7 +156,7 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 
 const updateDocumentById = `-- name: UpdateDocumentById :exec
 UPDATE document
-SET  directory_id = $2, format_id = $3, url = $4, status = $5, updated_at = $6
+SET  directory_id = $2, format_id = $3, file_rute = $4, status = $5, updated_at = $6
 WHERE document_id = $1
 `
 
@@ -164,7 +164,7 @@ type UpdateDocumentByIdParams struct {
 	DocumentID  int64            `json:"document_id"`
 	DirectoryID int32            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
-	Url         string           `json:"url"`
+	FileRute    string           `json:"file_rute"`
 	Status      Status           `json:"status"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 }
@@ -174,7 +174,7 @@ func (q *Queries) UpdateDocumentById(ctx context.Context, arg UpdateDocumentById
 		arg.DocumentID,
 		arg.DirectoryID,
 		arg.FormatID,
-		arg.Url,
+		arg.FileRute,
 		arg.Status,
 		arg.UpdatedAt,
 	)
