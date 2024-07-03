@@ -6,7 +6,6 @@ type UpdateClientReq struct {
 	Surname   string `json:"surname"`
 	Password  string `json:"password"`
 	Email     string `json:"email"`
-	Token     string `json:"token" validate:"required"`
 }
 
 type UpdateClientRes struct {

@@ -88,7 +88,7 @@ func (h *handlerClient) Update(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(fiber.Map{"success": success})
+	return c.JSON(success)
 }
 
 func (h *handlerClient) List(c *fiber.Ctx) error {

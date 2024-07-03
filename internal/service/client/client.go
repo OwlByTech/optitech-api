@@ -61,11 +61,6 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
-	_, err := security.JWTVerify(req.Token, cfg.Env.JWTSecretPassword)
-	if err != nil {
-		return false, err
-	}
-
 	client, err := s.Get(dto.GetClientReq{Id: req.ClientId})
 
 	if err != nil {
