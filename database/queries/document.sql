@@ -7,18 +7,18 @@ SELECT * FROM document
 ORDER BY document_id;
 
 -- name: GetDocumentByName :one
-SELECT directory_id, format_id, url, status
+SELECT directory_id, format_id, file_rute, status
 FROM document
 WHERE document_id = $1;
 
 -- name: CreateDocument :one
-INSERT INTO document(directory_id, format_id, url, status, created_at)
+INSERT INTO document(directory_id, format_id, file_rute, status, created_at)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: UpdateDocumentById :exec
 UPDATE document
-SET  directory_id = $2, format_id = $3, url = $4, status = $5, updated_at = $6
+SET  directory_id = $2, format_id = $3, file_rute = $4, status = $5, updated_at = $6
 WHERE document_id = $1;
 
 -- name: DeleteDocumentById :exec
