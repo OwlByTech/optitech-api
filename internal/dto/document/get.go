@@ -5,10 +5,9 @@ type GetDocumentReq struct {
 }
 
 type GetDocumentRes struct {
-	Id            int64  `json:"id"`
-	FormatId      int64  `json:"formatId"`
-	InstitutionId int64  `json:"institutionId"`
-	ClientId      int64  `json:"clientId"`
-	FileRute      string `json:"fileRute"`
-	Status        string `json:"status"`
+	Id          int64  `json:"id"`
+	DirectoryId int32  `json:"directoryId"`
+	FormatId    int32  `json:"formatId"`
+	FileRute    string `json:"fileRute"`
+	Status      string `json:"status"`
 }
