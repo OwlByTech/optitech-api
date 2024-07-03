@@ -21,6 +21,8 @@ func (s *Server) ListenAndServe() error {
 	s.RoutesInstitution()
 	s.RoutesInstitutionClient()
 	s.RoutesFormat()
+	s.RoutesDocument()
+
 	err := s.app.Listen(fmt.Sprintf(":%d", s.Port))
 
 	if err != nil {
