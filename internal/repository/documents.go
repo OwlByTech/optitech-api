@@ -34,3 +34,21 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 		Status:      string(repoRes.Status),
 	}, nil
 }
+
+func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.CreateDocumentRes, error) {
+	ctx := context.Background()
+
+	res, err := r.documentRepository.CreateDocument(ctx, *arg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.CreateDocumentRes{
+		DirectoryId: res.DirectoryID,
+		FormatId:    res.FormatID.Int32,
+		FileRute:    res.FileRute,
+		Status:      string(res.Status),
+	}, nil
+
+}

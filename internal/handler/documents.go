@@ -32,3 +32,22 @@ func (h *handlerDocument) Get(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerDocument) CreateDocument(c *fiber.Ctx) error {
+	req := &fdto.CreateDocumentReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.documentService.Create(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
