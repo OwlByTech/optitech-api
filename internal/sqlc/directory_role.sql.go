@@ -132,3 +132,20 @@ func (q *Queries) ListDirectoryRoles(ctx context.Context) ([]DirectoryRole, erro
 	}
 	return items, nil
 }
+
+const updateDirectoryRole = `-- name: UpdateDirectoryRole :exec
+UPDATE directory_role
+SET role_id = $2, updated_at = $3
+WHERE directory_id = $1
+`
+
+type UpdateDirectoryRoleParams struct {
+	DirectoryID pgtype.Int4      `json:"directory_id"`
+	RoleID      pgtype.Int4      `json:"role_id"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+}
+
+func (q *Queries) UpdateDirectoryRole(ctx context.Context, arg UpdateDirectoryRoleParams) error {
+	_, err := q.db.Exec(ctx, updateDirectoryRole, arg.DirectoryID, arg.RoleID, arg.UpdatedAt)
+	return err
+}

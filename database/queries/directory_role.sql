@@ -26,4 +26,7 @@ UPDATE directory_role
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
-
+-- name: UpdateDirectoryRole :exec
+UPDATE directory_role
+SET role_id = $2, updated_at = $3
+WHERE directory_id = $1;
