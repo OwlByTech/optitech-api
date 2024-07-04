@@ -30,6 +30,7 @@ func JWTVerify(token string, secret string) (*jwt.Token, error) {
 
 	return tokenParsed, nil
 }
+
 func JWTGetPayload(token string, secret string, payload jwt.Claims) error {
 	_, err := jwt.ParseWithClaims(token, payload, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
