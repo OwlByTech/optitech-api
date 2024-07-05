@@ -2,6 +2,9 @@ package router
 
 import (
 	"fmt"
+	"optitech/internal/repository"
+	cs "optitech/internal/service/client"
+	service "optitech/internal/service/client_role"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,6 +17,11 @@ type Server struct {
 func (s *Server) New() {
 	s.app = fiber.New()
 }
+
+var repoServiceClientRole = repository.NewRepositoryClientRole(&repository.Queries)
+var serviceClientRole = service.NewServiceClientRole(repoServiceClientRole)
+var repoServiceClient = repository.NewRepositoryClient(&repository.Queries)
+var SeviceClient = cs.NewServiceClient(repoServiceClient, serviceClientRole)
 
 func (s *Server) ListenAndServe() error {
 	s.RoutesClient()

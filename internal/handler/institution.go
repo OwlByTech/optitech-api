@@ -2,10 +2,13 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/gofiber/fiber/v2"
 	dto "optitech/internal/dto"
+	clientDto "optitech/internal/dto/client"
 	cdto "optitech/internal/dto/institution"
 	"optitech/internal/interfaces"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type handlerInstitution struct {
@@ -16,6 +19,22 @@ func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IInstitu
 	return &handlerInstitution{
 		institutionService: r,
 	}
+}
+func (h *handlerInstitution) GetByClient(c *fiber.Ctx) error {
+	data := c.Locals("clientId")
+	clientId, ok := data.(int32)
+	log.Info(clientId, "Client")
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+
+	res, err := h.institutionService.GetByClient(clientDto.GetClientReq{Id: clientId})
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }
 
 func (h *handlerInstitution) Get(c *fiber.Ctx) error {
@@ -45,21 +64,21 @@ func (h *handlerInstitution) List(c *fiber.Ctx) error {
 }
 
 func (h *handlerInstitution) Create(c *fiber.Ctx) error {
+	data := c.Locals("clientId")
+	clientId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
 
-	req := &cdto.CreateInstitutionReq{}
-	params := c.FormValue("data")
-	if err := json.Unmarshal([]byte(params), &req); err != nil {
+	req := &cdto.CreateInstitutionReq{
+		Clients: []int32{clientId},
+	}
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+	if err := dto.ValidateDTO(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	err := dto.ValidateDTO(req)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	file, err := c.FormFile("file")
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-	req.LogoFile = file
 	res, err := h.institutionService.Create(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -102,9 +121,30 @@ func (h *handlerInstitution) Update(c *fiber.Ctx) error {
 	if err := json.Unmarshal([]byte(params), &req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	file, err := c.FormFile("file")
-	req.LogoFile = file
 	res, err := h.institutionService.Update(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerInstitution) UpdateLogo(c *fiber.Ctx) error {
+	params_id := c.AllParams()
+	req_id := &cdto.GetInstitutionReq{}
+	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	req := &cdto.UpdateLogoReq{
+		InstitutionID: req_id.Id,
+	}
+	file, err := c.FormFile("logo")
+	log.Info(err)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	req.LogoFile = file
+	res, err := h.institutionService.UpdateLogo(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

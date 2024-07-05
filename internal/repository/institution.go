@@ -33,6 +33,12 @@ func (r *repositoryInstitution) GetInstitution(InstitutionID int32) (*dto.GetIns
 	}, nil
 }
 
+func (r *repositoryInstitution) GetInstitutionByClient(ClientID int32) (int32, error) {
+	ctx := context.Background()
+	return r.institutionRepository.GetInstitutionByClient(ctx, ClientID)
+
+}
+
 func (r *repositoryInstitution) ListInstitutions() (*[]dto.GetInstitutionRes, error) {
 	ctx := context.Background()
 	repoRes, err := r.institutionRepository.ListInstitutions(ctx)
@@ -53,19 +59,10 @@ func (r *repositoryInstitution) ListInstitutions() (*[]dto.GetInstitutionRes, er
 	return &institutions, nil
 }
 
-func (r *repositoryInstitution) CreateInstitution(arg *sq.CreateInstitutionParams) (*dto.CreateInstitutionRes, error) {
+func (r *repositoryInstitution) CreateInstitution(arg *sq.CreateInstitutionParams) (int32, error) {
 	ctx := context.Background()
-	res, err := r.institutionRepository.CreateInstitution(ctx, *arg)
+	return r.institutionRepository.CreateInstitution(ctx, *arg)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &dto.CreateInstitutionRes{
-		InstitutionId:   res.InstitutionID,
-		InstitutionName: res.InstitutionName,
-		Description:     res.Description,
-	}, nil
 }
 
 func (r *repositoryInstitution) UpdateAsesorInstitution(arg *sq.UpdateAsesorInstitutionParams) error {
@@ -76,6 +73,11 @@ func (r *repositoryInstitution) UpdateAsesorInstitution(arg *sq.UpdateAsesorInst
 func (r *repositoryInstitution) UpdateInstitution(arg *sq.UpdateInstitutionParams) error {
 	ctx := context.Background()
 	return r.institutionRepository.UpdateInstitution(ctx, *arg)
+
+}
+func (r *repositoryInstitution) UpdateLogoInstitution(arg *sq.UpdateLogoInstitutionParams) error {
+	ctx := context.Background()
+	return r.institutionRepository.UpdateLogoInstitution(ctx, *arg)
 
 }
 

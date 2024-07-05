@@ -18,14 +18,13 @@ type UpdateClientReq struct {
 }
 
 type UpdateClientRes struct {
-	GivenName string       `json:"givenName" validate:"required"`
-	Surname   string       `json:"surname" validate:"required"`
-	Status    StatusClient `json:"status" validate:"required"`
-	Email     string       `json:"email" validate:"required,email"`
+	GivenName string `json:"givenName" validate:"required"`
+	Surname   string `json:"surname" validate:"required"`
+	Email     string `json:"email" validate:"required,email"`
 }
 type UpdateClientStatusReq struct {
-	ClientId int32
-	Status   StatusClient `json:"email" validate:"required"`
+	ClientId int32        `json:"clientId" validate:"required"`
+	Status   StatusClient `json:"status" validate:"required"`
 }
 
 type UpdateClientPhotoReq struct {

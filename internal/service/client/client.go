@@ -109,7 +109,7 @@ func (s *serviceClient) UpdateStatus(req *dto.UpdateClientStatusReq) (bool, erro
 	if req.Status == dto.StatusClientActive {
 		repoReq.Status = sq.StatusClientActivo
 	} else {
-		repoReq.Status = sq.StatusClientActivo
+		repoReq.Status = sq.StatusClientInactivo
 	}
 
 	if err := s.clientRepository.UpdateStatusClient(repoReq); err != nil {

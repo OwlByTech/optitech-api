@@ -3,24 +3,17 @@ package router
 import (
 	"optitech/internal/handler"
 	"optitech/internal/middleware"
-	"optitech/internal/repository"
-	cs "optitech/internal/service/client"
-	service "optitech/internal/service/client_role"
 )
 
 func (s *Server) RoutesClient() {
 	r := s.app
 
-	repoServiceClient := repository.NewRepositoryClientRole(&repository.Queries)
-	serviceClientRole := service.NewServiceClientRole(repoServiceClient)
-	repoService := repository.NewRepositoryClient(&repository.Queries)
-	sevice := cs.NewServiceClient(repoService, serviceClientRole)
-	handler := handler.NewHandlerClient(sevice)
+	handler := handler.NewHandlerClient(SeviceClient)
 	serviceRoute := r.Group("/api/client")
 
 	// We should initialize all the middlewares here
 	clientMiddleware := middleware.ClientMiddleware{
-		ClientService: sevice,
+		ClientService: SeviceClient,
 	}
 
 	// The following routes must be use "clientId" locals to get

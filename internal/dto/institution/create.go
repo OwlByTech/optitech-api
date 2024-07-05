@@ -2,8 +2,6 @@ package dto
 
 import (
 	"mime/multipart"
-	dto_client "optitech/internal/dto/client"
-	dto "optitech/internal/dto/services"
 )
 
 type CreateInstitutionReq struct {
@@ -16,9 +14,5 @@ type CreateInstitutionReq struct {
 }
 
 type CreateInstitutionRes struct {
-	InstitutionId   int32                     `json:"id"`
-	InstitutionName string                    `json:"name"`
-	Description     string                    `json:"description"`
-	Services        []dto.GetServiceRes       `json:"services"`
-	Clients         []dto_client.GetClientRes `json:"clients"`
+	InstitutionID int32 `json:"id"`
 }
