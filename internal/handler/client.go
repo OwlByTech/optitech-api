@@ -6,7 +6,6 @@ import (
 	"optitech/internal/interfaces"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 type handlerClient struct {
@@ -229,7 +228,6 @@ func (h *handlerClient) ResetPasswordToken(c *fiber.Ctx) error {
 }
 func (h *handlerClient) ValidateResetPasswordToken(c *fiber.Ctx) error {
 	token := c.Query("token")
-	log.Info(token, "token")
 	req := &cdto.ValidateResetPasswordTokenReq{
 		Token: token,
 	}

@@ -8,7 +8,6 @@ import (
 	"optitech/internal/interfaces"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 type handlerInstitution struct {
@@ -23,7 +22,6 @@ func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IInstitu
 func (h *handlerInstitution) GetByClient(c *fiber.Ctx) error {
 	data := c.Locals("clientId")
 	clientId, ok := data.(int32)
-	log.Info(clientId, "Client")
 	if !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
 	}
@@ -139,7 +137,6 @@ func (h *handlerInstitution) UpdateLogo(c *fiber.Ctx) error {
 		InstitutionID: req_id.Id,
 	}
 	file, err := c.FormFile("logo")
-	log.Info(err)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
