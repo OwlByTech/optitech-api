@@ -57,3 +57,12 @@ func (h *handlerDirectoryRole) Get(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerDirectoryRole) List(c *fiber.Ctx) error {
+	res, err := h.directoryRoleService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

@@ -48,3 +48,23 @@ func (r *repositoryDirectoryRole) GetDirectoryRole(userID int64) (*dto.GetDirect
 		Status:      string(repoRes.Status),
 	}, nil
 }
+
+func (r *repositoryDirectoryRole) ListDirectoryRole() (*[]dto.GetDirectoryRoleRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.directoryRoleRepository.ListDirectoryRoles(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	directorys := make([]dto.GetDirectoryRoleRes, len(repoRes))
+	for i, inst := range repoRes {
+		directorys[i] = dto.GetDirectoryRoleRes{
+			DirectoryId: int64(inst.DirectoryID.Int32),
+			UserId:      int64(inst.UserID.Int32),
+			Status:      string(inst.Status),
+		}
+	}
+
+	return &directorys, nil
+}

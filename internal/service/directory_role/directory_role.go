@@ -39,3 +39,11 @@ func (s *serviceDirectoryRole) Create(req *dto.CreateDirectoryRoleReq) (*dto.Cre
 func (s *serviceDirectoryRole) Get(req dto.GetDirectoryRoleReq) (*dto.GetDirectoryRoleRes, error) {
 	return s.directoryRoleRepository.GetDirectoryRole(req.UserId)
 }
+
+func (s *serviceDirectoryRole) List() (*[]dto.GetDirectoryRoleRes, error) {
+	repoRes, err := s.directoryRoleRepository.ListDirectoryRole()
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
+}
