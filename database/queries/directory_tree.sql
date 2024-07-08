@@ -6,6 +6,12 @@ WHERE directory_id = $1 LIMIT 1;
 SELECT * FROM directory_tree
 ORDER BY directory_id;
 
+-- name: GetDirectoryChildByParent :many
+SELECT sqlc.embed(dr), sqlc.embed(d)
+FROM directory_tree dr
+JOIN document d ON dr.directory_id= d.directory_id
+WHERE dr.parent_id= $1;
+
 -- name: GetDirectoryTreeByName :one
 SELECT name
 FROM directory_tree

@@ -71,15 +71,8 @@ func (h *handlerClient) Create(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) Update(c *fiber.Ctx) error {
-	params_id := c.AllParams()
-	req_id := &cdto.GetClientReq{}
-	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
+	req := &cdto.UpdateClientReq{}
 
-	req := &cdto.UpdateClientReq{
-		ClientId: req_id.Id,
-	}
 	if err := c.BodyParser(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
 	}
@@ -87,13 +80,13 @@ func (h *handlerClient) Update(c *fiber.Ctx) error {
 	if err := dto.ValidateDTO(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	res, err := h.clientService.Update(req)
 
+	success, err := h.clientService.Update(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(res)
+	return c.JSON(success)
 }
 
 func (h *handlerClient) UpdateStatus(c *fiber.Ctx) error {

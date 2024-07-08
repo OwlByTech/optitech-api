@@ -32,6 +32,7 @@ func (s *Server) ListenAndServe() error {
 	s.RoutesFile()
 	s.RoutesFormat()
 	s.RoutesDocument()
+	s.RoutesDirectoryTree()
 	err := s.app.Listen(fmt.Sprintf(":%d", s.Port))
 
 	if err != nil {
