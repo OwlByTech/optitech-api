@@ -73,3 +73,8 @@ func (r *repositoryDirectoryRole) UpdateDirectoryRole(arg *sq.UpdateDirectoryRol
 	ctx := context.Background()
 	return r.directoryRoleRepository.UpdateDirectoryRole(ctx, *arg)
 }
+
+func (r *repositoryDirectoryRole) DeleteDirectoryRole(arg *sq.DeleteDirectoryRoleByIdParams) error {
+	ctx := context.Background()
+	return r.directoryRoleRepository.DeleteDirectoryRoleById(ctx, *arg)
+}

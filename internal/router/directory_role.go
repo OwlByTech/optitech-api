@@ -17,4 +17,5 @@ func (s *Server) RoutesDirectoryRole() {
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Put("update/:id", handler.Update)
+	serviceRoute.Delete("delete/", handler.Delete)
 }

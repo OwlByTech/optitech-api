@@ -81,3 +81,17 @@ func (s *serviceDirectoryRole) Update(req *dto.UpdateDirectoryRoleReq) (bool, er
 
 	return true, nil
 }
+
+func (s *serviceDirectoryRole) Delete(req dto.GetDirectoryRoleReq) (bool, error) {
+	repoReq := &sq.DeleteDirectoryRoleByIdParams{
+		UserID:      pgtype.Int4{Int32: int32(req.UserId), Valid: true},
+		DirectoryID: pgtype.Int4{Int32: int32(req.DirectoryId), Valid: true},
+		DeletedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.directoryRoleRepository.DeleteDirectoryRole(repoReq); err != nil {
+		return false, pgtype.ErrScanTargetTypeChanged
+	}
+
+	return true, nil
+}

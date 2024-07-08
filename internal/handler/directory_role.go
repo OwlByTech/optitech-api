@@ -85,3 +85,19 @@ func (h *handlerDirectoryRole) Update(c *fiber.Ctx) error {
 
 	return c.JSON(success)
 }
+
+func (h *handlerDirectoryRole) Delete(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &drdto.GetDirectoryRoleReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.directoryRoleService.Delete(*req)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

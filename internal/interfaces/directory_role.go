@@ -12,6 +12,7 @@ type IDirectoryRoleService interface {
 	Get(req dto.GetDirectoryRoleReq) (*dto.GetDirectoryRoleRes, error)
 	List() (*[]dto.GetDirectoryRoleRes, error)
 	Update(req *dto.UpdateDirectoryRoleReq) (bool, error)
+	Delete(req dto.GetDirectoryRoleReq) (bool, error)
 }
 
 type IDirectoryRoleRepository interface {
@@ -19,6 +20,7 @@ type IDirectoryRoleRepository interface {
 	GetDirectoryRole(userID int64) (*dto.GetDirectoryRoleRes, error)
 	ListDirectoryRole() (*[]dto.GetDirectoryRoleRes, error)
 	UpdateDirectoryRole(arg *models.UpdateDirectoryRoleParams) error
+	DeleteDirectoryRole(arg *models.DeleteDirectoryRoleByIdParams) error
 }
 
 type IDirectoryRoleHandler interface {
@@ -26,4 +28,5 @@ type IDirectoryRoleHandler interface {
 	Get(c *fiber.Ctx) error
 	List(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
+	Delete(c *fiber.Ctx) error
 }
