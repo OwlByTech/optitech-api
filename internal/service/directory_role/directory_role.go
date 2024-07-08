@@ -35,3 +35,7 @@ func (s *serviceDirectoryRole) Create(req *dto.CreateDirectoryRoleReq) (*dto.Cre
 
 	return r, nil
 }
+
+func (s *serviceDirectoryRole) Get(req dto.GetDirectoryRoleReq) (*dto.GetDirectoryRoleRes, error) {
+	return s.directoryRoleRepository.GetDirectoryRole(req.UserId)
+}

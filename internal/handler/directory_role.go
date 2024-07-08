@@ -4,6 +4,7 @@ import (
 	dto "optitech/internal/dto"
 	drdto "optitech/internal/dto/directory_role"
 	"optitech/internal/interfaces"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -30,6 +31,26 @@ func (h *handlerDirectoryRole) Create(c *fiber.Ctx) error {
 	}
 
 	res, err := h.directoryRoleService.Create(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerDirectoryRole) Get(c *fiber.Ctx) error {
+	params := c.AllParams()
+
+	id, err := strconv.ParseInt(params["id"], 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid id parameter")
+	}
+
+	req := &drdto.GetDirectoryRoleReq{
+		UserId: id,
+	}
+
+	res, err := h.directoryRoleService.Get(*req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

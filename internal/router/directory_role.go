@@ -13,5 +13,6 @@ func (s *Server) RoutesDirectoryRole() {
 	handler := handler.NewHandlerDirectoryRole(service)
 	serviceRoute := r.Group("/api/directory-role")
 
+	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
 }

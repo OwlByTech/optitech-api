@@ -5,6 +5,8 @@ import (
 	dto "optitech/internal/dto/directory_role"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type repositoryDirectoryRole struct {
@@ -29,5 +31,20 @@ func (r *repositoryDirectoryRole) CreateDirectoryRole(arg *sq.CreateDirectoryRol
 		DirectoryId: int64(res.DirectoryID.Int32),
 		UserId:      int64(res.UserID.Int32),
 		Status:      string(res.Status),
+	}, nil
+}
+
+func (r *repositoryDirectoryRole) GetDirectoryRole(userID int64) (*dto.GetDirectoryRoleRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.directoryRoleRepository.GetDirectoryRole(ctx, pgtype.Int4{Int32: int32(userID), Valid: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetDirectoryRoleRes{
+		DirectoryId: int64(repoRes.DirectoryID.Int32),
+		UserId:      int64(repoRes.UserID.Int32),
+		Status:      string(repoRes.Status),
 	}, nil
 }
