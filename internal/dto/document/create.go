@@ -3,6 +3,7 @@ package dto
 type CreateDocumentReq struct {
 	DirectoryId int32  `json:"directoryId" validate:"required"`
 	FormatId    int32  `json:"formatId" validate:"required"`
+	Name        string `json:"name" validate:"required"`
 	FileRute    string `json:"fileRute" validate:"required"`
 	Status      string `json:"status" validate:"required"`
 }
