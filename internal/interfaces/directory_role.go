@@ -2,6 +2,8 @@ package interfaces
 
 import (
 	models "optitech/internal/sqlc"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type IDirectoryRoleService interface {
@@ -13,4 +15,5 @@ type IDirectoryRoleRepository interface {
 }
 
 type IDirectoryRoleHandler interface {
+	Create(c *fiber.Ctx) error
 }

@@ -1,11 +1,12 @@
 package dto
 
 type GetDirectoryRoleReq struct {
-	Id int64 `json:"id" validate:"required"`
+	DirectoryId int64 `json:"directoryId"`
+	UserId      int64 `json:"roleId"`
 }
 
 type GetDirectoryRoleRes struct {
-	Id          int64 `json:"id"`
-	DirectoryId int64 `json:"directoryId"`
-	RoleId      int64 `json:"roleId"`
+	DirectoryId int64  `json:"directoryId"`
+	UserId      int64  `json:"roleId"`
+	Status      string `json:"status"`
 }
