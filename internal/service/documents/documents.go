@@ -1,7 +1,7 @@
 package service
 
 import (
-	"optitech/internal/config"
+	cnf "optitech/internal/config"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
@@ -56,13 +56,11 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 
 func UploadDocument() string {
 
-	do_conf := config.DigitalOcean
-
 	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(do_conf.DigitalOceanKey, do_conf.DigitalOceanSecret, ""), // Specifies your credentials.
-		Endpoint:         aws.String(do_conf.DigitalOceanEndpoint),                                                  // Find your endpoint in the control panel, under Settings. Prepend "https://".
-		S3ForcePathStyle: aws.Bool(false),                                                                           // // Configures to use subdomain/virtual calling format. Depending on your version, alternatively use o.UsePathStyle = false
-		Region:           aws.String(do_conf.DigitalOceanRegion),                                                    // Must be "us-east-1" when creating new Spaces. Otherwise, use the region in your endpoint, such as "nyc3".
+		Credentials:      credentials.NewStaticCredentials(cnf.DigitalOcean.DigitalOceanKey, cnf.DigitalOcean.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.DigitalOcean.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(cnf.DigitalOcean.DigitalOceanRegion),
 	}
 
 	sess, err := session.NewSession(s3Config)
@@ -73,7 +71,7 @@ func UploadDocument() string {
 
 	//TODO: Change this for multipart
 
-	filename := "/uploads/archivo.txt"
+	filename := "internal/hola1.txt"
 	uploader := s3manager.NewUploader(sess)
 
 	f, err := os.Open(filename)
@@ -82,7 +80,7 @@ func UploadDocument() string {
 	}
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(do_conf.DigitalOceanBucket),
+		Bucket: aws.String(cnf.DigitalOcean.DigitalOceanBucket),
 		Key:    aws.String(filename),
 		Body:   f,
 	})
