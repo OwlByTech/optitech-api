@@ -68,3 +68,8 @@ func (r *repositoryDirectoryRole) ListDirectoryRole() (*[]dto.GetDirectoryRoleRe
 
 	return &directorys, nil
 }
+
+func (r *repositoryDirectoryRole) UpdateDirectoryRole(arg *sq.UpdateDirectoryRoleParams) error {
+	ctx := context.Background()
+	return r.directoryRoleRepository.UpdateDirectoryRole(ctx, *arg)
+}

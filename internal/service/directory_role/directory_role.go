@@ -47,3 +47,37 @@ func (s *serviceDirectoryRole) List() (*[]dto.GetDirectoryRoleRes, error) {
 	}
 	return repoRes, nil
 }
+
+func (s *serviceDirectoryRole) Update(req *dto.UpdateDirectoryRoleReq) (bool, error) {
+	directory, err := s.Get(dto.GetDirectoryRoleReq{UserId: req.UserId})
+
+	if err != nil {
+		return false, err
+	}
+
+	repoReq := &sq.UpdateDirectoryRoleParams{
+		DirectoryID: pgtype.Int4{Int32: int32(directory.DirectoryId), Valid: true},
+		UserID:      pgtype.Int4{Int32: int32(directory.UserId), Valid: true},
+		Status:      sq.Permissions(req.Status),
+	}
+
+	if req.DirectoryId != 0 {
+		repoReq.DirectoryID = pgtype.Int4{Int32: int32(req.DirectoryId), Valid: true}
+	}
+
+	if req.UserId != 0 {
+		repoReq.DirectoryID = pgtype.Int4{Int32: int32(req.UserId), Valid: true}
+	}
+
+	if req.Status != "" {
+		repoReq.Status = sq.Permissions(req.Status)
+	}
+
+	err = s.directoryRoleRepository.UpdateDirectoryRole(repoReq)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

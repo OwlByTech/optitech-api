@@ -66,3 +66,22 @@ func (h *handlerDirectoryRole) List(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerDirectoryRole) Update(c *fiber.Ctx) error {
+	req := &drdto.UpdateDirectoryRoleReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.directoryRoleService.Update(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(success)
+}
