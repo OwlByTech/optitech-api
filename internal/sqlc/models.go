@@ -213,7 +213,7 @@ type ClientRole struct {
 }
 
 type DirectoryInstitution struct {
-	DirectoryInstitutionID int64            `json:"directory_institution_id"`
+	DirectoryInstitutionID int32            `json:"directory_institution_id"`
 	InstitutionID          int32            `json:"institution_id"`
 	DirectoryID            int32            `json:"directory_id"`
 	CreatedAt              pgtype.Timestamp `json:"created_at"`
@@ -243,7 +243,8 @@ type Document struct {
 	DocumentID  int64            `json:"document_id"`
 	DirectoryID int32            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
-	Url         string           `json:"url"`
+	Name        string           `json:"name"`
+	FileRute    string           `json:"file_rute"`
 	Status      Status           `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
@@ -261,7 +262,7 @@ type DocumentClient struct {
 }
 
 type Format struct {
-	FormatID        int64            `json:"format_id"`
+	FormatID        int32            `json:"format_id"`
 	UpdatedFormatID pgtype.Int4      `json:"updated_format_id"`
 	AsesorID        int32            `json:"asesor_id"`
 	FormatName      string           `json:"format_name"`
