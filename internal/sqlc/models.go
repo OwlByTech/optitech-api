@@ -97,6 +97,53 @@ func (ns NullExtensions) Value() (driver.Value, error) {
 	return string(ns.Extensions), nil
 }
 
+type Permissions string
+
+const (
+	PermissionsR   Permissions = "r"
+	PermissionsW   Permissions = "w"
+	PermissionsX   Permissions = "x"
+	PermissionsRw  Permissions = "rw"
+	PermissionsRx  Permissions = "rx"
+	PermissionsWx  Permissions = "wx"
+	PermissionsRwx Permissions = "rwx"
+)
+
+func (e *Permissions) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Permissions(s)
+	case string:
+		*e = Permissions(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Permissions: %T", src)
+	}
+	return nil
+}
+
+type NullPermissions struct {
+	Permissions Permissions `json:"permissions"`
+	Valid       bool        `json:"valid"` // Valid is true if Permissions is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPermissions) Scan(value interface{}) error {
+	if value == nil {
+		ns.Permissions, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Permissions.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPermissions) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Permissions), nil
+}
+
 type Status string
 
 const (
@@ -181,12 +228,12 @@ type DirectoryInstitution struct {
 }
 
 type DirectoryRole struct {
-	DirectoryRoleID int64            `json:"directory_role_id"`
-	DirectoryID     pgtype.Int4      `json:"directory_id"`
-	RoleID          pgtype.Int4      `json:"role_id"`
-	CreatedAt       pgtype.Timestamp `json:"created_at"`
-	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
-	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
+	DirectoryID pgtype.Int4      `json:"directory_id"`
+	UserID      pgtype.Int4      `json:"user_id"`
+	Status      Permissions      `json:"status"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 }
 
 type DirectoryTree struct {
