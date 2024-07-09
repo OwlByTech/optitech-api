@@ -57,10 +57,10 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 func UploadDocument() string {
 
 	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.DigitalOcean.DigitalOceanKey, cnf.DigitalOcean.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.DigitalOcean.DigitalOceanEndpoint),
+		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
 		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.DigitalOcean.DigitalOceanRegion),
+		Region:           aws.String(cnf.Env.DigitalOceanRegion),
 	}
 
 	sess, err := session.NewSession(s3Config)
@@ -80,7 +80,7 @@ func UploadDocument() string {
 	}
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(cnf.DigitalOcean.DigitalOceanBucket),
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
 		Key:    aws.String(filename),
 		Body:   f,
 	})

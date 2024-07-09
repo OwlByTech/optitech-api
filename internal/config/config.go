@@ -1,5 +1,3 @@
-// config.go
-
 package config
 
 import (
@@ -9,16 +7,13 @@ import (
 )
 
 type EnvStruct struct {
-	EmailFrom         string
-	EmailSMTPHost     string
-	EmailSMTPPort     int
-	EmailSMTPPassword string
-	JWTSecret         string
-	JWTSecretPassword string
-	WebUrl            string
-}
-
-type DigitalOceanStruct struct {
+	EmailFrom            string
+	EmailSMTPHost        string
+	EmailSMTPPort        int
+	EmailSMTPPassword    string
+	JWTSecret            string
+	JWTSecretPassword    string
+	WebUrl               string
 	DigitalOceanKey      string
 	DigitalOceanSecret   string
 	DigitalOceanEndpoint string
@@ -27,7 +22,6 @@ type DigitalOceanStruct struct {
 }
 
 var Env *EnvStruct
-var DigitalOcean *DigitalOceanStruct
 
 func LoadConfig() error {
 	portStr := os.Getenv("EMAIL_SMTP_PORT")
@@ -37,16 +31,13 @@ func LoadConfig() error {
 	}
 
 	Env = &EnvStruct{
-		EmailFrom:         os.Getenv("EMAIL_FROM"),
-		EmailSMTPHost:     os.Getenv("EMAIL_SMTP_HOST"),
-		EmailSMTPPort:     port,
-		EmailSMTPPassword: os.Getenv("EMAIL_SMTP_PASSWORD"),
-		JWTSecret:         os.Getenv("JWT_SECRET"),
-		JWTSecretPassword: os.Getenv("JWT_SECRET_PASSWORD"),
-		WebUrl:            os.Getenv("WEB_URL"),
-	}
-
-	DigitalOcean = &DigitalOceanStruct{
+		EmailFrom:            os.Getenv("EMAIL_FROM"),
+		EmailSMTPHost:        os.Getenv("EMAIL_SMTP_HOST"),
+		EmailSMTPPort:        port,
+		EmailSMTPPassword:    os.Getenv("EMAIL_SMTP_PASSWORD"),
+		JWTSecret:            os.Getenv("JWT_SECRET"),
+		JWTSecretPassword:    os.Getenv("JWT_SECRET_PASSWORD"),
+		WebUrl:               os.Getenv("WEB_URL"),
 		DigitalOceanKey:      os.Getenv("DIGITAL_OCEAN_KEY"),
 		DigitalOceanSecret:   os.Getenv("DIGITAL_OCEAN_SECRET"),
 		DigitalOceanEndpoint: os.Getenv("DIGITAL_OCEAN_ENDPOINT"),
