@@ -55,7 +55,7 @@ WHERE directory_institution_id = $1
 `
 
 type DeleteDirectoryInstitutionByIdParams struct {
-	DirectoryInstitutionID int64            `json:"directory_institution_id"`
+	DirectoryInstitutionID int32            `json:"directory_institution_id"`
 	DeletedAt              pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -69,7 +69,7 @@ SELECT directory_institution_id, institution_id, directory_id, created_at, updat
 WHERE directory_institution_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetDirectoryInstitution(ctx context.Context, directoryInstitutionID int64) (DirectoryInstitution, error) {
+func (q *Queries) GetDirectoryInstitution(ctx context.Context, directoryInstitutionID int32) (DirectoryInstitution, error) {
 	row := q.db.QueryRow(ctx, getDirectoryInstitution, directoryInstitutionID)
 	var i DirectoryInstitution
 	err := row.Scan(
@@ -83,6 +83,61 @@ func (q *Queries) GetDirectoryInstitution(ctx context.Context, directoryInstitut
 	return i, err
 }
 
+const getDirectoryInstitutionByDirectoryId = `-- name: GetDirectoryInstitutionByDirectoryId :many
+SELECT d.directory_id, d.parent_id, d.name, d.created_at, d.updated_at, d.deleted_at, i.institution_id, i.asesor_id, i.institution_name, i.logo, i.description, i.created_at, i.updated_at, i.deleted_at, di.directory_institution_id, di.institution_id, di.directory_id, di.created_at, di.updated_at, di.deleted_at
+FROM directory_institution di
+JOIN directory_tree d ON di.directory_id = d.directory_id
+JOIN institution i ON di.institution_id = d.institution_id 
+WHERE di.directory_id = $1
+`
+
+type GetDirectoryInstitutionByDirectoryIdRow struct {
+	DirectoryTree        DirectoryTree        `json:"directory_tree"`
+	Institution          Institution          `json:"institution"`
+	DirectoryInstitution DirectoryInstitution `json:"directory_institution"`
+}
+
+func (q *Queries) GetDirectoryInstitutionByDirectoryId(ctx context.Context, directoryID int32) ([]GetDirectoryInstitutionByDirectoryIdRow, error) {
+	rows, err := q.db.Query(ctx, getDirectoryInstitutionByDirectoryId, directoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDirectoryInstitutionByDirectoryIdRow
+	for rows.Next() {
+		var i GetDirectoryInstitutionByDirectoryIdRow
+		if err := rows.Scan(
+			&i.DirectoryTree.DirectoryID,
+			&i.DirectoryTree.ParentID,
+			&i.DirectoryTree.Name,
+			&i.DirectoryTree.CreatedAt,
+			&i.DirectoryTree.UpdatedAt,
+			&i.DirectoryTree.DeletedAt,
+			&i.Institution.InstitutionID,
+			&i.Institution.AsesorID,
+			&i.Institution.InstitutionName,
+			&i.Institution.Logo,
+			&i.Institution.Description,
+			&i.Institution.CreatedAt,
+			&i.Institution.UpdatedAt,
+			&i.Institution.DeletedAt,
+			&i.DirectoryInstitution.DirectoryInstitutionID,
+			&i.DirectoryInstitution.InstitutionID,
+			&i.DirectoryInstitution.DirectoryID,
+			&i.DirectoryInstitution.CreatedAt,
+			&i.DirectoryInstitution.UpdatedAt,
+			&i.DirectoryInstitution.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getDirectoryInstitutionByName = `-- name: GetDirectoryInstitutionByName :one
 SELECT institution_id, directory_id
 FROM directory_institution
@@ -94,7 +149,7 @@ type GetDirectoryInstitutionByNameRow struct {
 	DirectoryID   int32 `json:"directory_id"`
 }
 
-func (q *Queries) GetDirectoryInstitutionByName(ctx context.Context, directoryInstitutionID int64) (GetDirectoryInstitutionByNameRow, error) {
+func (q *Queries) GetDirectoryInstitutionByName(ctx context.Context, directoryInstitutionID int32) (GetDirectoryInstitutionByNameRow, error) {
 	row := q.db.QueryRow(ctx, getDirectoryInstitutionByName, directoryInstitutionID)
 	var i GetDirectoryInstitutionByNameRow
 	err := row.Scan(&i.InstitutionID, &i.DirectoryID)

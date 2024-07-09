@@ -26,4 +26,9 @@ UPDATE directory_institution
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
-
+-- name: GetDirectoryInstitutionByDirectoryId :many
+SELECT sqlc.embed(d), sqlc.embed(i), sqlc.embed(di)
+FROM directory_institution di
+JOIN directory_tree d ON di.directory_id = d.directory_id
+JOIN institution i ON di.institution_id = d.institution_id 
+WHERE di.directory_id = $1;
