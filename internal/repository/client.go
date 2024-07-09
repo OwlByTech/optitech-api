@@ -31,6 +31,7 @@ func (r *repositoryClient) GetClient(clientID int32) (*dto.GetClientRes, error) 
 		GivenName: repoRes.GivenName,
 		Surname:   repoRes.Surname,
 		Email:     repoRes.Email,
+		Password:  repoRes.Password,
 	}, nil
 }
 

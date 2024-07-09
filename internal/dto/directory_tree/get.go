@@ -1,11 +1,11 @@
 package dto
 
-type GetDirectoryRoleReq struct {
+type GetDirectoryTreeReq struct {
 	Id int64 `json:"id" validate:"required"`
 }
 
-type GetDirectoryRoleRes struct {
-	Id          int64 `json:"id"`
-	DirectoryId int64 `json:"directoryId"`
-	RoleId      int64 `json:"roleId"`
+type GetDirectoryTreeRes struct {
+	Id       int32  `json:"id"`
+	ParentID int32  `json:"directoryId"`
+	Name     string `jston:name`
 }
