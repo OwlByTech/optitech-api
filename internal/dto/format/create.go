@@ -1,7 +1,7 @@
 package dto
 
 type CreateFormatReq struct {
-	AsesorId    int64    `json:"asesorId" validate:"required"`
+	AsesorId    int32    `json:"asesorId" validate:"required"`
 	FormatName  string   `json:"formatName" validate:"required"`
 	Description string   `json:"description" validate:"required"`
 	Items       []string `json:"items" validate:"required"`
@@ -10,7 +10,7 @@ type CreateFormatReq struct {
 }
 
 type CreateFormatRes struct {
-	Id          int64    `json:"id"`
+	Id          int32    `json:"id"`
 	AsesorId    string   `json:"asesorId"`
 	FormatName  string   `json:"formatName"`
 	Description string   `json:"description"`

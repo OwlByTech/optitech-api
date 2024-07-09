@@ -69,7 +69,7 @@ WHERE format_id = $1
 `
 
 type DeleteFormatByIdParams struct {
-	FormatID  int64            `json:"format_id"`
+	FormatID  int32            `json:"format_id"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -83,7 +83,7 @@ SELECT format_id, updated_format_id, asesor_id, format_name, description, extens
 WHERE format_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetFormat(ctx context.Context, formatID int64) (Format, error) {
+func (q *Queries) GetFormat(ctx context.Context, formatID int32) (Format, error) {
 	row := q.db.QueryRow(ctx, getFormat, formatID)
 	var i Format
 	err := row.Scan(
@@ -163,7 +163,7 @@ WHERE format_id = $1
 `
 
 type UpdateFormatByIdParams struct {
-	FormatID    int64            `json:"format_id"`
+	FormatID    int32            `json:"format_id"`
 	FormatName  string           `json:"format_name"`
 	Description string           `json:"description"`
 	Extension   Extensions       `json:"extension"`
