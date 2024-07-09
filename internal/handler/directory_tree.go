@@ -61,6 +61,20 @@ func (h *handlerDirectoryTree) List(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+func (h *handlerDirectoryTree) ListByParent(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &ddto.GetDirectoryTreeReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	res, err := h.directoryTreeService.ListByParent(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
 func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
 	params := c.AllParams()
 	req := &ddto.GetDirectoryTreeReq{}

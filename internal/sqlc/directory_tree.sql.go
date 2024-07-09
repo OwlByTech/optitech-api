@@ -64,54 +64,6 @@ func (q *Queries) DeleteDirectoryTreeById(ctx context.Context, arg DeleteDirecto
 	return err
 }
 
-const getDirectoryChildByParent = `-- name: GetDirectoryChildByParent :many
-SELECT dr.directory_id, dr.parent_id, dr.name, dr.created_at, dr.updated_at, dr.deleted_at, d.document_id, d.directory_id, d.format_id, d.name, d.file_rute, d.status, d.created_at, d.updated_at, d.deleted_at
-FROM directory_tree dr
-JOIN document d ON dr.directory_id= d.directory_id
-WHERE dr.parent_id= $1
-`
-
-type GetDirectoryChildByParentRow struct {
-	DirectoryTree DirectoryTree `json:"directory_tree"`
-	Document      Document      `json:"document"`
-}
-
-func (q *Queries) GetDirectoryChildByParent(ctx context.Context, parentID pgtype.Int4) ([]GetDirectoryChildByParentRow, error) {
-	rows, err := q.db.Query(ctx, getDirectoryChildByParent, parentID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetDirectoryChildByParentRow
-	for rows.Next() {
-		var i GetDirectoryChildByParentRow
-		if err := rows.Scan(
-			&i.DirectoryTree.DirectoryID,
-			&i.DirectoryTree.ParentID,
-			&i.DirectoryTree.Name,
-			&i.DirectoryTree.CreatedAt,
-			&i.DirectoryTree.UpdatedAt,
-			&i.DirectoryTree.DeletedAt,
-			&i.Document.DocumentID,
-			&i.Document.DirectoryID,
-			&i.Document.FormatID,
-			&i.Document.Name,
-			&i.Document.FileRute,
-			&i.Document.Status,
-			&i.Document.CreatedAt,
-			&i.Document.UpdatedAt,
-			&i.Document.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getDirectoryTree = `-- name: GetDirectoryTree :one
 SELECT directory_id, parent_id, name, created_at, updated_at, deleted_at FROM directory_tree
 WHERE directory_id = $1 LIMIT 1
@@ -142,6 +94,39 @@ func (q *Queries) GetDirectoryTreeByName(ctx context.Context, directoryID int64)
 	var name pgtype.Text
 	err := row.Scan(&name)
 	return name, err
+}
+
+const listDirectoryChildByParent = `-- name: ListDirectoryChildByParent :many
+SELECT directory_id, parent_id, name, created_at, updated_at, deleted_at
+FROM directory_tree
+WHERE parent_id= $1
+`
+
+func (q *Queries) ListDirectoryChildByParent(ctx context.Context, parentID pgtype.Int4) ([]DirectoryTree, error) {
+	rows, err := q.db.Query(ctx, listDirectoryChildByParent, parentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []DirectoryTree
+	for rows.Next() {
+		var i DirectoryTree
+		if err := rows.Scan(
+			&i.DirectoryID,
+			&i.ParentID,
+			&i.Name,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listDirectoryTrees = `-- name: ListDirectoryTrees :many

@@ -159,6 +159,42 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 	return items, nil
 }
 
+const listDocumentsByDirectory = `-- name: ListDocumentsByDirectory :many
+SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
+WHERE directory_id= $1
+ORDER BY document_id
+`
+
+func (q *Queries) ListDocumentsByDirectory(ctx context.Context, directoryID int32) ([]Document, error) {
+	rows, err := q.db.Query(ctx, listDocumentsByDirectory, directoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Document
+	for rows.Next() {
+		var i Document
+		if err := rows.Scan(
+			&i.DocumentID,
+			&i.DirectoryID,
+			&i.FormatID,
+			&i.Name,
+			&i.FileRute,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateDocumentById = `-- name: UpdateDocumentById :exec
 UPDATE document
 SET  directory_id = $2, format_id = $3, file_rute = $4, status = $5, updated_at = $6

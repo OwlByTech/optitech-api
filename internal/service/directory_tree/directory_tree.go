@@ -11,11 +11,13 @@ import (
 
 type serviceDirectoryTree struct {
 	directoryTreeRepository interfaces.IDirectoryRepository
+	documentService         interfaces.IDocumentService
 }
 
-func NewServiceDirectory(r interfaces.IDirectoryRepository) interfaces.IDirectoryService {
+func NewServiceDirectory(r interfaces.IDirectoryRepository, documentService interfaces.IDocumentService) interfaces.IDirectoryService {
 	return &serviceDirectoryTree{
 		directoryTreeRepository: r,
+		documentService:         documentService,
 	}
 }
 
@@ -51,6 +53,26 @@ func (s *serviceDirectoryTree) List() (*[]dto.GetDirectoryTreeRes, error) {
 		return nil, err
 	}
 	return repoRes, nil
+}
+func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeByParentRes, error) {
+	repoRes, err := s.directoryTreeRepository.ListDirectoryByParent(int32(req.Id))
+	if err != nil {
+		return nil, err
+	}
+	documents, err := s.documentService.ListByDirectory(dto.GetDirectoryTreeReq{Id: int64(req.Id)})
+	if err != nil {
+		return nil, err
+	}
+	directory, err := s.Get(dto.GetDirectoryTreeReq{Id: int64(req.Id)})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetDirectoryTreeByParentRes{
+		Id:        directory.Id,
+		Name:      directory.Name,
+		ParentID:  directory.ParentID,
+		Directory: *repoRes, Document: *documents}, nil
 }
 
 func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error) {

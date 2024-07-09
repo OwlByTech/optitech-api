@@ -2,6 +2,7 @@ package service
 
 import (
 	"optitech/internal/config"
+	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
@@ -30,12 +31,17 @@ func (s *serviceDocument) Get(req dto.GetDocumentReq) (*dto.GetDocumentRes, erro
 	return s.documentRepository.GetDocument(req.Id)
 }
 
+func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto.GetDocumentRes, error) {
+	return s.documentRepository.ListDocumentByDirectory(int32(req.Id))
+}
+
 func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
 
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: true},
 		FileRute:    UploadDocument(),
+		Name:        req.Name,
 		Status:      sq.Status(req.Status),
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}

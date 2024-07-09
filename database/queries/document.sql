@@ -6,6 +6,13 @@ WHERE document_id = $1 LIMIT 1;
 SELECT * FROM document
 ORDER BY document_id;
 
+
+-- name: ListDocumentsByDirectory :many
+SELECT * FROM document
+WHERE directory_id= $1
+ORDER BY document_id;
+
+
 -- name: GetDocumentByName :one
 SELECT directory_id, format_id, file_rute, status
 FROM document

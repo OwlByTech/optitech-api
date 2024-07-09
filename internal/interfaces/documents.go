@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	dto "optitech/internal/dto/directory_tree"
 	d "optitech/internal/dto/document"
 	models "optitech/internal/sqlc"
 
@@ -10,11 +11,13 @@ import (
 type IDocumentService interface {
 	Get(req d.GetDocumentReq) (*d.GetDocumentRes, error)
 	Create(arg *d.CreateDocumentReq) (*d.CreateDocumentRes, error)
+	ListByDirectory(req dto.GetDirectoryTreeReq) (*[]d.GetDocumentRes, error)
 }
 
 type IDocumentRepository interface {
 	GetDocument(documentID int64) (*d.GetDocumentRes, error)
 	CreateDocument(arg *models.CreateDocumentParams) (*d.CreateDocumentRes, error)
+	ListDocumentByDirectory(directoryID int32) (*[]d.GetDocumentRes, error)
 }
 
 type IDocumentHandler interface {

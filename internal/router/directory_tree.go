@@ -4,16 +4,20 @@ import (
 	"optitech/internal/handler"
 	"optitech/internal/repository"
 	dts "optitech/internal/service/directory_tree"
+	document "optitech/internal/service/documents"
 )
 
 func (s *Server) RoutesDirectoryTree() {
 	r := s.app
+	repoDocument := repository.NewRepositoryDocument(&repository.Queries)
+	serviceDocument := document.NewServiceDocument(repoDocument)
 	repoService := repository.NewRepositoryDirectoryTree(&repository.Queries)
-	service := dts.NewServiceDirectory(repoService)
+	service := dts.NewServiceDirectory(repoService, serviceDocument)
 	handler := handler.NewHandlerDirectoryTree(service)
-	serviceRoute := r.Group("/api/directory-tree")
 
+	serviceRoute := r.Group("/api/directory-tree")
 	serviceRoute.Get("/all", handler.List)
+	serviceRoute.Get("/parent/:id", handler.ListByParent)
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
