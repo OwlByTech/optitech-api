@@ -9,4 +9,5 @@ type GetClientRes struct {
 	GivenName string `json:"givenName"`
 	Surname   string `json:"surname"`
 	Email     string `json:"email"`
+	Password  string
 }

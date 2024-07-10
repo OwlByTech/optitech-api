@@ -29,7 +29,7 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
-	serviceRoute.Put("/update/:id", handler.Update)
+	serviceRoute.Put("/update/:id", clientMiddleware.ClientJWT, handler.Update)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)
 	serviceRoute.Post("/reset-password", handler.ResetPassword)
