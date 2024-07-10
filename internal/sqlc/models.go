@@ -210,7 +210,7 @@ type Document struct {
 }
 
 type DocumentClient struct {
-	DocumentClientID int64            `json:"document_client_id"`
+	DocumentClientID int32            `json:"document_client_id"`
 	ClientID         int32            `json:"client_id"`
 	DocumentID       int32            `json:"document_id"`
 	Action           Action           `json:"action"`
