@@ -84,16 +84,43 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 }
 
 func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
+	client, err := s.Get(dto.GetClientReq{Id: req.ClientId})
+
+	if err != nil {
+		return false, err
+	}
+
 	repoReq := &sq.UpdateClientByIdParams{
-		ClientID:  req.ClientId,
-		GivenName: req.GivenName,
-		Surname:   req.Surname,
-		Password:  req.Password,
-		Email:     req.Email,
+		ClientID: req.ClientId,
+
+		Email:     client.Email,
+		GivenName: client.GivenName,
+		Surname:   client.Surname,
+		Password:  client.Password,
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	err := s.clientRepository.UpdateClient(repoReq)
+	if req.Email != "" {
+		repoReq.Email = req.Email
+	}
+
+	if req.Password != "" {
+		hash, err := security.BcryptHashPassword(req.Password)
+		if err != nil {
+			return false, err
+		}
+		repoReq.Password = hash
+	}
+
+	if req.GivenName != "" {
+		repoReq.GivenName = req.GivenName
+	}
+
+	if req.Surname != "" {
+		repoReq.Surname = req.Surname
+	}
+
+	err = s.clientRepository.UpdateClient(repoReq)
 
 	if err != nil {
 		return false, err

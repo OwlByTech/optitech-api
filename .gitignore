@@ -3,4 +3,4 @@
 .docker-volumes
 
 ## html to templates
-internal/services/mailing/templates/*.html
+internal/service/mailing/templates/*.html

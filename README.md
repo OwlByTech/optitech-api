@@ -14,7 +14,7 @@ docker compose -f compose-dev.yml up
 Then you must run the migration and seeder inside the app container.
 
 ```bash
-docker compose -f compose-dev.yml exec app  bash
+docker compose -f compose-dev.yml exec app bash
 ```
 
 And you must first run the migrations using the cli

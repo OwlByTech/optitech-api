@@ -1,7 +1,7 @@
 CREATE TYPE extensions AS ENUM ('.pdf', '.doc', '.docx');
 
 CREATE TABLE format(
-    format_id BIGSERIAL PRIMARY KEY,
+    format_id SERIAL PRIMARY KEY,
     updated_format_id INT REFERENCES format(format_id),
     asesor_id INT REFERENCES asesor(asesor_id) NOT NULL,
     format_name VARCHAR(50) NOT NULL,
