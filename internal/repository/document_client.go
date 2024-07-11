@@ -27,7 +27,7 @@ func (r *repositoryDocumentClient) GetDocumentClient(documentClientID int32) (*d
 	}
 
 	return &dto.GetDocumentClientRes{
-		//TODO: ADD ID
+		Id:         documentClientID,
 		ClientId:   repoRes.ClientID,
 		DocumentId: repoRes.DocumentID,
 		Action:     string(repoRes.Action),
