@@ -1,12 +1,12 @@
 package dto
 
-type CreateDocumentClientClientReq struct {
+type CreateDocumentClientReq struct {
 	ClientId   int32  `json:"clientId" validate:"required"`
 	DocumentId int32  `json:"documentId" validate:"required"`
 	Action     string `json:"action" validate:"required"`
 }
 
-type CreateDocumentClientClientRes struct {
+type CreateDocumentClientRes struct {
 	Id         int32  `json:"id"`
 	ClientId   int32  `json:"clientId"`
 	DocumentId int32  `json:"documentId"`
