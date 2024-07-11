@@ -3,6 +3,10 @@ package service
 import (
 	dto "optitech/internal/dto/document_client"
 	"optitech/internal/interfaces"
+	sq "optitech/internal/sqlc"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDocumentClient struct {
@@ -15,6 +19,29 @@ func NewServiceDocumentClient(f interfaces.IDocumentClientRepository) interfaces
 	}
 }
 
-func (s *serviceDocumentClient) Get(req dto.GetDocumentClientReq) (*dto.GetDocumentClientRes, error) {
+func (s *serviceDocumentClient) GetDocumentClient(req dto.GetDocumentClientReq) (*dto.GetDocumentClientRes, error) {
 	return s.documentClientRepository.GetDocumentClient(req.Id)
+}
+
+func (s *serviceDocumentClient) CreateDocumentClient(req *dto.CreateDocumentClientReq) (*dto.CreateDocumentClientRes, error) {
+
+	repoReq := &sq.CreateDocumentClientParams{
+		ClientID:   req.ClientId,
+		DocumentID: req.DocumentId,
+		Action:     sq.Action(req.Action),
+		CreatedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+	repoRes, err := s.documentClientRepository.CreateDocumentClient(repoReq)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: RETURNS EMPTY JSON
+
+	document_client := &dto.CreateDocumentClientRes{
+		Id: repoRes.Id,
+	}
+	return document_client, err
+
 }
