@@ -12,5 +12,6 @@ func (s *Server) RoutesDocumentClient() {
 	service := documentClient.NewServiceDocumentClient(repoDocumentClient)
 	handler := handler.NewhandlerDocumentClient(service)
 	serviceRoute := r.Group("/api/document-client")
-	serviceRoute.Get("/:id", handler.Get)
+	serviceRoute.Get("/:id", handler.GetDocumentClient)
+	serviceRoute.Post("/", handler.CreateDocumentClient)
 }

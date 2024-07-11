@@ -37,11 +37,14 @@ func (s *serviceDocumentClient) CreateDocumentClient(req *dto.CreateDocumentClie
 		return nil, err
 	}
 
-	// TODO: RETURNS EMPTY JSON
-
 	document_client := &dto.CreateDocumentClientRes{
-		Id: repoRes.Id,
+		//TODO: Id does not show in the json response
+		Id:         repoRes.Id,
+		ClientId:   repoReq.ClientID,
+		DocumentId: repoReq.DocumentID,
+		Action:     repoRes.Action,
 	}
+
 	return document_client, err
 
 }
