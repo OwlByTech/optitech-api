@@ -33,3 +33,20 @@ func (r *repositoryDocumentClient) GetDocumentClient(documentClientID int32) (*d
 		Action:     string(repoRes.Action),
 	}, nil
 }
+
+func (r *repositoryDocumentClient) CreateDocumentClient(arg *sq.CreateDocumentClientParams) (*dto.CreateDocumentClientRes, error) {
+	ctx := context.Background()
+
+	res, err := r.documentClientRepository.CreateDocumentClient(ctx, *arg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.CreateDocumentClientRes{
+		ClientId:   res.ClientID,
+		DocumentId: res.DocumentID,
+		Action:     string(res.Action),
+	}, nil
+
+}
