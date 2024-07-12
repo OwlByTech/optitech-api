@@ -12,8 +12,8 @@ FROM directory_tree
 WHERE directory_id = $1;
 
 -- name: CreateDirectoryTree :one
-INSERT INTO directory_tree(parent_id, name, created_at)
-VALUES ($1, $2, $3)
+INSERT INTO directory_tree(parent_id, name, created_at, institution_id)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: DeleteDirectoryTreeById :exec

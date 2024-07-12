@@ -24,11 +24,12 @@ func (s *serviceDirectoryTree) Get(req dto.GetDirectoryTreeReq) (*dto.GetDirecto
 }
 
 func (s *serviceDirectoryTree) Create(req *dto.CreateDirectoryTreeReq) (*dto.CreateDirectoryTreeRes, error) {
-	var parentID pgtype.Int4
+	var parentID pgtype.Int8
 	if req.ParentID == 0 {
-		parentID = pgtype.Int4{Valid: false}
+		parentID.Valid = false
 	} else {
-		parentID = pgtype.Int4{Int32: int32(req.ParentID), Valid: true}
+		parentID.Int64 = int64(req.ParentID)
+		parentID.Valid = true
 	}
 
 	repoReq := &sq.CreateDirectoryTreeParams{
