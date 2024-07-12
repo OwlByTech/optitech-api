@@ -13,7 +13,7 @@ type IDocumentClientService interface {
 }
 
 type IDocumentClientRepository interface {
-	GetDocumentClient(DocumentClientID int32) (*dc.GetDocumentClientRes, error)
+	GetDocumentClient(documentClientID int64) (*dc.GetDocumentClientRes, error)
 	CreateDocumentClient(arg *models.CreateDocumentClientParams) (*dc.CreateDocumentClientRes, error)
 }
 

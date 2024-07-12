@@ -17,7 +17,7 @@ func NewRepositoryDocumentClient(q *sq.Queries) interfaces.IDocumentClientReposi
 	}
 }
 
-func (r *repositoryDocumentClient) GetDocumentClient(documentClientID int32) (*dto.GetDocumentClientRes, error) {
+func (r *repositoryDocumentClient) GetDocumentClient(documentClientID int64) (*dto.GetDocumentClientRes, error) {
 	ctx := context.Background()
 
 	repoRes, err := r.documentClientRepository.GetDocumentClient(ctx, (documentClientID))

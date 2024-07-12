@@ -62,7 +62,7 @@ WHERE document_client_id = $1
 `
 
 type DeleteDocumentClientByIdParams struct {
-	DocumentClientID int32            `json:"document_client_id"`
+	DocumentClientID int64            `json:"document_client_id"`
 	DeletedAt        pgtype.Timestamp `json:"deleted_at"`
 }
 
@@ -76,7 +76,7 @@ SELECT document_client_id, client_id, document_id, action, created_at, updated_a
 WHERE document_client_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetDocumentClient(ctx context.Context, documentClientID int32) (DocumentClient, error) {
+func (q *Queries) GetDocumentClient(ctx context.Context, documentClientID int64) (DocumentClient, error) {
 	row := q.db.QueryRow(ctx, getDocumentClient, documentClientID)
 	var i DocumentClient
 	err := row.Scan(
@@ -103,7 +103,7 @@ type GetDocumentClientByNameRow struct {
 	Action     Action `json:"action"`
 }
 
-func (q *Queries) GetDocumentClientByName(ctx context.Context, documentClientID int32) (GetDocumentClientByNameRow, error) {
+func (q *Queries) GetDocumentClientByName(ctx context.Context, documentClientID int64) (GetDocumentClientByNameRow, error) {
 	row := q.db.QueryRow(ctx, getDocumentClientByName, documentClientID)
 	var i GetDocumentClientByNameRow
 	err := row.Scan(&i.ClientID, &i.DocumentID, &i.Action)
