@@ -33,9 +33,10 @@ func (s *serviceDirectoryTree) Create(req *dto.CreateDirectoryTreeReq) (*dto.Cre
 	}
 
 	repoReq := &sq.CreateDirectoryTreeParams{
-		ParentID:  parentID,
-		Name:      pgtype.Text{String: req.Name, Valid: true},
-		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+		ParentID:      parentID,
+		Name:          pgtype.Text{String: req.Name, Valid: true},
+		InstitutionID: pgtype.Int4{Int32: int32(req.InstitutionID), Valid: true},
+		CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
 	r, err := s.directoryTreeRepository.CreateDirectory(repoReq)

@@ -27,9 +27,10 @@ func (r *repositoryDirectoryTree) GetDirectory(directoryID int64) (*dto.GetDirec
 	}
 
 	return &dto.GetDirectoryTreeRes{
-		Id:       repoRes.DirectoryID,
-		ParentID: repoRes.ParentID.Int64,
-		Name:     repoRes.Name.String,
+		Id:            repoRes.DirectoryID,
+		ParentID:      repoRes.ParentID.Int64,
+		Name:          repoRes.Name.String,
+		InstitutionID: int64(repoRes.InstitutionID.Int32),
 	}, nil
 }
 
@@ -43,9 +44,10 @@ func (r *repositoryDirectoryTree) CreateDirectory(arg *sq.CreateDirectoryTreePar
 	}
 
 	return &dto.CreateDirectoryTreeRes{
-		DirectoryId: res.DirectoryID,
-		ParentID:    res.ParentID.Int64,
-		Name:        res.Name.String,
+		DirectoryId:   res.DirectoryID,
+		ParentID:      res.ParentID.Int64,
+		Name:          res.Name.String,
+		InstitutionID: int64(res.InstitutionID.Int32),
 	}, nil
 }
 
