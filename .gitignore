@@ -8,4 +8,4 @@ bin
 ## html to templates
 internal/service/mailing/templates/*.html
 
-uploads/
+uploads
