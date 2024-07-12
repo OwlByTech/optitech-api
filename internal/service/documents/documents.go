@@ -67,7 +67,6 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		Id: repoRes.Id,
 	}
 	return document, err
-
 }
 
 func UploadDocument(file *multipart.File) (string, error) {
