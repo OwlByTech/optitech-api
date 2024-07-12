@@ -28,9 +28,10 @@ func (r *repositoryDirectoryTree) GetDirectory(directoryID int64) (*dto.GetDirec
 	}
 
 	return &dto.GetDirectoryTreeRes{
-		Id:       int32(repoRes.DirectoryID),
-		ParentID: int32(repoRes.ParentID.Int32),
-		Name:     repoRes.Name.String,
+		Id:            repoRes.DirectoryID,
+		ParentID:      repoRes.ParentID.Int64,
+		Name:          repoRes.Name.String,
+		InstitutionID: repoRes.InstitutionID.Int32,
 	}, nil
 }
 
@@ -44,10 +45,10 @@ func (r *repositoryDirectoryTree) CreateDirectory(arg *sq.CreateDirectoryTreePar
 	}
 
 	return &dto.CreateDirectoryTreeRes{
-		Id:          int32(res.DirectoryID),
-		DirectoryId: int32(res.DirectoryID),
-		ParentID:    int32(res.ParentID.Int32),
-		Name:        res.Name.String,
+		DirectoryId:   res.DirectoryID,
+		ParentID:      res.ParentID.Int64,
+		Name:          res.Name.String,
+		InstitutionID: res.InstitutionID.Int32,
 	}, nil
 }
 
@@ -62,16 +63,16 @@ func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, e
 	directorys := make([]dto.GetDirectoryTreeRes, len(repoRes))
 	for i, inst := range repoRes {
 		directorys[i] = dto.GetDirectoryTreeRes{
-			Id:       int32(inst.DirectoryID),
-			ParentID: int32(inst.ParentID.Int32),
+			Id:       inst.DirectoryID,
+			ParentID: inst.ParentID.Int64,
 			Name:     inst.Name.String,
 		}
 	}
 	return &directorys, nil
 }
-func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int32) ([]*dto.GetDirectoryTreeRes, error) {
+func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int64) ([]*dto.GetDirectoryTreeRes, error) {
 	ctx := context.Background()
-	repoRes, err := r.directoryRepository.ListDirectoryChildByParent(ctx, pgtype.Int4{Int32: parentId, Valid: true})
+	repoRes, err := r.directoryRepository.ListDirectoryChildByParent(ctx, pgtype.Int8{Int64: parentId, Valid: true})
 
 	if err != nil {
 		return nil, err
@@ -79,16 +80,16 @@ func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int32) ([]*dto.
 	directorys := make([]*dto.GetDirectoryTreeRes, len(repoRes))
 	for i, inst := range repoRes {
 		directorys[i] = &dto.GetDirectoryTreeRes{
-			Id:       int32(inst.DirectoryID),
-			ParentID: int32(inst.ParentID.Int32),
+			Id:       inst.DirectoryID,
+			ParentID: inst.ParentID.Int64,
 			Name:     inst.Name.String,
 		}
 	}
 	return directorys, nil
 }
-func (r *repositoryDirectoryTree) ListDirectoryHierarchy(childId int32) (*[]dto.GetDirectoryTreeRes, error) {
+func (r *repositoryDirectoryTree) ListDirectoryHierarchy(childId int64) (*[]dto.GetDirectoryTreeRes, error) {
 	ctx := context.Background()
-	repoRes, err := r.directoryRepository.ListDirectoryHierarchyById(ctx, int64(childId))
+	repoRes, err := r.directoryRepository.ListDirectoryHierarchyById(ctx, childId)
 
 	if err != nil {
 		return nil, err
@@ -96,8 +97,8 @@ func (r *repositoryDirectoryTree) ListDirectoryHierarchy(childId int32) (*[]dto.
 	directorys := make([]dto.GetDirectoryTreeRes, len(repoRes))
 	for i, inst := range repoRes {
 		directorys[i] = dto.GetDirectoryTreeRes{
-			Id:       int32(inst.DirectoryID),
-			ParentID: int32(inst.ParentID.Int32),
+			Id:       inst.DirectoryID,
+			ParentID: inst.ParentID.Int64,
 			Name:     inst.Name.String,
 		}
 	}

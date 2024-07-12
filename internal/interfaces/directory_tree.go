@@ -9,7 +9,7 @@ import (
 
 type IDirectoryService interface {
 	Get(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
-	GetRoute(req dto.GetDirectoryTreeReq) (*[]int32, *[]dto.GetDirectoryTreeRes, error)
+	GetRoute(req dto.GetDirectoryTreeReq) (*[]int64, *[]dto.GetDirectoryTreeRes, error)
 	Create(req *dto.CreateDirectoryTreeReq) (*dto.CreateDirectoryTreeRes, error)
 	List() (*[]dto.GetDirectoryTreeRes, error)
 	ListByParent(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
@@ -22,8 +22,8 @@ type IDirectoryRepository interface {
 	CreateDirectory(arg *models.CreateDirectoryTreeParams) (*dto.CreateDirectoryTreeRes, error)
 	ListDirectory() (*[]dto.GetDirectoryTreeRes, error)
 	DeleteDirectory(arg *models.DeleteDirectoryTreeByIdParams) error
-	ListDirectoryByParent(parentId int32) ([]*dto.GetDirectoryTreeRes, error)
-	ListDirectoryHierarchy(childId int32) (*[]dto.GetDirectoryTreeRes, error)
+	ListDirectoryByParent(parentId int64) ([]*dto.GetDirectoryTreeRes, error)
+	ListDirectoryHierarchy(childId int64) (*[]dto.GetDirectoryTreeRes, error)
 }
 
 type IDirectoryHandler interface {

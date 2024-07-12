@@ -7,10 +7,11 @@ type GetDirectoryTreeReq struct {
 }
 
 type GetDirectoryTreeRes struct {
-	Id        int32                  `json:"id"`
-	ParentID  int32                  `json:"parentId"`
-	Open      bool                   `json:"open"`
-	Name      string                 `json:"name"`
-	Directory []*GetDirectoryTreeRes `json:"directory"`
-	Document  *[]dto.GetDocumentRes  `json:"document"`
+	Id            int64                  `json:"id"`
+	ParentID      int64                  `json:"directoryId"`
+	InstitutionID int32                  `json:"institutionId"`
+	Open          bool                   `json:"open"`
+	Name          string                 `json:"name"`
+	Directory     []*GetDirectoryTreeRes `json:"directory"`
+	Document      *[]dto.GetDocumentRes  `json:"document"`
 }
