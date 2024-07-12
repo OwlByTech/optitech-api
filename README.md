@@ -48,3 +48,16 @@ run this comant to execute convert-mjml
 ```bash
 go run cmd/cli/main.go convert-mjml
 ```
+
+## Production
+To run the project in production mode, you should add the environment variable SETUP=first-time to automatically run migrations, seeders, and conversions. Do not use this variable after the first time.
+
+For the first run:
+```bash
+SETUP=first-time docker compose up
+```
+
+For subsequent runs:
+```bash
+docker compose up
+```
