@@ -33,6 +33,7 @@ services:
     env_file: ./.env
     environment:
       - PORT=${PORT}
+      - SETUP
     restart: unless-stopped
     networks:
       app:
