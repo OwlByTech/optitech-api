@@ -13,23 +13,30 @@ import (
 )
 
 const createDirectoryTree = `-- name: CreateDirectoryTree :one
-INSERT INTO directory_tree(parent_id, name, created_at)
-VALUES ($1, $2, $3)
-RETURNING directory_id, parent_id, name, created_at, updated_at, deleted_at
+INSERT INTO directory_tree(parent_id, name, created_at, institution_id)
+VALUES ($1, $2, $3, $4)
+RETURNING directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at
 `
 
 type CreateDirectoryTreeParams struct {
-	ParentID  pgtype.Int4      `json:"parent_id"`
-	Name      pgtype.Text      `json:"name"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
+	ParentID      pgtype.Int8      `json:"parent_id"`
+	Name          pgtype.Text      `json:"name"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	InstitutionID pgtype.Int4      `json:"institution_id"`
 }
 
 func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTreeParams) (DirectoryTree, error) {
-	row := q.db.QueryRow(ctx, createDirectoryTree, arg.ParentID, arg.Name, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createDirectoryTree,
+		arg.ParentID,
+		arg.Name,
+		arg.CreatedAt,
+		arg.InstitutionID,
+	)
 	var i DirectoryTree
 	err := row.Scan(
 		&i.DirectoryID,
 		&i.ParentID,
+		&i.InstitutionID,
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -65,7 +72,7 @@ func (q *Queries) DeleteDirectoryTreeById(ctx context.Context, arg DeleteDirecto
 }
 
 const getDirectoryTree = `-- name: GetDirectoryTree :one
-SELECT directory_id, parent_id, name, created_at, updated_at, deleted_at FROM directory_tree
+SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
 WHERE directory_id = $1 LIMIT 1
 `
 
@@ -75,6 +82,7 @@ func (q *Queries) GetDirectoryTree(ctx context.Context, directoryID int64) (Dire
 	err := row.Scan(
 		&i.DirectoryID,
 		&i.ParentID,
+		&i.InstitutionID,
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -97,7 +105,7 @@ func (q *Queries) GetDirectoryTreeByName(ctx context.Context, directoryID int64)
 }
 
 const listDirectoryTrees = `-- name: ListDirectoryTrees :many
-SELECT directory_id, parent_id, name, created_at, updated_at, deleted_at FROM directory_tree
+SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
 ORDER BY directory_id
 `
 
@@ -113,6 +121,7 @@ func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, erro
 		if err := rows.Scan(
 			&i.DirectoryID,
 			&i.ParentID,
+			&i.InstitutionID,
 			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,

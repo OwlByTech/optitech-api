@@ -1,13 +1,14 @@
 package dto
 
 type CreateDirectoryTreeReq struct {
-	ParentID int32  `json:"parentId"`
-	Name     string `json:"name" validate:"required"`
+	ParentID      int64  `json:"parentId"`
+	Name          string `json:"name" validate:"required"`
+	InstitutionID int64  `json:"institutionId":"required"`
 }
 
 type CreateDirectoryTreeRes struct {
-	Id          int32  `json:"id"`
-	DirectoryId int32  `json:"directoryId"`
-	ParentID    int32  `json:"parentId"`
-	Name        string `json:"name`
+	DirectoryId   int64  `json:"directoryId"`
+	InstitutionID int64  `json:"institutionId"`
+	ParentID      int64  `json:"parentId"`
+	Name          string `json:"name`
 }

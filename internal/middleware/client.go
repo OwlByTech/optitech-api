@@ -36,12 +36,12 @@ func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 	err := security.JWTGetPayload(token, cfg.Env.JWTSecret, &clientVerified)
 
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "StatusUnauthorized"})
 	}
 
 	_, err = cm.ClientService.Get(cdto.GetClientReq{Id: clientVerified.ID})
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "StatusUnauthorized"})
 	}
 
 	c.Locals("clientId", clientVerified.ID)

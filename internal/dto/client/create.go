@@ -12,6 +12,7 @@ type CreateClientReq struct {
 	Surname   string `json:"surname" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=6"`
+	Role      int32  `json:"role" validate:"required"`
 }
 
 type CreateClientRes struct {
