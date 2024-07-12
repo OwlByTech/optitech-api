@@ -22,7 +22,6 @@ func NewServiceInstitutionClient(r interfaces.IInstitutionClientRepository) inte
 }
 
 func (s *serviceInstitutionClient) List(InstitutionID int32) (*[]dtoClient.GetClientRes, error) {
-
 	return s.institutionClientRepository.ListInstitutionClient(InstitutionID)
 }
 func (s *serviceInstitutionClient) Exists(req *sq.ExistsInstitutionClientParams) bool {

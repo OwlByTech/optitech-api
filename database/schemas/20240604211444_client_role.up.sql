@@ -6,4 +6,3 @@ CREATE TABLE client_role(
     updated_at TIMESTAMP,
     deleted_at TIMESTAMP
 );
-

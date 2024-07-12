@@ -2,6 +2,7 @@
 SELECT * FROM institution_client
 WHERE client_id = $1 AND institution_id=$2 AND deleted_at IS NULL;
 
+
 -- name: ListInstitutionClients :many
 SELECT client.given_name,client.surname,client.email ,institution_client.client_id FROM institution_client
 INNER JOIN client ON institution_client.client_id=client.client_id

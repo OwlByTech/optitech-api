@@ -12,6 +12,11 @@ type UpdateInstitutionReq struct {
 	Services        []int32 `json:"services" `
 }
 
+type UpdateLogoReq struct {
+	InstitutionID int32
+	LogoFile      *multipart.FileHeader
+}
+
 type UpdateAsesorInstitutionReq struct {
 	InstitutionID int32
 	AsesorID      int32

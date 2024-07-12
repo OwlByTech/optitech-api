@@ -30,3 +30,4 @@ WHERE format_id = $1;
 UPDATE format
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
+

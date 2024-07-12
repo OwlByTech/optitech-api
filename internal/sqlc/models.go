@@ -187,11 +187,50 @@ func (ns NullStatus) Value() (driver.Value, error) {
 	return string(ns.Status), nil
 }
 
+type StatusClient string
+
+const (
+	StatusClientActivo   StatusClient = "activo"
+	StatusClientInactivo StatusClient = "inactivo"
+)
+
+func (e *StatusClient) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StatusClient(s)
+	case string:
+		*e = StatusClient(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StatusClient: %T", src)
+	}
+	return nil
+}
+
+type NullStatusClient struct {
+	StatusClient StatusClient `json:"status_client"`
+	Valid        bool         `json:"valid"` // Valid is true if StatusClient is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatusClient) Scan(value interface{}) error {
+	if value == nil {
+		ns.StatusClient, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StatusClient.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatusClient) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StatusClient), nil
+}
+
 type Asesor struct {
-	AsesorID  int64            `json:"asesor_id"`
-	ClientID  int32            `json:"client_id"`
-	Username  string           `json:"username"`
-	Photo     string           `json:"photo"`
+	AsesorID  int32            `json:"asesor_id"`
 	About     string           `json:"about"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
@@ -202,8 +241,10 @@ type Client struct {
 	ClientID  int32            `json:"client_id"`
 	GivenName string           `json:"given_name"`
 	Surname   string           `json:"surname"`
+	Photo     pgtype.Text      `json:"photo"`
 	Email     string           `json:"email"`
 	Password  string           `json:"password"`
+	Status    StatusClient     `json:"status"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
