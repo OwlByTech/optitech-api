@@ -5,7 +5,8 @@ import (
 )
 
 type ClientToken struct {
-	ID int32 `json:"id"`
+	ID            int32 `json:"id"`
+	InstitutionID int32 `json:"institutionID"`
 	jwt.RegisteredClaims
 }
 

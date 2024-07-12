@@ -37,3 +37,4 @@ FROM role_permission rp
 JOIN permission p ON rp.permission_id = p.permission_id
 JOIN roles r ON rp.role_id = r.role_id
 WHERE rp.role_id = $1;
+

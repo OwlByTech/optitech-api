@@ -2,6 +2,7 @@ package router
 
 import (
 	"optitech/internal/handler"
+	"optitech/internal/middleware"
 	"optitech/internal/repository"
 	service "optitech/internal/service/institution"
 	institutionClient "optitech/internal/service/institution_client"
@@ -9,6 +10,9 @@ import (
 )
 
 func (s *Server) RoutesInstitution() {
+	clientMiddleware := middleware.ClientMiddleware{
+		ClientService: SeviceClient,
+	}
 	r := s.app
 	repositoryInstitutionService := repository.NewRepositoryInstitutionServices(&repository.Queries)
 	serviceInstitutionService := serviceInstitution.NewServiceInstitutionServices(repositoryInstitutionService)
@@ -18,11 +22,13 @@ func (s *Server) RoutesInstitution() {
 	serviceInstitution := service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient)
 	handler := handler.NewHandlerInstitution(serviceInstitution)
 	institutionRoute := r.Group("/api/institution")
-	institutionRoute.Post("/", handler.Create)
+	institutionRoute.Post("/", clientMiddleware.ClientJWT, handler.Create)
 	institutionRoute.Get("/:id", handler.Get)
-	institutionRoute.Get("/", handler.List)
+	institutionRoute.Get("/", clientMiddleware.ClientJWT, handler.GetByClient)
+	institutionRoute.Get("/all", handler.List)
 	institutionRoute.Delete("/:id", handler.Delete)
 	institutionRoute.Put("/:id", handler.Update)
+	institutionRoute.Put("/logo/:id", clientMiddleware.ClientJWT, handler.UpdateLogo)
 	institutionRoute.Post("/asesor", handler.UpdateAsesor)
 
 }

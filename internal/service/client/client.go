@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+	"io"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
 	dto_mailing "optitech/internal/dto/mailing"
@@ -8,6 +10,8 @@ import (
 	"optitech/internal/security"
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -15,16 +19,27 @@ import (
 
 type serviceClient struct {
 	clientRepository interfaces.IClientRepository
+	clientRoleServie interfaces.IClientRoleService
 }
 
-func NewServiceClient(r interfaces.IClientRepository) interfaces.IClientService {
+func NewServiceClient(r interfaces.IClientRepository, clientRoleServie interfaces.IClientRoleService) interfaces.IClientService {
 	return &serviceClient{
 		clientRepository: r,
+		clientRoleServie: clientRoleServie,
 	}
 }
 
 func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
-	return s.clientRepository.GetClient(req.Id)
+	res, err := s.clientRepository.GetClient(req.Id)
+	if err != nil {
+		return nil, err
+	}
+	role, err := s.clientRoleServie.ListRolesByClientId(req.Id)
+
+	res.Role = *role
+
+	return res, nil
+
 }
 
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
@@ -42,6 +57,14 @@ func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, 
 
 	r, err := s.clientRepository.CreateClient(repoReq)
 	if err != nil {
+		return nil, err
+	}
+
+	if _, err := s.clientRoleServie.Create(&sq.CreateClientRoleParams{
+		ClientID:  r.Id,
+		RoleID:    req.Role,
+		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}); err != nil {
 		return nil, err
 	}
 
@@ -68,7 +91,8 @@ func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 	}
 
 	repoReq := &sq.UpdateClientByIdParams{
-		ClientID:  req.ClientId,
+		ClientID: req.ClientId,
+
 		Email:     client.Email,
 		GivenName: client.GivenName,
 		Surname:   client.Surname,
@@ -102,6 +126,54 @@ func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 		return false, err
 	}
 
+	return true, nil
+}
+func (s *serviceClient) UpdateStatus(req *dto.UpdateClientStatusReq) (bool, error) {
+	repoReq := &sq.UpdateClientStatusByIdParams{
+		ClientID:  req.ClientId,
+		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+	if req.Status == dto.StatusClientActive {
+		repoReq.Status = sq.StatusClientActivo
+	} else {
+		repoReq.Status = sq.StatusClientInactivo
+	}
+
+	if err := s.clientRepository.UpdateStatusClient(repoReq); err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error) {
+	repoReq := &sq.UpdateClientPhotoParams{
+		ClientID:  req.ClientId,
+		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+	if req.Photo != nil {
+		nameFile := "client" + strconv.Itoa(int(req.ClientId)) + "_photo_" + req.Photo.Filename
+
+		multipart, err := req.Photo.Open()
+		if err != nil {
+			return false, err
+		}
+		defer multipart.Close()
+		savePath := fmt.Sprintf("./uploads/%s", nameFile)
+
+		outFile, err := os.Create(savePath)
+		if err != nil {
+			return false, err
+		}
+		defer outFile.Close()
+		if _, err = io.Copy(outFile, multipart); err != nil {
+			return false, err
+		}
+		repoReq.Photo = pgtype.Text{String: nameFile, Valid: true}
+	}
+
+	if err := s.clientRepository.UpdatePhotoClient(repoReq); err != nil {
+		return false, nil
+	}
 	return true, nil
 }
 

@@ -3,20 +3,17 @@ package router
 import (
 	"optitech/internal/handler"
 	"optitech/internal/middleware"
-	"optitech/internal/repository"
-	cs "optitech/internal/service/client"
 )
 
 func (s *Server) RoutesClient() {
 	r := s.app
-	repoService := repository.NewRepositoryClient(&repository.Queries)
-	sevice := cs.NewServiceClient(repoService)
-	handler := handler.NewHandlerClient(sevice)
+
+	handler := handler.NewHandlerClient(SeviceClient)
 	serviceRoute := r.Group("/api/client")
 
 	// We should initialize all the middlewares here
 	clientMiddleware := middleware.ClientMiddleware{
-		ClientService: sevice,
+		ClientService: SeviceClient,
 	}
 
 	// The following routes must be use "clientId" locals to get
@@ -29,7 +26,9 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.Create)
-	serviceRoute.Put("/update/:id", clientMiddleware.ClientJWT, handler.Update)
+	serviceRoute.Put("/update/:id", handler.Update)
+	serviceRoute.Post("/photo/:id", handler.UpdatePhoto)
+	serviceRoute.Post("/status", handler.UpdateStatus)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)
 	serviceRoute.Post("/reset-password", handler.ResetPassword)

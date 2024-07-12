@@ -12,39 +12,28 @@ import (
 )
 
 const createInstitution = `-- name: CreateInstitution :one
-INSERT INTO institution (institution_name, logo, description, created_at,asesor_id)
-VALUES ($1, $2, $3, $4,$5)
-RETURNING institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at
+INSERT INTO institution (institution_name , description, created_at,asesor_id)
+VALUES ($1, $2, $3, $4)
+RETURNING institution.institution_id
 `
 
 type CreateInstitutionParams struct {
 	InstitutionName string           `json:"institution_name"`
-	Logo            pgtype.Text      `json:"logo"`
 	Description     string           `json:"description"`
 	CreatedAt       pgtype.Timestamp `json:"created_at"`
 	AsesorID        pgtype.Int4      `json:"asesor_id"`
 }
 
-func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionParams) (Institution, error) {
+func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionParams) (int32, error) {
 	row := q.db.QueryRow(ctx, createInstitution,
 		arg.InstitutionName,
-		arg.Logo,
 		arg.Description,
 		arg.CreatedAt,
 		arg.AsesorID,
 	)
-	var i Institution
-	err := row.Scan(
-		&i.InstitutionID,
-		&i.AsesorID,
-		&i.InstitutionName,
-		&i.Logo,
-		&i.Description,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
+	var institution_id int32
+	err := row.Scan(&institution_id)
+	return institution_id, err
 }
 
 const deleteAllInstitutions = `-- name: DeleteAllInstitutions :exec
@@ -95,6 +84,21 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int32) (Inst
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getInstitutionByClient = `-- name: GetInstitutionByClient :one
+SELECT  i.institution_id FROM institution i
+INNER JOIN institution_client ON i.institution_id=institution_client.institution_id
+WHERE  institution_client.client_id= $1
+AND i.deleted_at IS NULL
+LIMIT 1
+`
+
+func (q *Queries) GetInstitutionByClient(ctx context.Context, clientID int32) (int32, error) {
+	row := q.db.QueryRow(ctx, getInstitutionByClient, clientID)
+	var institution_id int32
+	err := row.Scan(&institution_id)
+	return institution_id, err
 }
 
 const getInstitutionByName = `-- name: GetInstitutionByName :one
@@ -170,14 +174,13 @@ func (q *Queries) UpdateAsesorInstitution(ctx context.Context, arg UpdateAsesorI
 
 const updateInstitution = `-- name: UpdateInstitution :exec
 UPDATE institution
-SET institution_name = $2, logo = $3, description = $4,  updated_at=$5,asesor_id= $6
+SET institution_name = $2, description = $3,  updated_at=$4,asesor_id= $5
 WHERE institution_id = $1
 `
 
 type UpdateInstitutionParams struct {
 	InstitutionID   int32            `json:"institution_id"`
 	InstitutionName string           `json:"institution_name"`
-	Logo            pgtype.Text      `json:"logo"`
 	Description     string           `json:"description"`
 	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
 	AsesorID        pgtype.Int4      `json:"asesor_id"`
@@ -187,10 +190,25 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 	_, err := q.db.Exec(ctx, updateInstitution,
 		arg.InstitutionID,
 		arg.InstitutionName,
-		arg.Logo,
 		arg.Description,
 		arg.UpdatedAt,
 		arg.AsesorID,
 	)
+	return err
+}
+
+const updateLogoInstitution = `-- name: UpdateLogoInstitution :exec
+UPDATE institution
+SET logo = $2 ,updated_at=$3 WHERE institution_id = $1
+`
+
+type UpdateLogoInstitutionParams struct {
+	InstitutionID int32            `json:"institution_id"`
+	Logo          pgtype.Text      `json:"logo"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+}
+
+func (q *Queries) UpdateLogoInstitution(ctx context.Context, arg UpdateLogoInstitutionParams) error {
+	_, err := q.db.Exec(ctx, updateLogoInstitution, arg.InstitutionID, arg.Logo, arg.UpdatedAt)
 	return err
 }

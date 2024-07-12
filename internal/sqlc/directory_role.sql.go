@@ -13,24 +13,30 @@ import (
 )
 
 const createDirectoryRole = `-- name: CreateDirectoryRole :one
-INSERT INTO directory_role(directory_id, role_id, created_at)
-VALUES ($1, $2, $3)
-RETURNING directory_role_id, directory_id, role_id, created_at, updated_at, deleted_at
+INSERT INTO directory_role(directory_id, user_id, status, created_at)
+VALUES ($1, $2, $3, $4)
+RETURNING directory_id, user_id, status, created_at, updated_at, deleted_at
 `
 
 type CreateDirectoryRoleParams struct {
 	DirectoryID pgtype.Int4      `json:"directory_id"`
-	RoleID      pgtype.Int4      `json:"role_id"`
+	UserID      pgtype.Int4      `json:"user_id"`
+	Status      Permissions      `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateDirectoryRole(ctx context.Context, arg CreateDirectoryRoleParams) (DirectoryRole, error) {
-	row := q.db.QueryRow(ctx, createDirectoryRole, arg.DirectoryID, arg.RoleID, arg.CreatedAt)
+	row := q.db.QueryRow(ctx, createDirectoryRole,
+		arg.DirectoryID,
+		arg.UserID,
+		arg.Status,
+		arg.CreatedAt,
+	)
 	var i DirectoryRole
 	err := row.Scan(
-		&i.DirectoryRoleID,
 		&i.DirectoryID,
-		&i.RoleID,
+		&i.UserID,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -50,32 +56,33 @@ func (q *Queries) DeleteAllDirectoryRoles(ctx context.Context, deletedAt pgtype.
 
 const deleteDirectoryRoleById = `-- name: DeleteDirectoryRoleById :exec
 UPDATE directory_role
-SET deleted_at = $2
-WHERE directory_role_id = $1
+SET deleted_at = $3
+WHERE directory_id = $1 AND user_id = $2
 `
 
 type DeleteDirectoryRoleByIdParams struct {
-	DirectoryRoleID int64            `json:"directory_role_id"`
-	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
+	DirectoryID pgtype.Int4      `json:"directory_id"`
+	UserID      pgtype.Int4      `json:"user_id"`
+	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 }
 
 func (q *Queries) DeleteDirectoryRoleById(ctx context.Context, arg DeleteDirectoryRoleByIdParams) error {
-	_, err := q.db.Exec(ctx, deleteDirectoryRoleById, arg.DirectoryRoleID, arg.DeletedAt)
+	_, err := q.db.Exec(ctx, deleteDirectoryRoleById, arg.DirectoryID, arg.UserID, arg.DeletedAt)
 	return err
 }
 
 const getDirectoryRole = `-- name: GetDirectoryRole :one
-SELECT directory_role_id, directory_id, role_id, created_at, updated_at, deleted_at FROM directory_role
-WHERE directory_role_id = $1 LIMIT 1
+SELECT directory_id, user_id, status, created_at, updated_at, deleted_at FROM directory_role
+WHERE user_id = $1 LIMIT 1
 `
 
-func (q *Queries) GetDirectoryRole(ctx context.Context, directoryRoleID int64) (DirectoryRole, error) {
-	row := q.db.QueryRow(ctx, getDirectoryRole, directoryRoleID)
+func (q *Queries) GetDirectoryRole(ctx context.Context, userID pgtype.Int4) (DirectoryRole, error) {
+	row := q.db.QueryRow(ctx, getDirectoryRole, userID)
 	var i DirectoryRole
 	err := row.Scan(
-		&i.DirectoryRoleID,
 		&i.DirectoryID,
-		&i.RoleID,
+		&i.UserID,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -83,27 +90,9 @@ func (q *Queries) GetDirectoryRole(ctx context.Context, directoryRoleID int64) (
 	return i, err
 }
 
-const getDirectoryRoleByName = `-- name: GetDirectoryRoleByName :one
-SELECT directory_id, role_id
-FROM directory_role
-WHERE directory_role_id = $1
-`
-
-type GetDirectoryRoleByNameRow struct {
-	DirectoryID pgtype.Int4 `json:"directory_id"`
-	RoleID      pgtype.Int4 `json:"role_id"`
-}
-
-func (q *Queries) GetDirectoryRoleByName(ctx context.Context, directoryRoleID int64) (GetDirectoryRoleByNameRow, error) {
-	row := q.db.QueryRow(ctx, getDirectoryRoleByName, directoryRoleID)
-	var i GetDirectoryRoleByNameRow
-	err := row.Scan(&i.DirectoryID, &i.RoleID)
-	return i, err
-}
-
 const listDirectoryRoles = `-- name: ListDirectoryRoles :many
-SELECT directory_role_id, directory_id, role_id, created_at, updated_at, deleted_at FROM directory_role
-ORDER BY directory_role_id
+SELECT directory_id, user_id, status, created_at, updated_at, deleted_at FROM directory_role
+ORDER BY user_id
 `
 
 func (q *Queries) ListDirectoryRoles(ctx context.Context) ([]DirectoryRole, error) {
@@ -116,9 +105,9 @@ func (q *Queries) ListDirectoryRoles(ctx context.Context) ([]DirectoryRole, erro
 	for rows.Next() {
 		var i DirectoryRole
 		if err := rows.Scan(
-			&i.DirectoryRoleID,
 			&i.DirectoryID,
-			&i.RoleID,
+			&i.UserID,
+			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -131,4 +120,27 @@ func (q *Queries) ListDirectoryRoles(ctx context.Context) ([]DirectoryRole, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateDirectoryRole = `-- name: UpdateDirectoryRole :exec
+UPDATE directory_role
+SET user_id = $2, updated_at = $3, status = $4
+WHERE directory_id = $1
+`
+
+type UpdateDirectoryRoleParams struct {
+	DirectoryID pgtype.Int4      `json:"directory_id"`
+	UserID      pgtype.Int4      `json:"user_id"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	Status      Permissions      `json:"status"`
+}
+
+func (q *Queries) UpdateDirectoryRole(ctx context.Context, arg UpdateDirectoryRoleParams) error {
+	_, err := q.db.Exec(ctx, updateDirectoryRole,
+		arg.DirectoryID,
+		arg.UserID,
+		arg.UpdatedAt,
+		arg.Status,
+	)
+	return err
 }

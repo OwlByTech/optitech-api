@@ -97,6 +97,53 @@ func (ns NullExtensions) Value() (driver.Value, error) {
 	return string(ns.Extensions), nil
 }
 
+type Permissions string
+
+const (
+	PermissionsR   Permissions = "r"
+	PermissionsW   Permissions = "w"
+	PermissionsX   Permissions = "x"
+	PermissionsRw  Permissions = "rw"
+	PermissionsRx  Permissions = "rx"
+	PermissionsWx  Permissions = "wx"
+	PermissionsRwx Permissions = "rwx"
+)
+
+func (e *Permissions) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Permissions(s)
+	case string:
+		*e = Permissions(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Permissions: %T", src)
+	}
+	return nil
+}
+
+type NullPermissions struct {
+	Permissions Permissions `json:"permissions"`
+	Valid       bool        `json:"valid"` // Valid is true if Permissions is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPermissions) Scan(value interface{}) error {
+	if value == nil {
+		ns.Permissions, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Permissions.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPermissions) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Permissions), nil
+}
+
 type Status string
 
 const (
@@ -140,11 +187,50 @@ func (ns NullStatus) Value() (driver.Value, error) {
 	return string(ns.Status), nil
 }
 
+type StatusClient string
+
+const (
+	StatusClientActivo   StatusClient = "activo"
+	StatusClientInactivo StatusClient = "inactivo"
+)
+
+func (e *StatusClient) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StatusClient(s)
+	case string:
+		*e = StatusClient(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StatusClient: %T", src)
+	}
+	return nil
+}
+
+type NullStatusClient struct {
+	StatusClient StatusClient `json:"status_client"`
+	Valid        bool         `json:"valid"` // Valid is true if StatusClient is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatusClient) Scan(value interface{}) error {
+	if value == nil {
+		ns.StatusClient, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StatusClient.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatusClient) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StatusClient), nil
+}
+
 type Asesor struct {
-	AsesorID  int64            `json:"asesor_id"`
-	ClientID  int32            `json:"client_id"`
-	Username  string           `json:"username"`
-	Photo     string           `json:"photo"`
+	AsesorID  int32            `json:"asesor_id"`
 	About     string           `json:"about"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
@@ -155,8 +241,10 @@ type Client struct {
 	ClientID  int32            `json:"client_id"`
 	GivenName string           `json:"given_name"`
 	Surname   string           `json:"surname"`
+	Photo     pgtype.Text      `json:"photo"`
 	Email     string           `json:"email"`
 	Password  string           `json:"password"`
+	Status    StatusClient     `json:"status"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
@@ -171,31 +259,23 @@ type ClientRole struct {
 	DeletedAt    pgtype.Timestamp `json:"deleted_at"`
 }
 
-type DirectoryInstitution struct {
-	DirectoryInstitutionID int32            `json:"directory_institution_id"`
-	InstitutionID          int32            `json:"institution_id"`
-	DirectoryID            int32            `json:"directory_id"`
-	CreatedAt              pgtype.Timestamp `json:"created_at"`
-	UpdatedAt              pgtype.Timestamp `json:"updated_at"`
-	DeletedAt              pgtype.Timestamp `json:"deleted_at"`
-}
-
 type DirectoryRole struct {
-	DirectoryRoleID int64            `json:"directory_role_id"`
-	DirectoryID     pgtype.Int4      `json:"directory_id"`
-	RoleID          pgtype.Int4      `json:"role_id"`
-	CreatedAt       pgtype.Timestamp `json:"created_at"`
-	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
-	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
-}
-
-type DirectoryTree struct {
-	DirectoryID int64            `json:"directory_id"`
-	ParentID    pgtype.Int4      `json:"parent_id"`
-	Name        pgtype.Text      `json:"name"`
+	DirectoryID pgtype.Int4      `json:"directory_id"`
+	UserID      pgtype.Int4      `json:"user_id"`
+	Status      Permissions      `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
+}
+
+type DirectoryTree struct {
+	DirectoryID   int64            `json:"directory_id"`
+	ParentID      pgtype.Int8      `json:"parent_id"`
+	InstitutionID pgtype.Int4      `json:"institution_id"`
+	Name          pgtype.Text      `json:"name"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Document struct {
