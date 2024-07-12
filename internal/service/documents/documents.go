@@ -2,7 +2,7 @@ package service
 
 import (
 	"mime/multipart"
-	"optitech/internal/config"
+	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
@@ -72,13 +72,11 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 
 func UploadDocument(file *multipart.File) (string, error) {
 
-	do_conf := config.DigitalOcean
-
 	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(do_conf.DigitalOceanKey, do_conf.DigitalOceanSecret, ""), // Specifies your credentials.
-		Endpoint:         aws.String(do_conf.DigitalOceanEndpoint),                                                  // Find your endpoint in the control panel, under Settings. Prepend "https://".
-		S3ForcePathStyle: aws.Bool(false),                                                                           // // Configures to use subdomain/virtual calling format. Depending on your version, alternatively use o.UsePathStyle = false
-		Region:           aws.String(do_conf.DigitalOceanRegion),                                                    // Must be "us-east-1" when creating new Spaces. Otherwise, use the region in your endpoint, such as "nyc3".
+		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(cnf.Env.DigitalOceanRegion),
 	}
 
 	sess, err := session.NewSession(s3Config)
@@ -92,7 +90,7 @@ func UploadDocument(file *multipart.File) (string, error) {
 	uploader := s3manager.NewUploader(sess)
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(do_conf.DigitalOceanBucket),
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
 		Body:   *file,
 	})
 	if err != nil {
