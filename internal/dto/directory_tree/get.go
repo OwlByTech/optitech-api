@@ -8,7 +8,7 @@ type GetDirectoryTreeReq struct {
 
 type GetDirectoryTreeRes struct {
 	Id            int64                  `json:"id"`
-	ParentID      int64                  `json:"directoryId"`
+	ParentID      int64                  `json:"parentId"`
 	InstitutionID int32                  `json:"institutionId"`
 	Open          bool                   `json:"open"`
 	Name          string                 `json:"name"`
