@@ -1,12 +1,12 @@
 package service
 
 import (
+	"mime/multipart"
 	"optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
-	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -40,11 +40,21 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: true},
-		FileRute:    UploadDocument(),
 		Name:        req.Name,
 		Status:      sq.Status(req.Status),
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
+
+	file, err := req.File.Open()
+	if err != nil {
+		return nil, err
+	}
+
+	fileRute, err := UploadDocument(&file)
+	if err != nil {
+		return nil, err
+	}
+	repoReq.FileRute = fileRute
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 
 	if err != nil {
@@ -60,7 +70,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 
 }
 
-func UploadDocument() string {
+func UploadDocument(file *multipart.File) (string, error) {
 
 	do_conf := config.DigitalOcean
 
@@ -74,26 +84,19 @@ func UploadDocument() string {
 	sess, err := session.NewSession(s3Config)
 
 	if err != nil {
-		return "Error"
+		return "", err
 	}
 
 	//TODO: Change this for multipart
 
-	filename := "/uploads/archivo.txt"
 	uploader := s3manager.NewUploader(sess)
-
-	f, err := os.Open(filename)
-	if err != nil {
-		return "Error"
-	}
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(do_conf.DigitalOceanBucket),
-		Key:    aws.String(filename),
-		Body:   f,
+		Body:   *file,
 	})
 	if err != nil {
-		return "Error"
+		return "", err
 	}
-	return aws.StringValue(&result.Location)
+	return aws.StringValue(&result.Location), nil
 }
