@@ -31,6 +31,7 @@ func (s *Server) ListenAndServe() error {
 	s.RoutesInstitutionClient()
 	s.RoutesFile()
 	s.RoutesFormat()
+	s.RoutesDocument()
 	s.RoutesDirectoryTree()
 	s.RoutesDirectoryRole()
 	err := s.app.Listen(fmt.Sprintf(":%d", s.Port))

@@ -3,6 +3,7 @@ module optitech
 go 1.21.3
 
 require (
+	github.com/aws/aws-sdk-go v1.49.6
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/golang-jwt/jwt/v5 v5.2.1
@@ -28,6 +29,7 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
