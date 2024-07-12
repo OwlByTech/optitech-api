@@ -33,6 +33,21 @@ func (h *handlerDirectoryTree) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+func (h *handlerDirectoryTree) GetRoute(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &ddto.GetDirectoryTreeReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	_, res, err := h.directoryTreeService.GetRoute(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
 func (h *handlerDirectoryTree) Create(c *fiber.Ctx) error {
 	req := &ddto.CreateDirectoryTreeReq{}
 
@@ -68,6 +83,20 @@ func (h *handlerDirectoryTree) ListByParent(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	res, err := h.directoryTreeService.ListByParent(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerDirectoryTree) ListByChild(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &ddto.GetDirectoryTreeReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	res, err := h.directoryTreeService.ListByChild(*req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

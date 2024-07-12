@@ -2,12 +2,10 @@ package repository
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
-
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type repositoryDirectoryTree struct {
@@ -71,14 +69,30 @@ func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, e
 	}
 	return &directorys, nil
 }
-func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int32) (*[]dto.GetDirectoryTreeRes, error) {
+func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int32) ([]*dto.GetDirectoryTreeRes, error) {
 	ctx := context.Background()
 	repoRes, err := r.directoryRepository.ListDirectoryChildByParent(ctx, pgtype.Int4{Int32: parentId, Valid: true})
 
 	if err != nil {
 		return nil, err
 	}
-	log.Info(repoRes, parentId)
+	directorys := make([]*dto.GetDirectoryTreeRes, len(repoRes))
+	for i, inst := range repoRes {
+		directorys[i] = &dto.GetDirectoryTreeRes{
+			Id:       int32(inst.DirectoryID),
+			ParentID: int32(inst.ParentID.Int32),
+			Name:     inst.Name.String,
+		}
+	}
+	return directorys, nil
+}
+func (r *repositoryDirectoryTree) ListDirectoryHierarchy(childId int32) (*[]dto.GetDirectoryTreeRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.directoryRepository.ListDirectoryHierarchyById(ctx, int64(childId))
+
+	if err != nil {
+		return nil, err
+	}
 	directorys := make([]dto.GetDirectoryTreeRes, len(repoRes))
 	for i, inst := range repoRes {
 		directorys[i] = dto.GetDirectoryTreeRes{

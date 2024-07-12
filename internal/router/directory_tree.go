@@ -18,7 +18,9 @@ func (s *Server) RoutesDirectoryTree() {
 	serviceRoute := r.Group("/api/directory-tree")
 	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/parent/:id", handler.ListByParent)
+	serviceRoute.Get("/child/:id", handler.ListByChild)
 	serviceRoute.Get("/:id", handler.Get)
+	serviceRoute.Get("/route/:id", handler.GetRoute)
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 }

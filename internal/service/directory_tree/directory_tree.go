@@ -6,6 +6,7 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -54,7 +55,7 @@ func (s *serviceDirectoryTree) List() (*[]dto.GetDirectoryTreeRes, error) {
 	}
 	return repoRes, nil
 }
-func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeByParentRes, error) {
+func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error) {
 	repoRes, err := s.directoryTreeRepository.ListDirectoryByParent(int32(req.Id))
 	if err != nil {
 		return nil, err
@@ -68,11 +69,104 @@ func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.G
 		return nil, err
 	}
 
-	return &dto.GetDirectoryTreeByParentRes{
+	return &dto.GetDirectoryTreeRes{
 		Id:        directory.Id,
 		Name:      directory.Name,
+		Open:      true,
 		ParentID:  directory.ParentID,
-		Directory: *repoRes, Document: *documents}, nil
+		Directory: repoRes, Document: documents}, nil
+}
+
+func (s *serviceDirectoryTree) GetRoute(req dto.GetDirectoryTreeReq) (*[]int32, *[]dto.GetDirectoryTreeRes, error) {
+	directory, err := s.ListByParent(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	repoRes, err := s.directoryTreeRepository.ListDirectoryHierarchy(int32(req.Id))
+	if err != nil {
+		return nil, nil, err
+	}
+	tree := []int32{directory.Id, directory.ParentID}
+	var nodes []dto.GetDirectoryTreeRes
+
+	nodes = append(nodes,
+		dto.GetDirectoryTreeRes{
+			Id:       directory.Id,
+			Name:     directory.Name,
+			ParentID: directory.Id,
+		},
+	)
+
+	node := directory.ParentID
+	for node != 0 {
+		for _, directory_tree := range *repoRes {
+			if directory_tree.Id == node && directory_tree.ParentID != 0 {
+				nodes = append(nodes, dto.GetDirectoryTreeRes{
+					Id:       directory_tree.Id,
+					Name:     directory_tree.Name,
+					ParentID: directory_tree.ParentID,
+				})
+				tree = append(tree, directory_tree.ParentID)
+				node = directory_tree.ParentID
+			}
+
+			if directory_tree.Id == node && directory_tree.ParentID == 0 {
+				nodes = append(nodes, dto.GetDirectoryTreeRes{
+					Id:       directory_tree.Id,
+					Name:     directory_tree.Name,
+					ParentID: directory_tree.ParentID,
+				})
+				node = 0
+			}
+		}
+	}
+	for i, j := 0, len(tree)-1; i < j; i, j = i+1, j-1 {
+		tree[i], tree[j] = tree[j], tree[i]
+	}
+	for i, j := 0, len(nodes)-1; i < j; i, j = i+1, j-1 {
+		nodes[i], nodes[j] = nodes[j], nodes[i]
+	}
+
+	return &tree, &nodes, nil
+}
+
+func (s *serviceDirectoryTree) ListByChild(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error) {
+	directory, err := s.ListByParent(req)
+	if err != nil {
+		return nil, err
+	}
+	if directory.ParentID == 0 {
+		return directory, nil
+	}
+	route, _, err := s.GetRoute(dto.GetDirectoryTreeReq{Id: req.Id})
+	if err != nil {
+		return nil, err
+	}
+	tree := *route
+
+	node_root, err := s.ListByParent(dto.GetDirectoryTreeReq{Id: int64(tree[0])})
+	if err != nil {
+		return nil, err
+	}
+	var node_child *dto.GetDirectoryTreeRes
+	node_child = node_root
+
+	log.Info(len(tree))
+	for i, j := 1, len(tree); i < j; i = i + 1 {
+		directories := node_child.Directory
+		for _, directory_tree := range directories {
+			if directory_tree.Id == tree[i] {
+				directory_child, _ := s.ListByParent(dto.GetDirectoryTreeReq{Id: int64(directory_tree.Id)})
+				parent := directory_tree
+				parent.Open = true
+				parent.Directory = directory_child.Directory
+				parent.Document = directory_child.Document
+				node_child = directory_tree
+				break
+			}
+		}
+	}
+	return node_root, nil
 }
 
 func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error) {
