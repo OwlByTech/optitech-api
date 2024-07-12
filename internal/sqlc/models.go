@@ -259,15 +259,6 @@ type ClientRole struct {
 	DeletedAt    pgtype.Timestamp `json:"deleted_at"`
 }
 
-type DirectoryInstitution struct {
-	DirectoryInstitutionID int32            `json:"directory_institution_id"`
-	InstitutionID          int32            `json:"institution_id"`
-	DirectoryID            int32            `json:"directory_id"`
-	CreatedAt              pgtype.Timestamp `json:"created_at"`
-	UpdatedAt              pgtype.Timestamp `json:"updated_at"`
-	DeletedAt              pgtype.Timestamp `json:"deleted_at"`
-}
-
 type DirectoryRole struct {
 	DirectoryID pgtype.Int4      `json:"directory_id"`
 	UserID      pgtype.Int4      `json:"user_id"`
@@ -278,12 +269,13 @@ type DirectoryRole struct {
 }
 
 type DirectoryTree struct {
-	DirectoryID int64            `json:"directory_id"`
-	ParentID    pgtype.Int4      `json:"parent_id"`
-	Name        pgtype.Text      `json:"name"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
+	DirectoryID   int64            `json:"directory_id"`
+	ParentID      pgtype.Int8      `json:"parent_id"`
+	InstitutionID pgtype.Int4      `json:"institution_id"`
+	Name          pgtype.Text      `json:"name"`
+	CreatedAt     pgtype.Timestamp `json:"created_at"`
+	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
+	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Document struct {
