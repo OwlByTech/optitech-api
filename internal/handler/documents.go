@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	dto "optitech/internal/dto"
 	fdto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
@@ -36,13 +37,19 @@ func (h *handlerDocument) Get(c *fiber.Ctx) error {
 func (h *handlerDocument) CreateDocument(c *fiber.Ctx) error {
 	req := &fdto.CreateDocumentReq{}
 
-	if err := c.BodyParser(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	body := c.FormValue("data")
+	if err := json.Unmarshal([]byte(body), &req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	if err := dto.ValidateDTO(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+	file, err := c.FormFile("file")
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	req.File = file
 
 	res, err := h.documentService.Create(req)
 	if err != nil {

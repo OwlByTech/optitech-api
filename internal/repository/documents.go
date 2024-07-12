@@ -35,6 +35,28 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
+func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {
+	ctx := context.Background()
+
+	repoRes, err := r.documentRepository.ListDocumentsByDirectory(ctx, directoryID)
+
+	if err != nil {
+		return nil, err
+	}
+	documents := make([]dto.GetDocumentRes, len(repoRes))
+	for i, inst := range repoRes {
+		documents[i] = dto.GetDocumentRes{
+			Id:          inst.DocumentID,
+			Name:        inst.Name,
+			DirectoryId: inst.DirectoryID,
+			FormatId:    inst.FormatID.Int32,
+			FileRute:    inst.FileRute,
+			Status:      string(inst.Status),
+		}
+	}
+	return &documents, nil
+}
+
 func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.CreateDocumentRes, error) {
 	ctx := context.Background()
 

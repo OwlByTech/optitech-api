@@ -1,12 +1,17 @@
 package dto
 
+import dto "optitech/internal/dto/document"
+
 type GetDirectoryTreeReq struct {
 	Id int64 `json:"id" validate:"required"`
 }
 
 type GetDirectoryTreeRes struct {
-	Id            int64  `json:"id"`
-	ParentID      int64  `json:"directoryId"`
-	InstitutionID int64  `json:"institutionId"`
-	Name          string `jston:name`
+	Id            int64                  `json:"id"`
+	ParentID      int64                  `json:"directoryId"`
+	InstitutionID int32                  `json:"institutionId"`
+	Open          bool                   `json:"open"`
+	Name          string                 `json:"name"`
+	Directory     []*GetDirectoryTreeRes `json:"directory"`
+	Document      *[]dto.GetDocumentRes  `json:"document"`
 }

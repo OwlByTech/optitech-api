@@ -91,8 +91,7 @@ func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 	}
 
 	repoReq := &sq.UpdateClientByIdParams{
-		ClientID: req.ClientId,
-
+		ClientID:  req.ClientId,
 		Email:     client.Email,
 		GivenName: client.GivenName,
 		Surname:   client.Surname,

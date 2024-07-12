@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
@@ -30,7 +31,7 @@ func (r *repositoryDirectoryTree) GetDirectory(directoryID int64) (*dto.GetDirec
 		Id:            repoRes.DirectoryID,
 		ParentID:      repoRes.ParentID.Int64,
 		Name:          repoRes.Name.String,
-		InstitutionID: int64(repoRes.InstitutionID.Int32),
+		InstitutionID: repoRes.InstitutionID.Int32,
 	}, nil
 }
 
@@ -47,7 +48,7 @@ func (r *repositoryDirectoryTree) CreateDirectory(arg *sq.CreateDirectoryTreePar
 		DirectoryId:   res.DirectoryID,
 		ParentID:      res.ParentID.Int64,
 		Name:          res.Name.String,
-		InstitutionID: int64(res.InstitutionID.Int32),
+		InstitutionID: res.InstitutionID.Int32,
 	}, nil
 }
 
@@ -59,6 +60,40 @@ func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, e
 		return nil, err
 	}
 
+	directorys := make([]dto.GetDirectoryTreeRes, len(repoRes))
+	for i, inst := range repoRes {
+		directorys[i] = dto.GetDirectoryTreeRes{
+			Id:       inst.DirectoryID,
+			ParentID: inst.ParentID.Int64,
+			Name:     inst.Name.String,
+		}
+	}
+	return &directorys, nil
+}
+func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int64) ([]*dto.GetDirectoryTreeRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.directoryRepository.ListDirectoryChildByParent(ctx, pgtype.Int8{Int64: parentId, Valid: true})
+
+	if err != nil {
+		return nil, err
+	}
+	directorys := make([]*dto.GetDirectoryTreeRes, len(repoRes))
+	for i, inst := range repoRes {
+		directorys[i] = &dto.GetDirectoryTreeRes{
+			Id:       inst.DirectoryID,
+			ParentID: inst.ParentID.Int64,
+			Name:     inst.Name.String,
+		}
+	}
+	return directorys, nil
+}
+func (r *repositoryDirectoryTree) ListDirectoryHierarchy(childId int64) (*[]dto.GetDirectoryTreeRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.directoryRepository.ListDirectoryHierarchyById(ctx, childId)
+
+	if err != nil {
+		return nil, err
+	}
 	directorys := make([]dto.GetDirectoryTreeRes, len(repoRes))
 	for i, inst := range repoRes {
 		directorys[i] = dto.GetDirectoryTreeRes{

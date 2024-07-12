@@ -12,7 +12,7 @@ type GetClientRes struct {
 	Photo     string       `json:"photo" `
 	Surname   string       `json:"surname"`
 	Status    StatusClient `json:"status"`
-	Email     string       `json:"email"`
 	Password  string
+	Email     string           `json:"email"`
 	Role      []dto.GetRoleRes `json:"role"`
 }

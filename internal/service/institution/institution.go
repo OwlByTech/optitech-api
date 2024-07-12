@@ -164,7 +164,7 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		defer outFile.Close()
+		//		defer outFilef.Close()
 		if _, err = io.Copy(outFile, multipart); err != nil {
 			return false, err
 		}

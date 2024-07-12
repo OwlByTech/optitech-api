@@ -282,6 +282,7 @@ type Document struct {
 	DocumentID  int64            `json:"document_id"`
 	DirectoryID int32            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
+	Name        string           `json:"name"`
 	FileRute    string           `json:"file_rute"`
 	Status      Status           `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`

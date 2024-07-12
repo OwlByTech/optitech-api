@@ -6,14 +6,21 @@ WHERE document_id = $1 LIMIT 1;
 SELECT * FROM document
 ORDER BY document_id;
 
+
+-- name: ListDocumentsByDirectory :many
+SELECT * FROM document
+WHERE directory_id= $1
+ORDER BY document_id;
+
+
 -- name: GetDocumentByName :one
 SELECT directory_id, format_id, file_rute, status
 FROM document
 WHERE document_id = $1;
 
 -- name: CreateDocument :one
-INSERT INTO document(directory_id, format_id, file_rute, status, created_at)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
+VALUES ($1, $2, $3, $4, $5,$6)
 RETURNING *;
 
 -- name: UpdateDocumentById :exec

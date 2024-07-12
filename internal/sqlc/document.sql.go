@@ -13,13 +13,14 @@ import (
 )
 
 const createDocument = `-- name: CreateDocument :one
-INSERT INTO document(directory_id, format_id, file_rute, status, created_at)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING document_id, directory_id, format_id, file_rute, status, created_at, updated_at, deleted_at
+INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
+VALUES ($1, $2, $3, $4, $5,$6)
+RETURNING document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at
 `
 
 type CreateDocumentParams struct {
 	DirectoryID int32            `json:"directory_id"`
+	Name        string           `json:"name"`
 	FormatID    pgtype.Int4      `json:"format_id"`
 	FileRute    string           `json:"file_rute"`
 	Status      Status           `json:"status"`
@@ -29,6 +30,7 @@ type CreateDocumentParams struct {
 func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) (Document, error) {
 	row := q.db.QueryRow(ctx, createDocument,
 		arg.DirectoryID,
+		arg.Name,
 		arg.FormatID,
 		arg.FileRute,
 		arg.Status,
@@ -39,6 +41,7 @@ func (q *Queries) CreateDocument(ctx context.Context, arg CreateDocumentParams) 
 		&i.DocumentID,
 		&i.DirectoryID,
 		&i.FormatID,
+		&i.Name,
 		&i.FileRute,
 		&i.Status,
 		&i.CreatedAt,
@@ -75,7 +78,7 @@ func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentById
 }
 
 const getDocument = `-- name: GetDocument :one
-SELECT document_id, directory_id, format_id, file_rute, status, created_at, updated_at, deleted_at FROM document
+SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
 WHERE document_id = $1 LIMIT 1
 `
 
@@ -86,6 +89,7 @@ func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, 
 		&i.DocumentID,
 		&i.DirectoryID,
 		&i.FormatID,
+		&i.Name,
 		&i.FileRute,
 		&i.Status,
 		&i.CreatedAt,
@@ -121,7 +125,7 @@ func (q *Queries) GetDocumentByName(ctx context.Context, documentID int64) (GetD
 }
 
 const listDocuments = `-- name: ListDocuments :many
-SELECT document_id, directory_id, format_id, file_rute, status, created_at, updated_at, deleted_at FROM document
+SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
 ORDER BY document_id
 `
 
@@ -138,6 +142,43 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 			&i.DocumentID,
 			&i.DirectoryID,
 			&i.FormatID,
+			&i.Name,
+			&i.FileRute,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listDocumentsByDirectory = `-- name: ListDocumentsByDirectory :many
+SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
+WHERE directory_id= $1
+ORDER BY document_id
+`
+
+func (q *Queries) ListDocumentsByDirectory(ctx context.Context, directoryID int32) ([]Document, error) {
+	rows, err := q.db.Query(ctx, listDocumentsByDirectory, directoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Document
+	for rows.Next() {
+		var i Document
+		if err := rows.Scan(
+			&i.DocumentID,
+			&i.DirectoryID,
+			&i.FormatID,
+			&i.Name,
 			&i.FileRute,
 			&i.Status,
 			&i.CreatedAt,
