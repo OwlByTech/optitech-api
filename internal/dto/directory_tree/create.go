@@ -7,7 +7,6 @@ type CreateDirectoryTreeReq struct {
 }
 
 type CreateDirectoryTreeRes struct {
-	Id            int64  `json:"id"`
 	DirectoryId   int64  `json:"directoryId"`
 	InstitutionID int32  `json:"institutionId"`
 	ParentID      int64  `json:"parentId"`
