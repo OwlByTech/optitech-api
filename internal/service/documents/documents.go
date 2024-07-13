@@ -9,6 +9,7 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -50,10 +51,13 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		return nil, err
 	}
 
-	fileRute, err := UploadDocument(&file)
+	fileRute, err := UploadDocument(&file, req.Name)
 	if err != nil {
 		return nil, err
 	}
+
+	defer file.Close()
+
 	repoReq.FileRute = fileRute
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 
@@ -69,7 +73,8 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	return document, err
 }
 
-func UploadDocument(file *multipart.File) (string, error) {
+func UploadDocument(file *multipart.File, name string) (string, error) {
+	log.Info(cnf.Env.DigitalOceanRegion)
 
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
@@ -83,13 +88,13 @@ func UploadDocument(file *multipart.File) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	//TODO: Change this for multipart
 
 	uploader := s3manager.NewUploader(sess)
 
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(name),
 		Body:   *file,
 	})
 	if err != nil {

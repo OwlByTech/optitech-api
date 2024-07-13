@@ -38,7 +38,6 @@ func (s *serviceDocumentClient) CreateDocumentClient(req *dto.CreateDocumentClie
 	}
 
 	document_client := &dto.CreateDocumentClientRes{
-		//TODO: Id does not show in the json response
 		Id:         repoRes.Id,
 		ClientId:   repoReq.ClientID,
 		DocumentId: repoReq.DocumentID,
