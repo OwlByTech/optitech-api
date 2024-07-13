@@ -76,6 +76,7 @@ func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.G
 		Name:      directory.Name,
 		Open:      true,
 		ParentID:  directory.ParentID,
+		InstitutionID: directory.InstitutionID,
 		Directory: repoRes, Document: documents}, nil
 }
 
