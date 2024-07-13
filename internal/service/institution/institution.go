@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"io"
 	cdto "optitech/internal/dto/client"
+	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
 	dto_services "optitech/internal/dto/institution_services"
+	sdto "optitech/internal/dto/services"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"os"
@@ -19,15 +21,20 @@ type serviceInstitution struct {
 	institutionRepository     interfaces.IInstitutionRepository
 	serviceInstitutionService interfaces.IServiceInstitutionService
 	clientInstitutionService  interfaces.IInstitutionClientService
+	directoryTreeService      interfaces.IDirectoryService
+	servicesService           interfaces.IService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService) interfaces.IInstitutionService {
+func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService) interfaces.IInstitutionService {
 	return &serviceInstitution{
 		institutionRepository:     r,
 		serviceInstitutionService: serviceInstitutionService,
 		clientInstitutionService:  serviceInstitutionClient,
+		directoryTreeService:      serviceDirectoryTree,
+		servicesService:           services,
 	}
 }
+
 func (s *serviceInstitution) GetByClient(req cdto.GetClientReq) (*dto.GetInstitutionRes, error) {
 	institutionId, err := s.institutionRepository.GetInstitutionByClient(req.Id)
 	if err != nil {
@@ -78,6 +85,7 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	if err != nil {
 		return nil, err
 	}
+
 	services := make([]sq.CreateInstitutionServicesParams, len(req.Services))
 	for i, ser := range req.Services {
 		services[i] = sq.CreateInstitutionServicesParams{
@@ -103,8 +111,44 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	if err := s.clientInstitutionService.Create(&clients); err != nil {
 		return nil, err
 	}
+
+	// Create Root
+	directoryTreeReq := &dtdto.CreateDirectoryTreeReq{
+		InstitutionID: institutionID,
+		Name:          repoReq.InstitutionName,
+	}
+
+	rootDirectoryID, err := s.directoryTreeService.Create(directoryTreeReq)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create Field into Directory
+	for _, serviceID := range req.Services {
+
+		getServiceReq := &sdto.GetServiceReq{
+			Id: serviceID,
+		}
+
+		serviceName, err := s.servicesService.Get(getServiceReq)
+		if err != nil {
+			return nil, err
+		}
+
+		serviceDirectoryReq := &dtdto.CreateDirectoryTreeReq{
+			ParentID:      rootDirectoryID.Id,
+			Name:          serviceName.Name,
+			InstitutionID: institutionID,
+		}
+		_, err = s.directoryTreeService.Create(serviceDirectoryReq)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &dto.CreateInstitutionRes{InstitutionID: institutionID}, nil
 }
+
 func (s *serviceInstitution) UpdateAsesor(req *dto.UpdateAsesorInstitutionReq) (bool, error) {
 	repoReq := &sq.UpdateAsesorInstitutionParams{
 		InstitutionID: req.InstitutionID,
