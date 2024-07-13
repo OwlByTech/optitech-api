@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"io"
+	"log"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
@@ -130,13 +131,16 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 			Id: serviceID,
 		}
 
+		log.Print(getServiceReq)
+		log.Print(rootDirectoryID.DirectoryId)
+
 		serviceName, err := s.servicesService.Get(getServiceReq)
 		if err != nil {
 			return nil, err
 		}
 
 		serviceDirectoryReq := &dtdto.CreateDirectoryTreeReq{
-			ParentID:      rootDirectoryID.Id,
+			ParentID:      rootDirectoryID.DirectoryId,
 			Name:          serviceName.Name,
 			InstitutionID: institutionID,
 		}
