@@ -4,9 +4,12 @@ import (
 	"optitech/internal/handler"
 	"optitech/internal/middleware"
 	"optitech/internal/repository"
+	directoryTreeService "optitech/internal/service/directory_tree"
+	documentsService "optitech/internal/service/documents"
 	service "optitech/internal/service/institution"
 	institutionClient "optitech/internal/service/institution_client"
 	serviceInstitution "optitech/internal/service/institution_services"
+	services "optitech/internal/service/services"
 )
 
 func (s *Server) RoutesInstitution() {
@@ -19,7 +22,13 @@ func (s *Server) RoutesInstitution() {
 	repositoryInstitutionClient := repository.NewRepositoryInstitutionClient(&repository.Queries)
 	serviceInstitutionClient := institutionClient.NewServiceInstitutionClient(repositoryInstitutionClient)
 	repositoryInstitution := repository.NewRepositoryInstitution(&repository.Queries)
-	serviceInstitution := service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient)
+	repositoryDirectoryTree := repository.NewRepositoryDirectoryTree(&repository.Queries)
+	repositoryDocuments := repository.NewRepositoryDocument(&repository.Queries)
+	serviceDocument := documentsService.NewServiceDocument(repositoryDocuments)
+	serviceDirectoryTree := directoryTreeService.NewServiceDirectory(repositoryDirectoryTree, serviceDocument)
+	repositoryServices := repository.NewRepositoryService(&repository.Queries)
+	serviceServices := services.NewServiceServices(repositoryServices)
+	serviceInstitution := service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices)
 	handler := handler.NewHandlerInstitution(serviceInstitution)
 	institutionRoute := r.Group("/api/institution")
 	institutionRoute.Post("/", clientMiddleware.ClientJWT, handler.Create)
