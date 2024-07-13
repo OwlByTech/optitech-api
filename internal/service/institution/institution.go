@@ -126,7 +126,7 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	// Create Field into Directory
 	for _, serviceID := range req.Services {
 
-		getServiceReq := &sdto.GetServiceReq{
+		getServiceReq := sdto.GetServiceReq{
 			Id: serviceID,
 		}
 
