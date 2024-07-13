@@ -113,7 +113,6 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 		return nil, err
 	}
 
-	// Create Root
 	directoryTreeReq := &dtdto.CreateDirectoryTreeReq{
 		InstitutionID: institutionID,
 		Name:          repoReq.InstitutionName,
@@ -124,7 +123,6 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 		return nil, err
 	}
 
-	// Create Field into Directory
 	for _, serviceID := range req.Services {
 
 		getServiceReq := sdto.GetServiceReq{
