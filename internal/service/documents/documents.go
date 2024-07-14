@@ -14,8 +14,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
+
+func getS3Config() *aws.Config {
+	return &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(cnf.Env.DigitalOceanRegion),
+	}
+}
 
 type serviceDocument struct {
 	documentRepository interfaces.IDocumentRepository
@@ -119,8 +129,40 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 		UpdatedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
+	RenameDocument("prueb", req.Name)
+
 	if err := s.documentRepository.UpdateDocument(repoReq); err != nil {
 		return false, nil
 	}
 	return true, nil
+}
+
+func RenameDocument(oldName, newName string) error {
+	s3Config := getS3Config()
+
+	sess, err := session.NewSession(s3Config)
+	if err != nil {
+		return err
+	}
+
+	svc := s3.New(sess)
+
+	_, err = svc.CopyObject(&s3.CopyObjectInput{
+		Bucket:     aws.String(cnf.Env.DigitalOceanBucket),
+		CopySource: aws.String(cnf.Env.DigitalOceanBucket + "/" + oldName),
+		Key:        aws.String(newName),
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(oldName),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
