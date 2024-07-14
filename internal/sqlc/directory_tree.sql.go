@@ -73,7 +73,7 @@ func (q *Queries) DeleteDirectoryTreeById(ctx context.Context, arg DeleteDirecto
 
 const getDirectoryTree = `-- name: GetDirectoryTree :one
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
-WHERE directory_id = $1 LIMIT 1
+WHERE directory_id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetDirectoryTree(ctx context.Context, directoryID int64) (DirectoryTree, error) {
@@ -107,7 +107,7 @@ func (q *Queries) GetDirectoryTreeByName(ctx context.Context, directoryID int64)
 const listDirectoryChildByParent = `-- name: ListDirectoryChildByParent :many
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at
 FROM directory_tree
-WHERE parent_id= $1
+WHERE parent_id= $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) ListDirectoryChildByParent(ctx context.Context, parentID pgtype.Int8) ([]DirectoryTree, error) {
@@ -146,7 +146,8 @@ WITH RECURSIVE directory  AS (
   UNION ALL
   SELECT e.directory_id, e.name, e.parent_id
   FROM directory_tree  e
-  INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id where  e.directory_id<=$1
+  INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id 
+    where  e.directory_id<=$1 AND e.deleted_at IS NULL
 )
 SELECT directory_id, name, parent_id FROM directory
 `
@@ -179,7 +180,7 @@ func (q *Queries) ListDirectoryHierarchyById(ctx context.Context, directoryID in
 
 const listDirectoryTrees = `-- name: ListDirectoryTrees :many
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
-ORDER BY directory_id
+ORDER BY directory_id AND deleted_at IS NULL
 `
 
 func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, error) {
