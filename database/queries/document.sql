@@ -1,6 +1,7 @@
 -- name: GetDocument :one
 SELECT * FROM document
-WHERE document_id = $1 LIMIT 1;
+WHERE document_id = $1 AND deleted_at is null
+LIMIT 1;
 
 -- name: ListDocuments :many
 SELECT * FROM document

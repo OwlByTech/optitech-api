@@ -79,7 +79,8 @@ func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentById
 
 const getDocument = `-- name: GetDocument :one
 SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
-WHERE document_id = $1 LIMIT 1
+WHERE document_id = $1 AND deleted_at is null
+LIMIT 1
 `
 
 func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, error) {
