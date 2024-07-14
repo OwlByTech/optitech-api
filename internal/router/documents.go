@@ -14,4 +14,5 @@ func (s *Server) RoutesDocument() {
 	serviceRoute := r.Group("/api/document")
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/", handler.CreateDocument)
+	serviceRoute.Delete("/:id", handler.DeleteDocument)
 }

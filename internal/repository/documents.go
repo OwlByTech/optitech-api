@@ -74,3 +74,7 @@ func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.
 	}, nil
 
 }
+func (r *repositoryDocument) DeleteDocument(arg *sq.DeleteDocumentByIdParams) error {
+	ctx := context.Background()
+	return r.documentRepository.DeleteDocumentById(ctx, *arg)
+}

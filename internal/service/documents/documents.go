@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -10,9 +9,12 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
@@ -75,6 +77,7 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, erro
 		return "", err
 	}
 	uploader := s3manager.NewUploader(sess)
+
 	file, err := fileHeader.Open()
 	if err != nil {
 		return "", err
@@ -89,4 +92,45 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, erro
 	}
 	defer file.Close()
 	return aws.StringValue(&result.Location), nil
+}
+
+func DownloadDocument(name string) (string, error) {
+	//TODO: REFACTOR THIS FOR 1 CONFIG
+	s3Config := &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(cnf.Env.DigitalOceanRegion),
+	}
+
+	sess, err := session.NewSession(s3Config)
+	if err != nil {
+		return "", err
+	}
+
+	svc := s3.New(sess)
+
+	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(name),
+	})
+	urlStr, err := req.Presign(15 * time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	return urlStr, nil
+}
+
+func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
+	repoReq := &sq.DeleteDocumentByIdParams{
+		DocumentID: req.Id,
+		DeletedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.documentRepository.DeleteDocument(repoReq); err != nil {
+		return false, pgtype.ErrScanTargetTypeChanged
+	}
+
+	return true, nil
 }
