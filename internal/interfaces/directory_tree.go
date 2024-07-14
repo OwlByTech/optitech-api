@@ -15,6 +15,7 @@ type IDirectoryService interface {
 	ListByParent(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
 	ListByChild(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
 	Delete(req dto.GetDirectoryTreeReq) (bool, error)
+	//Update(req *dto.UpdateDirectoryTreeReq) (bool, error)
 }
 
 type IDirectoryRepository interface {
