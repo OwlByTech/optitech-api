@@ -97,6 +97,7 @@ func (s *serviceDirectoryTree) GetRoute(req dto.GetDirectoryTreeReq) (*[]int64, 
 			Id:       directory.Id,
 			Name:     directory.Name,
 			ParentID: directory.Id,
+			InstitutionID: directory.InstitutionID,
 		},
 	)
 
