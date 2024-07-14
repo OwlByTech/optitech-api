@@ -35,6 +35,20 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
+func (r *repositoryDocument) DownloadDocumentById(documentID int64) (*dto.GetDocumentRes, error) {
+	ctx := context.Background()
+
+	repoRes, err := r.documentRepository.GetDocument(ctx, (documentID))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetDocumentRes{
+		Name: repoRes.Name,
+	}, nil
+}
+
 func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {
 	ctx := context.Background()
 

@@ -94,6 +94,12 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, erro
 	return aws.StringValue(&result.Location), nil
 }
 
+func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*dto.GetDocumentRes, error) {
+
+	return s.documentRepository.DownloadDocumentById(req.Id)
+
+}
+
 func DownloadDocument(name string) (string, error) {
 	//TODO: REFACTOR THIS FOR 1 CONFIG
 	s3Config := &aws.Config{

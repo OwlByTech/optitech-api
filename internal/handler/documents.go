@@ -74,3 +74,18 @@ func (h *handlerDocument) DeleteDocument(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerDocument) DownloadDocumentById(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &ddto.GetDocumentReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.documentService.Get(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
