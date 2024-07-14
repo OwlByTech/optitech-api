@@ -15,7 +15,7 @@ type IDirectoryService interface {
 	ListByParent(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
 	ListByChild(req dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error)
 	Delete(req dto.GetDirectoryTreeReq) (bool, error)
-	//Update(req *dto.UpdateDirectoryTreeReq) (bool, error)
+	Update(req *dto.UpdateDirectoryTreeReq) (bool, error)
 }
 
 type IDirectoryRepository interface {
@@ -25,6 +25,7 @@ type IDirectoryRepository interface {
 	DeleteDirectory(arg *models.DeleteDirectoryTreeByIdParams) error
 	ListDirectoryByParent(parentId int64) ([]*dto.GetDirectoryTreeRes, error)
 	ListDirectoryHierarchy(childId int64) (*[]dto.GetDirectoryTreeRes, error)
+	UpdateDirectoryTree(arg *models.UpdateDirectoryTreeByIdParams) error
 }
 
 type IDirectoryHandler interface {
@@ -35,4 +36,5 @@ type IDirectoryHandler interface {
 	ListByParent(c *fiber.Ctx) error
 	ListByChild(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
+	Update(c *fiber.Ctx) error
 }

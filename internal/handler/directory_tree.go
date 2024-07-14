@@ -4,6 +4,7 @@ import (
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -118,4 +119,47 @@ func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(res)
+}
+
+func (h *handlerDirectoryTree) Update(c *fiber.Ctx) error {
+	// Extraer el parámetro de la URL y convertirlo a int64
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "ID inválido")
+	}
+
+	// Inicializar el objeto de solicitud para el ID del directorio
+	req_id := &ddto.GetDirectoryTreeReq{
+		Id: id,
+	}
+
+	// Validar el objeto req_id
+	if err := dto.ValidateDTO(req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	// Inicializar el objeto de solicitud de actualización
+	req := &ddto.UpdateDirectoryTreeReq{
+		DirectoryId: req_id.Id,
+	}
+
+	// Parsear el cuerpo de la solicitud en el objeto de solicitud de actualización
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Entrada no válida: "+err.Error())
+	}
+
+	// Validar el objeto de solicitud de actualización
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	// Llamar al método de actualización del servicio
+	success, err := h.directoryTreeService.Update(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	// Devolver la respuesta de éxito
+	return c.JSON(success)
 }
