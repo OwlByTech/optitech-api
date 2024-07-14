@@ -2,9 +2,16 @@ package repository
 
 import (
 	"context"
+	cnf "optitech/internal/config"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 type repositoryDocument struct {
@@ -35,18 +42,44 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
-func (r *repositoryDocument) DownloadDocumentById(documentID int64) (*dto.GetDocumentRes, error) {
+func DownloadDocument(name string) (string, error) {
+	//TODO: REFACTOR THIS FOR 1 CONFIG
+	s3Config := &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(cnf.Env.DigitalOceanRegion),
+	}
+
+	sess, err := session.NewSession(s3Config)
+	if err != nil {
+		return "", err
+	}
+
+	svc := s3.New(sess)
+
+	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(name),
+	})
+	urlStr, err := req.Presign(15 * time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	return urlStr, nil
+}
+
+func (r *repositoryDocument) DownloadDocumentById(documentID int64) (string, error) {
 	ctx := context.Background()
 
 	repoRes, err := r.documentRepository.GetDocument(ctx, (documentID))
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &dto.GetDocumentRes{
-		Name: repoRes.Name,
-	}, nil
+	return DownloadDocument(repoRes.Name)
 }
 
 func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {

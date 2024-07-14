@@ -13,7 +13,7 @@ type IDocumentService interface {
 	Create(arg *d.CreateDocumentReq) (*d.CreateDocumentRes, error)
 	ListByDirectory(req dto.GetDirectoryTreeReq) (*[]d.GetDocumentRes, error)
 	DeleteDocument(req d.GetDocumentReq) (bool, error)
-	DownloadDocumentById(req d.GetDocumentReq) (*d.GetDocumentRes, error)
+	DownloadDocumentById(req d.GetDocumentReq) (string, error)
 }
 
 type IDocumentRepository interface {
@@ -21,7 +21,7 @@ type IDocumentRepository interface {
 	CreateDocument(arg *models.CreateDocumentParams) (*d.CreateDocumentRes, error)
 	ListDocumentByDirectory(directoryID int32) (*[]d.GetDocumentRes, error)
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
-	DownloadDocumentById(documentID int64) (*d.GetDocumentRes, error)
+	DownloadDocumentById(documentID int64) (string, error)
 }
 
 type IDocumentHandler interface {

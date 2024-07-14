@@ -82,7 +82,7 @@ func (h *handlerDocument) DownloadDocumentById(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.documentService.Get(*req)
+	res, err := h.documentService.DownloadDocumentById(*req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
