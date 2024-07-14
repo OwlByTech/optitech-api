@@ -34,6 +34,7 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}
 
 	return &dto.GetDocumentRes{
+		Name:        repoRes.Name,
 		Id:          repoRes.DocumentID,
 		DirectoryId: repoRes.DirectoryID,
 		FormatId:    repoRes.FormatID.Int32,
