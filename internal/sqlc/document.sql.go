@@ -222,3 +222,20 @@ func (q *Queries) UpdateDocumentById(ctx context.Context, arg UpdateDocumentById
 	)
 	return err
 }
+
+const updateDocumentNameById = `-- name: UpdateDocumentNameById :exec
+UPDATE document
+SET name = $2, updated_at = $3
+WHERE document_id = $1
+`
+
+type UpdateDocumentNameByIdParams struct {
+	DocumentID int64            `json:"document_id"`
+	Name       string           `json:"name"`
+	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
+}
+
+func (q *Queries) UpdateDocumentNameById(ctx context.Context, arg UpdateDocumentNameByIdParams) error {
+	_, err := q.db.Exec(ctx, updateDocumentNameById, arg.DocumentID, arg.Name, arg.UpdatedAt)
+	return err
+}
