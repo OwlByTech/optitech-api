@@ -111,3 +111,16 @@ func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
 
 	return true, nil
 }
+
+func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, error) {
+	repoReq := &sq.UpdateDocumentNameByIdParams{
+		DocumentID: req.Id,
+		Name:       req.Name,
+		UpdatedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.documentRepository.UpdateDocument(repoReq); err != nil {
+		return false, nil
+	}
+	return true, nil
+}

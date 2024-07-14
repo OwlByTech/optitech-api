@@ -14,6 +14,7 @@ type IDocumentService interface {
 	ListByDirectory(req dto.GetDirectoryTreeReq) (*[]d.GetDocumentRes, error)
 	DeleteDocument(req d.GetDocumentReq) (bool, error)
 	DownloadDocumentById(req d.GetDocumentReq) (string, error)
+	UpdateDocument(req *d.UpdateDocumentReq) (bool, error)
 }
 
 type IDocumentRepository interface {
@@ -22,6 +23,7 @@ type IDocumentRepository interface {
 	ListDocumentByDirectory(directoryID int32) (*[]d.GetDocumentRes, error)
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
 	DownloadDocumentById(documentID int64) (string, error)
+	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
 }
 
 type IDocumentHandler interface {
@@ -29,4 +31,5 @@ type IDocumentHandler interface {
 	CreateDocument(f *fiber.Ctx) error
 	DeleteDocument(f *fiber.Ctx) error
 	DownloadDocumentById(f *fiber.Ctx) error
+	UpdateDocument(c *fiber.Ctx) error
 }

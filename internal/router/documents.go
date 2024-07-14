@@ -16,4 +16,5 @@ func (s *Server) RoutesDocument() {
 	serviceRoute.Post("/", handler.CreateDocument)
 	serviceRoute.Delete("/:id", handler.DeleteDocument)
 	serviceRoute.Get("download/:id", handler.DownloadDocumentById)
+	serviceRoute.Put("name/:id", handler.UpdateDocument)
 }

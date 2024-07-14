@@ -125,3 +125,8 @@ func (r *repositoryDocument) DeleteDocument(arg *sq.DeleteDocumentByIdParams) er
 	ctx := context.Background()
 	return r.documentRepository.DeleteDocumentById(ctx, *arg)
 }
+
+func (r *repositoryDocument) UpdateDocument(arg *sq.UpdateDocumentNameByIdParams) error {
+	ctx := context.Background()
+	return r.documentRepository.UpdateDocumentNameById(ctx, *arg)
+}
