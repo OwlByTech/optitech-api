@@ -10,7 +10,8 @@ type CreateInstitutionReq struct {
 	LogoFile        *multipart.FileHeader
 	AsesorID        int32   `json:"asesorId"`
 	Services        []int32 `json:"services" validate:"required"`
-	Clients         []int32 `json:"clients" `
+	Clients         []int32 `json:"clients"`
+	DirectoryTree   []int64 `json:"directoryTree"`
 }
 
 type CreateInstitutionRes struct {
