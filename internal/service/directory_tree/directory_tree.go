@@ -41,7 +41,7 @@ func (s *serviceDirectoryTree) Create(req *dto.CreateDirectoryTreeReq) (*dto.Cre
 		InstitutionID: pgtype.Int4{Int32: req.InstitutionID, Valid: true},
 		CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-
+	
 	r, err := s.directoryTreeRepository.CreateDirectory(repoReq)
 	if err != nil {
 		return nil, err
