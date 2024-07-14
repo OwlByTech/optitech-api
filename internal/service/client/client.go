@@ -127,6 +127,7 @@ func (s *serviceClient) Update(req *dto.UpdateClientReq) (bool, error) {
 
 	return true, nil
 }
+
 func (s *serviceClient) UpdateStatus(req *dto.UpdateClientStatusReq) (bool, error) {
 	repoReq := &sq.UpdateClientStatusByIdParams{
 		ClientID:  req.ClientId,
