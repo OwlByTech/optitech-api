@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/jackc/pgx/v5/pgtype"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -8,8 +9,6 @@ import (
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
-
-	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -45,12 +44,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	file, err := req.File.Open()
-	if err != nil {
-		return nil, err
-	}
-
-	fileRute, err := UploadDocument(&file)
+	fileRute, err := UploadDocument(req.File, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -60,17 +54,14 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	if err != nil {
 		return nil, err
 	}
-
 	// TODO: RETURNS EMPTY JSON
-
 	document := &dto.CreateDocumentRes{
 		Id: repoRes.Id,
 	}
 	return document, err
 }
 
-func UploadDocument(file *multipart.File) (string, error) {
-
+func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, error) {
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
 		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
@@ -83,17 +74,19 @@ func UploadDocument(file *multipart.File) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	//TODO: Change this for multipart
-
 	uploader := s3manager.NewUploader(sess)
-
+	file, err := fileHeader.Open()
+	if err != nil {
+		return "", err
+	}
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Body:   *file,
+		Key:    aws.String(name),
+		Body:   file,
 	})
 	if err != nil {
 		return "", err
 	}
+	defer file.Close()
 	return aws.StringValue(&result.Location), nil
 }
