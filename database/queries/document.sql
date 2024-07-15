@@ -1,22 +1,28 @@
 -- name: GetDocument :one
 SELECT * FROM document
+<<<<<<< Updated upstream
 WHERE document_id = $1 LIMIT 1;
+=======
+WHERE document_id = $1 AND deleted_at IS NULL
+LIMIT 1;
+>>>>>>> Stashed changes
 
 -- name: ListDocuments :many
 SELECT * FROM document
+WHERE deleted_at IS NULL
 ORDER BY document_id;
 
 
 -- name: ListDocumentsByDirectory :many
 SELECT * FROM document
-WHERE directory_id= $1
+WHERE directory_id= $1 AND deleted_at IS NULL
 ORDER BY document_id;
 
 
 -- name: GetDocumentByName :one
 SELECT directory_id, format_id, file_rute, status
 FROM document
-WHERE document_id = $1;
+WHERE document_id = $1 AND deleted_at IS NULL;
 
 -- name: CreateDocument :one
 INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
