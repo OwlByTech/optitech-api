@@ -1,1 +1,2 @@
+DROP TYPE status_client CASCADE;
 DROP TABLE IF EXISTS client CASCADE;
