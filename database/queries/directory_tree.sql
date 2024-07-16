@@ -44,3 +44,8 @@ WITH RECURSIVE directory  AS (
   INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id where  e.directory_id<=$1
 )
 SELECT * FROM directory;
+
+-- name: UpdateDirectoryTreeById :exec
+UPDATE directory_tree
+SET name = $2, updated_at = $3
+WHERE directory_id = $1;

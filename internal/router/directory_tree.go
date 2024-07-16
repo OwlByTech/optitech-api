@@ -23,4 +23,5 @@ func (s *Server) RoutesDirectoryTree() {
 	serviceRoute.Get("/route/:id", handler.GetRoute)
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
+	serviceRoute.Put("/update/:id", handler.Update)
 }
