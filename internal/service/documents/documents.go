@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -130,8 +129,6 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 	}
 
 	repoRes, err := s.documentRepository.GetDocument(req.Id)
-
-	log.Print(repoRes)
 
 	if err != nil {
 		return false, err
