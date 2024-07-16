@@ -34,7 +34,6 @@ func (h *handlerClient) Get(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) GetSecure(c *fiber.Ctx) error {
-
 	data := c.Locals("clientId")
 	clientId, ok := data.(int32)
 

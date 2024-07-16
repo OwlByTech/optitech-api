@@ -15,6 +15,9 @@ import (
 type ClientMiddleware struct {
 	ClientService interfaces.IClientService
 }
+type InstitutionMiddleware struct {
+	InstitutionService interfaces.IInstitutionService
+}
 
 func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 	authHeader := c.Get("Authorization")
@@ -46,5 +49,20 @@ func (cm ClientMiddleware) ClientJWT(c *fiber.Ctx) error {
 
 	c.Locals("clientId", clientVerified.ID)
 
+	return c.Next()
+}
+func (in InstitutionMiddleware) InstitutionJWT(c *fiber.Ctx) error {
+	data := c.Locals("clientId")
+	clientId, ok := data.(int32)
+
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+
+	res, err := in.InstitutionService.GetByClient(cdto.GetClientReq{Id: clientId})
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
+	}
+	c.Locals("institutionId", res)
 	return c.Next()
 }
