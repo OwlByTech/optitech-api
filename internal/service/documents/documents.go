@@ -19,15 +19,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-func getS3Config() *aws.Config {
-	return &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
-		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.Env.DigitalOceanRegion),
-	}
-}
-
 type serviceDocument struct {
 	documentRepository interfaces.IDocumentRepository
 }
@@ -147,7 +138,7 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 }
 
 func RenameDocument(oldName, newName string) error {
-	s3Config := getS3Config()
+	s3Config := cnf.GetS3Config()
 
 	sess, err := session.NewSession(s3Config)
 	if err != nil {

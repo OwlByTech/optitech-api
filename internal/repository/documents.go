@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
@@ -44,13 +43,8 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 }
 
 func DownloadDocument(name string) (string, error) {
-	//TODO: REFACTOR THIS FOR 1 CONFIG
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
-		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.Env.DigitalOceanRegion),
-	}
+
+	s3Config := cnf.GetS3Config()
 
 	sess, err := session.NewSession(s3Config)
 	if err != nil {

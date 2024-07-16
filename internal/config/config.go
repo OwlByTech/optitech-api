@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 type EnvStruct struct {
@@ -46,4 +49,13 @@ func LoadConfig() error {
 	}
 
 	return err
+}
+
+func GetS3Config() *aws.Config {
+	return &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(Env.DigitalOceanKey, Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(Env.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(Env.DigitalOceanRegion),
+	}
 }
