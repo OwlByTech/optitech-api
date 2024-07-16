@@ -31,7 +31,7 @@ WHERE document_id = $1;
 
 -- name: UpdateDocumentNameById :exec
 UPDATE document
-SET name = $2, updated_at = $3
+SET name = $2, file_rute = $3, updated_at = $4
 WHERE document_id = $1;
 
 -- name: DeleteDocumentById :exec
