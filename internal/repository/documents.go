@@ -125,3 +125,9 @@ func (r *repositoryDocument) UpdateDocument(arg *sq.UpdateDocumentNameByIdParams
 	ctx := context.Background()
 	return r.documentRepository.UpdateDocumentNameById(ctx, *arg)
 }
+
+func (r *repositoryDocument) ExistsDocuments(documentID int64) bool {
+	ctx := context.Background()
+	_, err := r.documentRepository.ExistsDocument(ctx, (documentID))
+	return err == nil
+}

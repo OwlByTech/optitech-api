@@ -95,10 +95,18 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, erro
 	return aws.StringValue(&result.Location), nil
 }
 
-func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
+func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) string {
 
-	return s.documentRepository.DownloadDocumentById(req.Id)
+	if s.documentRepository.ExistsDocuments(req.Id) {
+		return "The document does not exists"
+	}
 
+	document, err := s.documentRepository.DownloadDocumentById(req.Id)
+	if err != nil {
+		return err.Error()
+	}
+
+	return document
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {

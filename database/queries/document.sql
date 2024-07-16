@@ -43,3 +43,7 @@ WHERE document_id = $1;
 UPDATE document
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
+
+-- name: ExistsDocument :one
+SELECT * FROM document
+WHERE document_id = $1 AND deleted_at IS NOT NULL;

@@ -77,6 +77,28 @@ func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentById
 	return err
 }
 
+const existsDocument = `-- name: ExistsDocument :one
+SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
+WHERE document_id = $1 AND deleted_at IS NOT NULL
+`
+
+func (q *Queries) ExistsDocument(ctx context.Context, documentID int64) (Document, error) {
+	row := q.db.QueryRow(ctx, existsDocument, documentID)
+	var i Document
+	err := row.Scan(
+		&i.DocumentID,
+		&i.DirectoryID,
+		&i.FormatID,
+		&i.Name,
+		&i.FileRute,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getDocument = `-- name: GetDocument :one
 SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
 WHERE document_id = $1 AND deleted_at is null
