@@ -20,8 +20,8 @@ FROM document
 WHERE document_id = $1;
 
 -- name: CreateDocument :one
-INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
-VALUES ($1, $2, $3, $4, $5,$6)
+INSERT INTO document(directory_id,name, format_id, institution_id, file_rute, status, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 
 -- name: UpdateDocumentById :exec

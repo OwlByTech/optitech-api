@@ -44,3 +44,9 @@ WITH RECURSIVE directory  AS (
   INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id where  e.directory_id<=$1
 )
 SELECT * FROM directory;
+
+-- name: GetInstitutionNameByDirectoryId :one
+SELECT sqlc.embed(i), sqlc.embed(dt)
+FROM directory_tree dt
+JOIN institution i ON dt.institution_id = i.institution_id
+WHERE dt.directory_id = $1;
