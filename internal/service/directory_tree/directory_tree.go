@@ -2,13 +2,11 @@ package service
 
 import (
 	"errors"
+	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
-
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDirectoryTree struct {
