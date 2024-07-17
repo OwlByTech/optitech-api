@@ -45,6 +45,11 @@ WITH RECURSIVE directory  AS (
 )
 SELECT * FROM directory;
 
+-- name: UpdateDirectoryTreeById :exec
+UPDATE directory_tree
+SET name = $2, updated_at = $3
+WHERE directory_id = $1;
+
 -- name: GetInstitutionNameByDirectoryId :one
 SELECT sqlc.embed(i), sqlc.embed(dt)
 FROM directory_tree dt
