@@ -131,3 +131,8 @@ func (r *repositoryDocument) ExistsDocuments(documentID int64) bool {
 	_, err := r.documentRepository.ExistsDocument(ctx, (documentID))
 	return err == nil
 }
+
+func (r *repositoryDocument) GetInstitutionByDocumentId(documentId int64) (sq.GetInstitutionNameByDirectoryIdRow, error) {
+	ctx := context.Background()
+	return r.documentRepository.GetInstitutionNameByDirectoryId(ctx, (documentId))
+}

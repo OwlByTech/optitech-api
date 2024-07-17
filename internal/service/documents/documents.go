@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -38,15 +39,21 @@ func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto
 
 func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
 
+	institutionName, err := s.documentRepository.GetInstitutionByDocumentId(int64(req.DirectoryId))
+
+	if err != nil {
+		return nil, err
+	}
+
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
-		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: true},
+		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: false},
 		Name:        req.Name,
 		Status:      sq.Status(req.Status),
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	fileRute, err := UploadDocument(req.File, req.Name)
+	fileRute, err := UploadDocument(req.File, req.Name, institutionName.Institution.InstitutionName)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +70,8 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	return document, err
 }
 
-func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, error) {
+func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionName string) (string, error) {
+
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
 		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
@@ -82,9 +90,10 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string) (string, erro
 	if err != nil {
 		return "", err
 	}
+
 	result, err := uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(name),
+		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
 		Body:   file,
 	})
 	if err != nil {
