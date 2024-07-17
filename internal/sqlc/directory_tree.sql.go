@@ -104,6 +104,41 @@ func (q *Queries) GetDirectoryTreeByName(ctx context.Context, directoryID int64)
 	return name, err
 }
 
+const getInstitutionNameByDirectoryId = `-- name: GetInstitutionNameByDirectoryId :one
+SELECT i.institution_id, i.asesor_id, i.institution_name, i.logo, i.description, i.created_at, i.updated_at, i.deleted_at, dt.directory_id, dt.parent_id, dt.institution_id, dt.name, dt.created_at, dt.updated_at, dt.deleted_at
+FROM directory_tree dt
+JOIN institution i ON dt.institution_id = i.institution_id
+WHERE dt.directory_id = $1
+`
+
+type GetInstitutionNameByDirectoryIdRow struct {
+	Institution   Institution   `json:"institution"`
+	DirectoryTree DirectoryTree `json:"directory_tree"`
+}
+
+func (q *Queries) GetInstitutionNameByDirectoryId(ctx context.Context, directoryID int64) (GetInstitutionNameByDirectoryIdRow, error) {
+	row := q.db.QueryRow(ctx, getInstitutionNameByDirectoryId, directoryID)
+	var i GetInstitutionNameByDirectoryIdRow
+	err := row.Scan(
+		&i.Institution.InstitutionID,
+		&i.Institution.AsesorID,
+		&i.Institution.InstitutionName,
+		&i.Institution.Logo,
+		&i.Institution.Description,
+		&i.Institution.CreatedAt,
+		&i.Institution.UpdatedAt,
+		&i.Institution.DeletedAt,
+		&i.DirectoryTree.DirectoryID,
+		&i.DirectoryTree.ParentID,
+		&i.DirectoryTree.InstitutionID,
+		&i.DirectoryTree.Name,
+		&i.DirectoryTree.CreatedAt,
+		&i.DirectoryTree.UpdatedAt,
+		&i.DirectoryTree.DeletedAt,
+	)
+	return i, err
+}
+
 const listDirectoryChildByParent = `-- name: ListDirectoryChildByParent :many
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at
 FROM directory_tree
