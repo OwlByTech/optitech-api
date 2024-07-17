@@ -1,12 +1,10 @@
 package handler
 
 import (
+	"github.com/gofiber/fiber/v2"
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 type handlerDirectoryTree struct {
@@ -40,8 +38,6 @@ func (h *handlerDirectoryTree) GetRoute(c *fiber.Ctx) error {
 	if !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
 	}
-	log.Info("InstitutionID", institutionId)
-
 	params := c.AllParams()
 	req := &ddto.GetDirectoryTreeReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
@@ -126,12 +122,17 @@ func (h *handlerDirectoryTree) ListByChild(c *fiber.Ctx) error {
 }
 
 func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
+	data := c.Locals("institutionId")
+	institutionId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
 	params := c.AllParams()
 	req := &ddto.GetDirectoryTreeReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-
+	req.InstitutionID = institutionId
 	res, err := h.directoryTreeService.Delete(*req)
 
 	if err != nil {

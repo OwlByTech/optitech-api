@@ -1,6 +1,12 @@
 package service
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/jackc/pgx/v5/pgtype"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -8,15 +14,6 @@ import (
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
-
-	"github.com/gofiber/fiber/v2/log"
-	"github.com/jackc/pgx/v5/pgtype"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
 func getS3Config() *aws.Config {
@@ -47,7 +44,6 @@ func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto
 }
 
 func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
-	log.Info("Data adsl")
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		Name:        req.File.Filename,
@@ -69,7 +65,6 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		return nil, err
 	}
 
-	log.Info("Data  sussec")
 	return repoRes, err
 }
 

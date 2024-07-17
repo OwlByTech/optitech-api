@@ -1,11 +1,14 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"errors"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDirectoryTree struct {
@@ -183,6 +186,14 @@ func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error)
 	repoReq := &sq.DeleteDirectoryTreeByIdParams{
 		DirectoryID: req.Id,
 		DeletedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	res_parent, err := s.ListByParent(req)
+	if err != nil {
+		return false, err
+	}
+	if len(res_parent.Directory) > 0 || len(*res_parent.Document) > 0 {
+		return false, errors.New("Directory has files")
 	}
 
 	if err := s.directoryTreeRepository.DeleteDirectory(repoReq); err != nil {
