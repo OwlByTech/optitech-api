@@ -13,7 +13,7 @@ type IDocumentService interface {
 	Create(arg *d.CreateDocumentReq) (*d.CreateDocumentRes, error)
 	ListByDirectory(req dto.GetDirectoryTreeReq) (*[]d.GetDocumentRes, error)
 	DeleteDocument(req d.GetDocumentReq) (bool, error)
-	DownloadDocumentById(req d.GetDocumentReq) string
+	DownloadDocumentById(req d.GetDocumentReq) (string, error)
 	UpdateDocument(req *d.UpdateDocumentReq) (bool, error)
 }
 
@@ -24,7 +24,7 @@ type IDocumentRepository interface {
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
 	DownloadDocumentById(documentID int64) (string, error)
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
-	ExistsDocuments(documentID int64) bool
+	ExistsDocuments(documentID int64) (bool, error)
 	GetEndpointExists(fileRute string) (bool, error)
 	GetInstitutionByDocumentId(directoryId int64) (models.GetInstitutionNameByDirectoryIdRow, error)
 }

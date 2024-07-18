@@ -126,10 +126,9 @@ func (r *repositoryDocument) UpdateDocument(arg *sq.UpdateDocumentNameByIdParams
 	return r.documentRepository.UpdateDocumentNameById(ctx, *arg)
 }
 
-func (r *repositoryDocument) ExistsDocuments(documentID int64) bool {
+func (r *repositoryDocument) ExistsDocuments(documentID int64) (bool, error) {
 	ctx := context.Background()
-	_, err := r.documentRepository.ExistsDocument(ctx, (documentID))
-	return err == nil
+	return r.documentRepository.ExistsDocument(ctx, (documentID))
 }
 
 func (r *repositoryDocument) GetInstitutionByDocumentId(directoryId int64) (sq.GetInstitutionNameByDirectoryIdRow, error) {

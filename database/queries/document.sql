@@ -45,8 +45,10 @@ SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
 -- name: ExistsDocument :one
-SELECT * FROM document
-WHERE document_id = $1 AND deleted_at IS NOT NULL;
+SELECT COUNT(*) > 0
+FROM document
+WHERE document_id = $1 AND deleted_at IS NOT NULL
+LIMIT 1;
 
 -- name: ExistEndpoint :one
 SELECT COUNT(file_rute) > 0
