@@ -53,5 +53,3 @@ SELECT COUNT(file_rute) > 0
 FROM document
 WHERE file_rute = $1
 LIMIT 1;
-
-
