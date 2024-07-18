@@ -30,5 +30,5 @@ func (s *Server) RoutesDirectoryTree() {
 	serviceRoute.Get("/route/:id", clientMiddleware.ClientJWT, institutionMiddleware.InstitutionJWT, handler.GetRoute)
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Delete("/delete/:id", clientMiddleware.ClientJWT, institutionMiddleware.InstitutionJWT, handler.Delete)
-	serviceRoute.Put("/update/:id", handler.Update)
+	serviceRoute.Put("/update/:id", clientMiddleware.ClientJWT, institutionMiddleware.InstitutionJWT, handler.Update)
 }

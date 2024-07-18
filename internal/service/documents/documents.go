@@ -2,6 +2,12 @@ package service
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/jackc/pgx/v5/pgtype"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -9,13 +15,6 @@ import (
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
-
-  "github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDocument struct {
@@ -44,7 +43,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		return nil, err
 	}
 
-	endpoint := fmt.Sprintf("%s%s/%s", cnf.Env.DigitalOceanFilesEndpoint, institutionName.Institution.InstitutionName, req.Name)
+	endpoint := fmt.Sprintf("%s%s/%s", cnf.Env.DigitalOceanFilesEndpoint, institutionName.Institution.InstitutionName, req.File.Filename)
 	exists, err := s.documentRepository.GetEndpointExists(endpoint)
 
 	if exists {
@@ -54,13 +53,13 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: false},
-		Name:        req.Name,
+		Name:        req.File.Filename,
 		Status:      sq.Status(req.Status),
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	fileRute, err := UploadDocument(req.File, req.Name, institutionName.Institution.InstitutionName)
-    
+	fileRute, err := UploadDocument(req.File, req.File.Filename, institutionName.Institution.InstitutionName)
+
 	if err != nil {
 		return nil, err
 	}
