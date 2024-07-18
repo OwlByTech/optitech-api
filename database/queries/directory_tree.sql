@@ -43,3 +43,8 @@ WITH RECURSIVE directory  AS (
     where  e.directory_id<=$1 AND e.deleted_at IS NULL
 )
 SELECT * FROM directory;
+
+-- name: UpdateDirectoryTreeById :exec
+UPDATE directory_tree
+SET name = $2, updated_at = $3
+WHERE directory_id = $1;
