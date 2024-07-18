@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	cnf "optitech/internal/config"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
@@ -43,14 +43,9 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
-func DownloadDocument(name string) (string, error) {
-	//TODO: REFACTOR THIS FOR 1 CONFIG
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
-		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.Env.DigitalOceanRegion),
-	}
+func DownloadDocument(name string, directory string) (string, error) {
+
+	s3Config := cnf.GetS3Config()
 
 	sess, err := session.NewSession(s3Config)
 	if err != nil {
@@ -61,7 +56,7 @@ func DownloadDocument(name string) (string, error) {
 
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(name),
+		Key:    aws.String(fmt.Sprintf("%s/%s", directory, name)),
 	})
 	urlStr, err := req.Presign(15 * time.Minute)
 	if err != nil {
@@ -80,7 +75,13 @@ func (r *repositoryDocument) DownloadDocumentById(documentID int64) (string, err
 		return "", err
 	}
 
-	return DownloadDocument(repoRes.Name)
+	institutionName, err := r.documentRepository.GetInstitutionNameByDirectoryId(ctx, int64(repoRes.DirectoryID))
+
+	if err != nil {
+		return " ", err
+	}
+
+	return DownloadDocument(repoRes.Name, institutionName.Institution.InstitutionName)
 }
 
 func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {
@@ -130,4 +131,19 @@ func (r *repositoryDocument) DeleteDocument(arg *sq.DeleteDocumentByIdParams) er
 func (r *repositoryDocument) UpdateDocument(arg *sq.UpdateDocumentNameByIdParams) error {
 	ctx := context.Background()
 	return r.documentRepository.UpdateDocumentNameById(ctx, *arg)
+}
+
+func (r *repositoryDocument) ExistsDocuments(documentID int64) (bool, error) {
+	ctx := context.Background()
+	return r.documentRepository.ExistsDocument(ctx, (documentID))
+}
+
+func (r *repositoryDocument) GetInstitutionByDocumentId(directoryId int64) (sq.GetInstitutionNameByDirectoryIdRow, error) {
+	ctx := context.Background()
+	return r.documentRepository.GetInstitutionNameByDirectoryId(ctx, (directoryId))
+}
+
+func (r *repositoryDocument) GetEndpointExists(fileRute string) (bool, error) {
+	ctx := context.Background()
+	return r.documentRepository.ExistEndpoint(ctx, (fileRute))
 }

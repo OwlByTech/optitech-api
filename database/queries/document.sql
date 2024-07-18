@@ -22,7 +22,7 @@ WHERE document_id = $1 AND deleted_at IS NULL;
 
 -- name: CreateDocument :one
 INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
-VALUES ($1, $2, $3, $4, $5,$6)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: UpdateDocumentById :exec
@@ -32,7 +32,7 @@ WHERE document_id = $1;
 
 -- name: UpdateDocumentNameById :exec
 UPDATE document
-SET name = $2, updated_at = $3
+SET name = $2, file_rute = $3, updated_at = $4
 WHERE document_id = $1;
 
 -- name: DeleteDocumentById :exec
@@ -44,3 +44,15 @@ WHERE document_id = $1;
 UPDATE document
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
+
+-- name: ExistsDocument :one
+SELECT COUNT(*) > 0
+FROM document
+WHERE document_id = $1 AND deleted_at IS NOT NULL
+LIMIT 1;
+
+-- name: ExistEndpoint :one
+SELECT COUNT(file_rute) > 0
+FROM document
+WHERE file_rute = $1
+LIMIT 1;

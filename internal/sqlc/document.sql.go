@@ -14,7 +14,7 @@ import (
 
 const createDocument = `-- name: CreateDocument :one
 INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
-VALUES ($1, $2, $3, $4, $5,$6)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at
 `
 
@@ -75,6 +75,34 @@ type DeleteDocumentByIdParams struct {
 func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentByIdParams) error {
 	_, err := q.db.Exec(ctx, deleteDocumentById, arg.DocumentID, arg.DeletedAt)
 	return err
+}
+
+const existEndpoint = `-- name: ExistEndpoint :one
+SELECT COUNT(file_rute) > 0
+FROM document
+WHERE file_rute = $1
+LIMIT 1
+`
+
+func (q *Queries) ExistEndpoint(ctx context.Context, fileRute string) (bool, error) {
+	row := q.db.QueryRow(ctx, existEndpoint, fileRute)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const existsDocument = `-- name: ExistsDocument :one
+SELECT COUNT(*) > 0
+FROM document
+WHERE document_id = $1 AND deleted_at IS NOT NULL
+LIMIT 1
+`
+
+func (q *Queries) ExistsDocument(ctx context.Context, documentID int64) (bool, error) {
+	row := q.db.QueryRow(ctx, existsDocument, documentID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const getDocument = `-- name: GetDocument :one
@@ -226,17 +254,23 @@ func (q *Queries) UpdateDocumentById(ctx context.Context, arg UpdateDocumentById
 
 const updateDocumentNameById = `-- name: UpdateDocumentNameById :exec
 UPDATE document
-SET name = $2, updated_at = $3
+SET name = $2, file_rute = $3, updated_at = $4
 WHERE document_id = $1
 `
 
 type UpdateDocumentNameByIdParams struct {
 	DocumentID int64            `json:"document_id"`
 	Name       string           `json:"name"`
+	FileRute   string           `json:"file_rute"`
 	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
 }
 
 func (q *Queries) UpdateDocumentNameById(ctx context.Context, arg UpdateDocumentNameByIdParams) error {
-	_, err := q.db.Exec(ctx, updateDocumentNameById, arg.DocumentID, arg.Name, arg.UpdatedAt)
+	_, err := q.db.Exec(ctx, updateDocumentNameById,
+		arg.DocumentID,
+		arg.Name,
+		arg.FileRute,
+		arg.UpdatedAt,
+	)
 	return err
 }

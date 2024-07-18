@@ -24,6 +24,9 @@ type IDocumentRepository interface {
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
 	DownloadDocumentById(documentID int64) (string, error)
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
+	ExistsDocuments(documentID int64) (bool, error)
+	GetEndpointExists(fileRute string) (bool, error)
+	GetInstitutionByDocumentId(directoryId int64) (models.GetInstitutionNameByDirectoryIdRow, error)
 }
 
 type IDocumentHandler interface {

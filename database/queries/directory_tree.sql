@@ -52,3 +52,9 @@ SELECT * FROM directory;
 UPDATE directory_tree
 SET name = $2, updated_at = $3
 WHERE directory_id = $1;
+
+-- name: GetInstitutionNameByDirectoryId :one
+SELECT sqlc.embed(i), sqlc.embed(dt)
+FROM directory_tree dt
+JOIN institution i ON dt.institution_id = i.institution_id
+WHERE dt.directory_id = $1;
