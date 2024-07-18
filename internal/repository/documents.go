@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	cnf "optitech/internal/config"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
@@ -42,7 +43,7 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
-func DownloadDocument(name string) (string, error) {
+func DownloadDocument(name string, directory string) (string, error) {
 
 	s3Config := cnf.GetS3Config()
 
@@ -55,7 +56,7 @@ func DownloadDocument(name string) (string, error) {
 
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(name),
+		Key:    aws.String(fmt.Sprintf("%s/%s", directory, name)),
 	})
 	urlStr, err := req.Presign(15 * time.Minute)
 	if err != nil {
@@ -74,7 +75,13 @@ func (r *repositoryDocument) DownloadDocumentById(documentID int64) (string, err
 		return "", err
 	}
 
-	return DownloadDocument(repoRes.Name)
+	institutionName, err := r.documentRepository.GetInstitutionNameByDirectoryId(ctx, int64(repoRes.DirectoryID))
+
+	if err != nil {
+		return " ", err
+	}
+
+	return DownloadDocument(repoRes.Name, institutionName.Institution.InstitutionName)
 }
 
 func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {

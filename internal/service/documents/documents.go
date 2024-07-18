@@ -117,7 +117,7 @@ func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, 
 		return "", err
 	}
 
-	if !exist {
+	if exist {
 		return "", fmt.Errorf("the document does not exist")
 	}
 
@@ -126,7 +126,7 @@ func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, 
 		return "", err
 	}
 
-	return document, nil
+	return document, err
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
