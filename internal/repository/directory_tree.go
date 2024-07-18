@@ -67,6 +67,7 @@ func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, e
 			Id:       inst.DirectoryID,
 			ParentID: inst.ParentID.Int64,
 			Name:     inst.Name.String,
+			InstitutionID: inst.InstitutionID.Int32,
 		}
 	}
 	return &directorys, nil
@@ -84,6 +85,7 @@ func (r *repositoryDirectoryTree) ListDirectoryByParent(parentId int64) ([]*dto.
 			Id:       inst.DirectoryID,
 			ParentID: inst.ParentID.Int64,
 			Name:     inst.Name.String,
+			InstitutionID: inst.InstitutionID.Int32,
 		}
 	}
 	return directorys, nil

@@ -41,7 +41,7 @@ func (s *serviceDirectoryTree) Create(req *dto.CreateDirectoryTreeReq) (*dto.Cre
 		InstitutionID: pgtype.Int4{Int32: req.InstitutionID, Valid: true},
 		CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-
+	
 	r, err := s.directoryTreeRepository.CreateDirectory(repoReq)
 	if err != nil {
 		return nil, err
@@ -76,6 +76,7 @@ func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.G
 		Name:      directory.Name,
 		Open:      true,
 		ParentID:  directory.ParentID,
+		InstitutionID: directory.InstitutionID,
 		Directory: repoRes, Document: documents}, nil
 }
 
@@ -96,6 +97,7 @@ func (s *serviceDirectoryTree) GetRoute(req dto.GetDirectoryTreeReq) (*[]int64, 
 			Id:       directory.Id,
 			Name:     directory.Name,
 			ParentID: directory.Id,
+			InstitutionID: directory.InstitutionID,
 		},
 	)
 

@@ -103,7 +103,7 @@ func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, 
 const getDocumentByName = `-- name: GetDocumentByName :one
 SELECT directory_id, format_id, file_rute, status
 FROM document
-WHERE document_id = $1
+WHERE document_id = $1 AND deleted_at IS NULL
 `
 
 type GetDocumentByNameRow struct {
@@ -127,6 +127,7 @@ func (q *Queries) GetDocumentByName(ctx context.Context, documentID int64) (GetD
 
 const listDocuments = `-- name: ListDocuments :many
 SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
+WHERE deleted_at IS NULL
 ORDER BY document_id
 `
 
@@ -162,7 +163,7 @@ func (q *Queries) ListDocuments(ctx context.Context) ([]Document, error) {
 
 const listDocumentsByDirectory = `-- name: ListDocumentsByDirectory :many
 SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
-WHERE directory_id= $1
+WHERE directory_id= $1 AND deleted_at IS NULL
 ORDER BY document_id
 `
 
