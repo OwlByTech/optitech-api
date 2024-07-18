@@ -107,6 +107,7 @@ func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.
 }
 
 func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.CreateDocumentRes, error) {
+
 	ctx := context.Background()
 
 	res, err := r.documentRepository.CreateDocument(ctx, *arg)
@@ -117,6 +118,7 @@ func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.
 
 	return &dto.CreateDocumentRes{
 		DirectoryId: res.DirectoryID,
+		Name:        res.Name,
 		FormatId:    res.FormatID.Int32,
 		FileRute:    res.FileRute,
 		Status:      string(res.Status),
