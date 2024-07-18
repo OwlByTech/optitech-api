@@ -35,16 +35,8 @@ func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstituti
 	}
 }
 
-func (s *serviceInstitution) GetByClient(req cdto.GetClientReq) (*dto.GetInstitutionRes, error) {
-	institutionId, err := s.institutionRepository.GetInstitutionByClient(req.Id)
-	if err != nil {
-		return nil, err
-	}
-	repoRes, err := s.Get(dto.GetInstitutionReq{Id: institutionId})
-	if err != nil {
-		return nil, err
-	}
-	return repoRes, err
+func (s *serviceInstitution) GetByClient(req cdto.GetClientReq) (int32, error) {
+	return s.institutionRepository.GetInstitutionByClient(req.Id)
 }
 
 func (s *serviceInstitution) Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error) {

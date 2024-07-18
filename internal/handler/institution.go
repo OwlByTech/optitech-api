@@ -26,12 +26,16 @@ func (h *handlerInstitution) GetByClient(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
 	}
 
-	res, err := h.institutionService.GetByClient(clientDto.GetClientReq{Id: clientId})
+	res_id, err := h.institutionService.GetByClient(clientDto.GetClientReq{Id: clientId})
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	res, err := h.institutionService.Get(cdto.GetInstitutionReq{Id: res_id})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
 	return c.JSON(res)
 }
 

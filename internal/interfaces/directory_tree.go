@@ -19,12 +19,13 @@ type IDirectoryService interface {
 }
 
 type IDirectoryRepository interface {
-	GetDirectory(directoryID int64) (*dto.GetDirectoryTreeRes, error)
+	GetDirectory(req *models.GetDirectoryTreeParams) (*dto.GetDirectoryTreeRes, error)
+	GetDirectoryParentInstitution(institutionId int32) (*dto.GetDirectoryTreeRes, error)
 	CreateDirectory(arg *models.CreateDirectoryTreeParams) (*dto.CreateDirectoryTreeRes, error)
 	ListDirectory() (*[]dto.GetDirectoryTreeRes, error)
 	DeleteDirectory(arg *models.DeleteDirectoryTreeByIdParams) error
-	ListDirectoryByParent(parentId int64) ([]*dto.GetDirectoryTreeRes, error)
-	ListDirectoryHierarchy(childId int64) (*[]dto.GetDirectoryTreeRes, error)
+	ListDirectoryByParent(parentId int64, institutionId int32) ([]*dto.GetDirectoryTreeRes, error)
+	ListDirectoryHierarchy(childId int64, institutionId int32) (*[]dto.GetDirectoryTreeRes, error)
 	UpdateDirectoryTree(arg *models.UpdateDirectoryTreeByIdParams) error
 }
 

@@ -9,7 +9,7 @@ import (
 )
 
 type IInstitutionService interface {
-	GetByClient(req cdto.GetClientReq) (*dto.GetInstitutionRes, error)
+	GetByClient(req cdto.GetClientReq) (int32, error)
 	Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error)
 	Create(req *dto.CreateInstitutionReq) (*dto.CreateInstitutionRes, error)
 	Update(req *dto.UpdateInstitutionReq) (bool, error)

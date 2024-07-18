@@ -12,24 +12,26 @@ import (
 	services "optitech/internal/service/services"
 )
 
+var repositoryInstitutionService = repository.NewRepositoryInstitutionServices(&repository.Queries)
+var serviceInstitutionService = serviceInstitution.NewServiceInstitutionServices(repositoryInstitutionService)
+var repositoryInstitutionClient = repository.NewRepositoryInstitutionClient(&repository.Queries)
+var serviceInstitutionClient = institutionClient.NewServiceInstitutionClient(repositoryInstitutionClient)
+var repositoryInstitution = repository.NewRepositoryInstitution(&repository.Queries)
+var repositoryDirectoryTree = repository.NewRepositoryDirectoryTree(&repository.Queries)
+var repositoryDocuments = repository.NewRepositoryDocument(&repository.Queries)
+var serviceDocument = documentsService.NewServiceDocument(repositoryDocuments)
+var serviceDirectoryTree = directoryTreeService.NewServiceDirectory(repositoryDirectoryTree, serviceDocument)
+var repositoryServices = repository.NewRepositoryService(&repository.Queries)
+var serviceServices = services.NewServiceServices(repositoryServices)
+var ServiceInstitution = service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices)
+
 func (s *Server) RoutesInstitution() {
 	clientMiddleware := middleware.ClientMiddleware{
 		ClientService: SeviceClient,
 	}
 	r := s.app
-	repositoryInstitutionService := repository.NewRepositoryInstitutionServices(&repository.Queries)
-	serviceInstitutionService := serviceInstitution.NewServiceInstitutionServices(repositoryInstitutionService)
-	repositoryInstitutionClient := repository.NewRepositoryInstitutionClient(&repository.Queries)
-	serviceInstitutionClient := institutionClient.NewServiceInstitutionClient(repositoryInstitutionClient)
-	repositoryInstitution := repository.NewRepositoryInstitution(&repository.Queries)
-	repositoryDirectoryTree := repository.NewRepositoryDirectoryTree(&repository.Queries)
-	repositoryDocuments := repository.NewRepositoryDocument(&repository.Queries)
-	serviceDocument := documentsService.NewServiceDocument(repositoryDocuments)
-	serviceDirectoryTree := directoryTreeService.NewServiceDirectory(repositoryDirectoryTree, serviceDocument)
-	repositoryServices := repository.NewRepositoryService(&repository.Queries)
-	serviceServices := services.NewServiceServices(repositoryServices)
-	serviceInstitution := service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices)
-	handler := handler.NewHandlerInstitution(serviceInstitution)
+
+	handler := handler.NewHandlerInstitution(ServiceInstitution)
 	institutionRoute := r.Group("/api/institution")
 	institutionRoute.Post("/", clientMiddleware.ClientJWT, handler.Create)
 	institutionRoute.Get("/:id", handler.Get)
