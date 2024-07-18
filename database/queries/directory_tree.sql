@@ -1,16 +1,19 @@
 -- name: GetDirectoryTree :one
 SELECT * FROM directory_tree
-WHERE directory_id = $1 LIMIT 1;
+WHERE directory_id = $1 AND deleted_at IS NULL AND institution_id=$2 LIMIT 1 ;
+
+-- name: GetDirectoryTreeParent :one
+SELECT * FROM directory_tree
+WHERE parent_id IS NULL AND deleted_at IS NULL AND institution_id=$1 LIMIT 1 ;
 
 -- name: ListDirectoryTrees :many
 SELECT * FROM directory_tree
-ORDER BY directory_id;
+ORDER BY directory_id AND deleted_at IS NULL;
 
 -- name: ListDirectoryChildByParent :many
 SELECT *
 FROM directory_tree
-WHERE parent_id= $1;
-
+WHERE parent_id= $1 AND deleted_at IS NULL AND institution_id=$2;
 
 -- name: GetDirectoryTreeByName :one
 SELECT name
@@ -32,16 +35,16 @@ UPDATE directory_tree
 SET deleted_at = $1
 WHERE deleted_at IS NULL;
 
-
 -- name: ListDirectoryHierarchyById :many
 WITH RECURSIVE directory  AS (
   SELECT directory_id,name,parent_id
   FROM directory_tree dt
-  WHERE parent_id IS null
+  WHERE parent_id IS null AND dt.deleted_at IS NULL AND dt.institution_id=$1
   UNION ALL
   SELECT e.directory_id, e.name, e.parent_id
   FROM directory_tree  e
-  INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id where  e.directory_id<=$1
+  INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id
+    where  e.directory_id<=$2 AND e.deleted_at IS NULL  AND e.institution_id=$1
 )
 SELECT * FROM directory;
 

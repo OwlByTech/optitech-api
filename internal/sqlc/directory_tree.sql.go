@@ -73,11 +73,16 @@ func (q *Queries) DeleteDirectoryTreeById(ctx context.Context, arg DeleteDirecto
 
 const getDirectoryTree = `-- name: GetDirectoryTree :one
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
-WHERE directory_id = $1 LIMIT 1
+WHERE directory_id = $1 AND deleted_at IS NULL AND institution_id=$2 LIMIT 1
 `
 
-func (q *Queries) GetDirectoryTree(ctx context.Context, directoryID int64) (DirectoryTree, error) {
-	row := q.db.QueryRow(ctx, getDirectoryTree, directoryID)
+type GetDirectoryTreeParams struct {
+	DirectoryID   int64       `json:"directory_id"`
+	InstitutionID pgtype.Int4 `json:"institution_id"`
+}
+
+func (q *Queries) GetDirectoryTree(ctx context.Context, arg GetDirectoryTreeParams) (DirectoryTree, error) {
+	row := q.db.QueryRow(ctx, getDirectoryTree, arg.DirectoryID, arg.InstitutionID)
 	var i DirectoryTree
 	err := row.Scan(
 		&i.DirectoryID,
@@ -135,6 +140,24 @@ func (q *Queries) GetInstitutionNameByDirectoryId(ctx context.Context, directory
 		&i.DirectoryTree.CreatedAt,
 		&i.DirectoryTree.UpdatedAt,
 		&i.DirectoryTree.DeletedAt,
+
+const getDirectoryTreeParent = `-- name: GetDirectoryTreeParent :one
+SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
+WHERE parent_id IS NULL AND deleted_at IS NULL AND institution_id=$1 LIMIT 1
+`
+
+func (q *Queries) GetDirectoryTreeParent(ctx context.Context, institutionID pgtype.Int4) (DirectoryTree, error) {
+	row := q.db.QueryRow(ctx, getDirectoryTreeParent, institutionID)
+	var i DirectoryTree
+	err := row.Scan(
+		&i.DirectoryID,
+		&i.ParentID,
+		&i.InstitutionID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+
 	)
 	return i, err
 }
@@ -142,11 +165,16 @@ func (q *Queries) GetInstitutionNameByDirectoryId(ctx context.Context, directory
 const listDirectoryChildByParent = `-- name: ListDirectoryChildByParent :many
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at
 FROM directory_tree
-WHERE parent_id= $1
+WHERE parent_id= $1 AND deleted_at IS NULL AND institution_id=$2
 `
 
-func (q *Queries) ListDirectoryChildByParent(ctx context.Context, parentID pgtype.Int8) ([]DirectoryTree, error) {
-	rows, err := q.db.Query(ctx, listDirectoryChildByParent, parentID)
+type ListDirectoryChildByParentParams struct {
+	ParentID      pgtype.Int8 `json:"parent_id"`
+	InstitutionID pgtype.Int4 `json:"institution_id"`
+}
+
+func (q *Queries) ListDirectoryChildByParent(ctx context.Context, arg ListDirectoryChildByParentParams) ([]DirectoryTree, error) {
+	rows, err := q.db.Query(ctx, listDirectoryChildByParent, arg.ParentID, arg.InstitutionID)
 	if err != nil {
 		return nil, err
 	}
@@ -177,14 +205,20 @@ const listDirectoryHierarchyById = `-- name: ListDirectoryHierarchyById :many
 WITH RECURSIVE directory  AS (
   SELECT directory_id,name,parent_id
   FROM directory_tree dt
-  WHERE parent_id IS null
+  WHERE parent_id IS null AND dt.deleted_at IS NULL AND dt.institution_id=$1
   UNION ALL
   SELECT e.directory_id, e.name, e.parent_id
   FROM directory_tree  e
-  INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id where  e.directory_id<=$1
+  INNER JOIN directory_tree eh ON e.parent_id = eh.directory_id
+    where  e.directory_id<=$2 AND e.deleted_at IS NULL  AND e.institution_id=$1
 )
 SELECT directory_id, name, parent_id FROM directory
 `
+
+type ListDirectoryHierarchyByIdParams struct {
+	InstitutionID pgtype.Int4 `json:"institution_id"`
+	DirectoryID   int64       `json:"directory_id"`
+}
 
 type ListDirectoryHierarchyByIdRow struct {
 	DirectoryID int64       `json:"directory_id"`
@@ -192,8 +226,8 @@ type ListDirectoryHierarchyByIdRow struct {
 	ParentID    pgtype.Int8 `json:"parent_id"`
 }
 
-func (q *Queries) ListDirectoryHierarchyById(ctx context.Context, directoryID int64) ([]ListDirectoryHierarchyByIdRow, error) {
-	rows, err := q.db.Query(ctx, listDirectoryHierarchyById, directoryID)
+func (q *Queries) ListDirectoryHierarchyById(ctx context.Context, arg ListDirectoryHierarchyByIdParams) ([]ListDirectoryHierarchyByIdRow, error) {
+	rows, err := q.db.Query(ctx, listDirectoryHierarchyById, arg.InstitutionID, arg.DirectoryID)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +248,7 @@ func (q *Queries) ListDirectoryHierarchyById(ctx context.Context, directoryID in
 
 const listDirectoryTrees = `-- name: ListDirectoryTrees :many
 SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
-ORDER BY directory_id
+ORDER BY directory_id AND deleted_at IS NULL
 `
 
 func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, error) {

@@ -10,13 +10,12 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
-
-	"github.com/aws/aws-sdk-go/aws"
+  "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDocument struct {
@@ -61,8 +60,12 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	}
 
 	fileRute, err := UploadDocument(req.File, req.Name, institutionName.Institution.InstitutionName)
+    
 	if err != nil {
 		return nil, err
+	}
+	if req.FormatId > 0 {
+		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
 	repoReq.FileRute = fileRute
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
@@ -70,11 +73,8 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	if err != nil {
 		return nil, err
 	}
-	// TODO: RETURNS EMPTY JSON
-	document := &dto.CreateDocumentRes{
-		Id: repoRes.Id,
-	}
-	return document, err
+
+	return repoRes, err
 }
 
 func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionName string) (string, error) {
