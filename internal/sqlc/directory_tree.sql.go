@@ -109,6 +109,26 @@ func (q *Queries) GetDirectoryTreeByName(ctx context.Context, directoryID int64)
 	return name, err
 }
 
+const getDirectoryTreeParent = `-- name: GetDirectoryTreeParent :one
+SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
+WHERE parent_id IS NULL AND deleted_at IS NULL AND institution_id=$1 LIMIT 1
+`
+
+func (q *Queries) GetDirectoryTreeParent(ctx context.Context, institutionID pgtype.Int4) (DirectoryTree, error) {
+	row := q.db.QueryRow(ctx, getDirectoryTreeParent, institutionID)
+	var i DirectoryTree
+	err := row.Scan(
+		&i.DirectoryID,
+		&i.ParentID,
+		&i.InstitutionID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getInstitutionNameByDirectoryId = `-- name: GetInstitutionNameByDirectoryId :one
 SELECT i.institution_id, i.asesor_id, i.institution_name, i.logo, i.description, i.created_at, i.updated_at, i.deleted_at, dt.directory_id, dt.parent_id, dt.institution_id, dt.name, dt.created_at, dt.updated_at, dt.deleted_at
 FROM directory_tree dt
@@ -140,24 +160,6 @@ func (q *Queries) GetInstitutionNameByDirectoryId(ctx context.Context, directory
 		&i.DirectoryTree.CreatedAt,
 		&i.DirectoryTree.UpdatedAt,
 		&i.DirectoryTree.DeletedAt,
-
-const getDirectoryTreeParent = `-- name: GetDirectoryTreeParent :one
-SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
-WHERE parent_id IS NULL AND deleted_at IS NULL AND institution_id=$1 LIMIT 1
-`
-
-func (q *Queries) GetDirectoryTreeParent(ctx context.Context, institutionID pgtype.Int4) (DirectoryTree, error) {
-	row := q.db.QueryRow(ctx, getDirectoryTreeParent, institutionID)
-	var i DirectoryTree
-	err := row.Scan(
-		&i.DirectoryID,
-		&i.ParentID,
-		&i.InstitutionID,
-		&i.Name,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-
 	)
 	return i, err
 }
