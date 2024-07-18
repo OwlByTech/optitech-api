@@ -1,6 +1,6 @@
 -- name: GetDocument :one
 SELECT * FROM document
-WHERE document_id = $1 AND deleted_at IS NULL
+WHERE document_id = $1 AND deleted_at is null
 LIMIT 1;
 
 -- name: ListDocuments :many
@@ -28,6 +28,11 @@ RETURNING *;
 -- name: UpdateDocumentById :exec
 UPDATE document
 SET  directory_id = $2, format_id = $3, file_rute = $4, status = $5, updated_at = $6
+WHERE document_id = $1;
+
+-- name: UpdateDocumentNameById :exec
+UPDATE document
+SET name = $2, updated_at = $3
 WHERE document_id = $1;
 
 -- name: DeleteDocumentById :exec

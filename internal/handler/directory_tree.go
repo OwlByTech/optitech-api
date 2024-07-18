@@ -141,7 +141,7 @@ func (h *handlerDirectoryTree) Update(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Entrada no válida: "+err.Error())
+		return fiber.NewError(fiber.StatusBadRequest, "Unvalid entry: "+err.Error())
 	}
 
 	if err := dto.ValidateDTO(req); err != nil {

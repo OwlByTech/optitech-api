@@ -79,12 +79,8 @@ func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentById
 
 const getDocument = `-- name: GetDocument :one
 SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
-<<<<<<< Updated upstream
-WHERE document_id = $1 LIMIT 1
-=======
-WHERE document_id = $1 AND deleted_at IS NULL
+WHERE document_id = $1 AND deleted_at is null
 LIMIT 1
->>>>>>> Stashed changes
 `
 
 func (q *Queries) GetDocument(ctx context.Context, documentID int64) (Document, error) {
@@ -225,5 +221,22 @@ func (q *Queries) UpdateDocumentById(ctx context.Context, arg UpdateDocumentById
 		arg.Status,
 		arg.UpdatedAt,
 	)
+	return err
+}
+
+const updateDocumentNameById = `-- name: UpdateDocumentNameById :exec
+UPDATE document
+SET name = $2, updated_at = $3
+WHERE document_id = $1
+`
+
+type UpdateDocumentNameByIdParams struct {
+	DocumentID int64            `json:"document_id"`
+	Name       string           `json:"name"`
+	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
+}
+
+func (q *Queries) UpdateDocumentNameById(ctx context.Context, arg UpdateDocumentNameByIdParams) error {
+	_, err := q.db.Exec(ctx, updateDocumentNameById, arg.DocumentID, arg.Name, arg.UpdatedAt)
 	return err
 }
