@@ -17,6 +17,11 @@ type repositoryDocument struct {
 	documentRepository *sq.Queries
 }
 
+// GetEndpointExists implements interfaces.IDocumentRepository.
+func (r *repositoryDocument) GetEndpointExists(fileRute string) (bool, error) {
+	panic("unimplemented")
+}
+
 func NewRepositoryDocument(q *sq.Queries) interfaces.IDocumentRepository {
 	return &repositoryDocument{
 		documentRepository: q,
@@ -135,4 +140,9 @@ func (r *repositoryDocument) ExistsDocuments(documentID int64) bool {
 func (r *repositoryDocument) GetInstitutionByDocumentId(documentId int64) (sq.GetInstitutionNameByDirectoryIdRow, error) {
 	ctx := context.Background()
 	return r.documentRepository.GetInstitutionNameByDirectoryId(ctx, (documentId))
+}
+
+func (r *repositoryDocument) GetEnpointExists(fileRute string) (bool, error) {
+	ctx := context.Background()
+	return r.documentRepository.ExistEndpoint(ctx, (fileRute))
 }

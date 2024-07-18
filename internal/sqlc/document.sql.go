@@ -77,6 +77,20 @@ func (q *Queries) DeleteDocumentById(ctx context.Context, arg DeleteDocumentById
 	return err
 }
 
+const existEndpoint = `-- name: ExistEndpoint :one
+SELECT COUNT(file_rute) > 0
+FROM document
+WHERE file_rute = $1
+LIMIT 1
+`
+
+func (q *Queries) ExistEndpoint(ctx context.Context, fileRute string) (bool, error) {
+	row := q.db.QueryRow(ctx, existEndpoint, fileRute)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const existsDocument = `-- name: ExistsDocument :one
 SELECT document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at FROM document
 WHERE document_id = $1 AND deleted_at IS NOT NULL

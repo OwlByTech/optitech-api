@@ -45,6 +45,13 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		return nil, err
 	}
 
+	endpoint := fmt.Sprintf("%s%s/%s", cnf.Env.DigitalOceanFilesEndpoint, institutionName.Institution.InstitutionName, req.Name)
+	exists, err := s.documentRepository.GetEndpointExists(endpoint)
+
+	if exists {
+		return nil, err
+	}
+
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: false},
@@ -82,6 +89,7 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 	sess, err := session.NewSession(s3Config)
 
 	if err != nil {
+
 		return "", err
 	}
 	uploader := s3manager.NewUploader(sess)
