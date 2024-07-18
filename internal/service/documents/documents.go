@@ -89,7 +89,6 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 	sess, err := session.NewSession(s3Config)
 
 	if err != nil {
-
 		return "", err
 	}
 	uploader := s3manager.NewUploader(sess)
