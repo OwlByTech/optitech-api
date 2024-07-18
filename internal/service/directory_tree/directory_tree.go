@@ -200,3 +200,29 @@ func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error)
 
 	return true, nil
 }
+
+func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, error) {
+	directory, err := s.Get(dto.GetDirectoryTreeReq{Id: req.DirectoryId})
+
+	if err != nil {
+		return false, err
+	}
+
+	repoReq := &sq.UpdateDirectoryTreeByIdParams{
+		DirectoryID: req.DirectoryId,
+		Name:        pgtype.Text{String: directory.Name, Valid: true},
+		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if req.Name != "" {
+		repoReq.Name = pgtype.Text{String: req.Name, Valid: true}
+	}
+
+	err = s.directoryTreeRepository.UpdateDirectoryTree(repoReq)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

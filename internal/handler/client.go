@@ -70,7 +70,6 @@ func (h *handlerClient) Create(c *fiber.Ctx) error {
 }
 
 func (h *handlerClient) Update(c *fiber.Ctx) error {
-
 	params_id := c.AllParams()
 	req_id := &cdto.GetClientReq{}
 	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {

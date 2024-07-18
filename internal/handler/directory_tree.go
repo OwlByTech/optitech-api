@@ -5,6 +5,7 @@ import (
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
+	"strconv"
 )
 
 type handlerDirectoryTree struct {
@@ -140,4 +141,39 @@ func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(res)
+}
+
+func (h *handlerDirectoryTree) Update(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "ID inválido")
+	}
+
+	req_id := &ddto.GetDirectoryTreeReq{
+		Id: id,
+	}
+
+	if err := dto.ValidateDTO(req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	req := &ddto.UpdateDirectoryTreeReq{
+		DirectoryId: req_id.Id,
+	}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Unvalid entry: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.directoryTreeService.Update(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(success)
 }

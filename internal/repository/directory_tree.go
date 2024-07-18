@@ -2,10 +2,11 @@ package repository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type repositoryDirectoryTree struct {
@@ -127,4 +128,9 @@ func (r *repositoryDirectoryTree) ListDirectoryHierarchy(childId int64, institut
 func (r *repositoryDirectoryTree) DeleteDirectory(arg *sq.DeleteDirectoryTreeByIdParams) error {
 	ctx := context.Background()
 	return r.directoryRepository.DeleteDirectoryTreeById(ctx, *arg)
+}
+
+func (r *repositoryDirectoryTree) UpdateDirectoryTree(arg *sq.UpdateDirectoryTreeByIdParams) error {
+	ctx := context.Background()
+	return r.directoryRepository.UpdateDirectoryTreeById(ctx, *arg)
 }
