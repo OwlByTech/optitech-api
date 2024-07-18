@@ -5,7 +5,6 @@ import (
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
-	"strconv"
 )
 
 type handlerDirectoryTree struct {
@@ -144,22 +143,21 @@ func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
 }
 
 func (h *handlerDirectoryTree) Update(c *fiber.Ctx) error {
-	idStr := c.Params("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "ID inválido")
+	data := c.Locals("institutionId")
+	institutionId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
 	}
+	params_id := c.AllParams()
+	req_id := &ddto.GetDirectoryTreeReq{}
 
-	req_id := &ddto.GetDirectoryTreeReq{
-		Id: id,
-	}
-
-	if err := dto.ValidateDTO(req_id); err != nil {
+	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	req := &ddto.UpdateDirectoryTreeReq{
-		DirectoryId: req_id.Id,
+		DirectoryId:   req_id.Id,
+		InstitutionID: institutionId,
 	}
 
 	if err := c.BodyParser(req); err != nil {

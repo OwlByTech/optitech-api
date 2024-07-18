@@ -202,7 +202,7 @@ func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error)
 }
 
 func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, error) {
-	directory, err := s.Get(dto.GetDirectoryTreeReq{Id: req.DirectoryId})
+	directory, err := s.Get(dto.GetDirectoryTreeReq{Id: req.DirectoryId, InstitutionID: req.InstitutionID})
 
 	if err != nil {
 		return false, err
