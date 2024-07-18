@@ -3,9 +3,9 @@ package dto
 import "mime/multipart"
 
 type CreateDocumentReq struct {
-	DirectoryId int32  `json:"directoryId" validate:"required"`
-	FormatId    int32  `json:"formatId" validate:"required"`
-	Name        string `json:"name" validate:"required"`
+	DirectoryId int32 `json:"directoryId" validate:"required"`
+	FormatId    int32 `json:"formatId" `
+	Name        string
 	File        *multipart.FileHeader
 	Status      string `json:"status" validate:"required"`
 }
