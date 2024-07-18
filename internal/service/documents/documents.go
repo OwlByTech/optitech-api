@@ -139,9 +139,17 @@ func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
 }
 
 func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, error) {
+
+	institutionName, err := s.documentRepository.GetInstitutionByDocumentId(int64(req.DirectoryID))
+
+	if err != nil {
+		return false, err
+	}
+
 	repoReq := &sq.UpdateDocumentNameByIdParams{
 		DocumentID: req.Id,
 		Name:       req.Name,
+		FileRute:   fmt.Sprintf("%s%s/%s", cnf.Env.DigitalOceanFilesEndpoint, institutionName.Institution.InstitutionName, req.Name),
 		UpdatedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 

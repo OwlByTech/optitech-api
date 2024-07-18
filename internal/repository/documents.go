@@ -137,9 +137,9 @@ func (r *repositoryDocument) ExistsDocuments(documentID int64) bool {
 	return err == nil
 }
 
-func (r *repositoryDocument) GetInstitutionByDocumentId(documentId int64) (sq.GetInstitutionNameByDirectoryIdRow, error) {
+func (r *repositoryDocument) GetInstitutionByDocumentId(directoryId int64) (sq.GetInstitutionNameByDirectoryIdRow, error) {
 	ctx := context.Background()
-	return r.documentRepository.GetInstitutionNameByDirectoryId(ctx, (documentId))
+	return r.documentRepository.GetInstitutionNameByDirectoryId(ctx, (directoryId))
 }
 
 func (r *repositoryDocument) GetEnpointExists(fileRute string) (bool, error) {

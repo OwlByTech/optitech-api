@@ -26,7 +26,7 @@ type IDocumentRepository interface {
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
 	ExistsDocuments(documentID int64) bool
 	GetEndpointExists(fileRute string) (bool, error)
-	GetInstitutionByDocumentId(documentID int64) (models.GetInstitutionNameByDirectoryIdRow, error)
+	GetInstitutionByDocumentId(directoryId int64) (models.GetInstitutionNameByDirectoryIdRow, error)
 }
 
 type IDocumentHandler interface {
