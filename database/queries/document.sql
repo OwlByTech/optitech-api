@@ -1,11 +1,7 @@
 -- name: GetDocument :one
 SELECT * FROM document
-<<<<<<< Updated upstream
-WHERE document_id = $1 LIMIT 1;
-=======
 WHERE document_id = $1 AND deleted_at IS NULL
 LIMIT 1;
->>>>>>> Stashed changes
 
 -- name: ListDocuments :many
 SELECT * FROM document
