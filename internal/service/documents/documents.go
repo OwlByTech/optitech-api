@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
@@ -55,8 +54,6 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	}
 
 	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
-
-	log.Print(rute)
 
 	fileRute, err := UploadDocument(req.File, rute, institutionName.Institution.InstitutionName)
 
@@ -168,8 +165,6 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 
 /*
 func RenameDocument(oldName string, newName string) error {
-
-	log.Print(oldName, newName)
 
 	s3Config := cnf.GetS3Config()
 
