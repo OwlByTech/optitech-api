@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"log"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
@@ -206,8 +205,6 @@ func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error)
 func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, error) {
 	directory, err := s.Get(dto.GetDirectoryTreeReq{Id: req.DirectoryId, InstitutionID: req.InstitutionID})
 
-	log.Print(directory)
-
 	if err != nil {
 		return false, err
 	}
@@ -216,10 +213,17 @@ func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, er
 		DirectoryID: req.DirectoryId,
 		Name:        pgtype.Text{String: directory.Name, Valid: true},
 		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+		ParentID:    pgtype.Int8{Int64: directory.ParentID, Valid: true},
 	}
 
 	if req.Name != "" {
 		repoReq.Name = pgtype.Text{String: req.Name, Valid: true}
+	}
+
+	if req.ParentID != 0 {
+		repoReq.ParentID = pgtype.Int8{Int64: req.ParentID, Valid: true}
+	} else {
+		repoReq.ParentID = pgtype.Int8{Int64: directory.ParentID, Valid: true}
 	}
 
 	err = s.directoryTreeRepository.UpdateDirectoryTree(repoReq)
