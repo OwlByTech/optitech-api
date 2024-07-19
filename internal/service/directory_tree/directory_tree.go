@@ -2,11 +2,13 @@ package service
 
 import (
 	"errors"
-	"github.com/jackc/pgx/v5/pgtype"
+	"log"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDirectoryTree struct {
@@ -203,6 +205,8 @@ func (s *serviceDirectoryTree) Delete(req dto.GetDirectoryTreeReq) (bool, error)
 
 func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, error) {
 	directory, err := s.Get(dto.GetDirectoryTreeReq{Id: req.DirectoryId, InstitutionID: req.InstitutionID})
+
+	log.Print(directory)
 
 	if err != nil {
 		return false, err
