@@ -2,11 +2,12 @@ package service
 
 import (
 	"errors"
-	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDirectoryTree struct {
@@ -212,10 +213,17 @@ func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, er
 		DirectoryID: req.DirectoryId,
 		Name:        pgtype.Text{String: directory.Name, Valid: true},
 		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+		ParentID:    pgtype.Int8{Int64: directory.ParentID, Valid: true},
 	}
 
 	if req.Name != "" {
 		repoReq.Name = pgtype.Text{String: req.Name, Valid: true}
+	}
+
+	if req.ParentID != 0 {
+		repoReq.ParentID = pgtype.Int8{Int64: req.ParentID, Valid: true}
+	} else {
+		repoReq.ParentID = pgtype.Int8{Int64: directory.ParentID, Valid: true}
 	}
 
 	err = s.directoryTreeRepository.UpdateDirectoryTree(repoReq)

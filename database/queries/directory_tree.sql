@@ -50,7 +50,7 @@ SELECT * FROM directory;
 
 -- name: UpdateDirectoryTreeById :exec
 UPDATE directory_tree
-SET name = $2, updated_at = $3
+SET name = $2, updated_at = $3, parent_id = $4
 WHERE directory_id = $1;
 
 -- name: GetInstitutionNameByDirectoryId :one
