@@ -43,7 +43,7 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
-func DownloadDocument(rute string, directory string) (string, error) {
+func DownloadDocument(route string, directory string) (string, error) {
 
 	s3Config := cnf.GetS3Config()
 
