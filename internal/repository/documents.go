@@ -56,7 +56,7 @@ func DownloadDocument(route string, directory string) (string, error) {
 
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", directory, rute)),
+		Key:    aws.String(fmt.Sprintf("%s/%s", directory, route)),
 	})
 	urlStr, err := req.Presign(15 * time.Minute)
 	if err != nil {
