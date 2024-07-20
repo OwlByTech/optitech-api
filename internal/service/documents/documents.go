@@ -2,19 +2,21 @@ package service
 
 import (
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/jackc/pgx/v5/pgtype"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+	"path/filepath"
+	"strconv"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDocument struct {
@@ -43,13 +45,6 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		return nil, err
 	}
 
-	endpoint := fmt.Sprintf("%s%s/%s", cnf.Env.DigitalOceanFilesEndpoint, institutionName.Institution.InstitutionName, req.File.Filename)
-	exists, err := s.documentRepository.GetEndpointExists(endpoint)
-
-	if exists {
-		return nil, err
-	}
-
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: false},
@@ -58,11 +53,14 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	fileRute, err := UploadDocument(req.File, req.File.Filename, institutionName.Institution.InstitutionName)
+	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
+
+	fileRute, err := UploadDocument(req.File, rute, institutionName.Institution.InstitutionName)
 
 	if err != nil {
 		return nil, err
 	}
+
 	if req.FormatId > 0 {
 		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
@@ -97,7 +95,7 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 		return "", err
 	}
 
-	result, err := uploader.Upload(&s3manager.UploadInput{
+	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
 		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
 		Body:   file,
@@ -106,7 +104,7 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 		return "", err
 	}
 	defer file.Close()
-	return aws.StringValue(&result.Location), nil
+	return name, nil
 }
 
 func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
@@ -143,26 +141,21 @@ func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
 
 func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, error) {
 
-	institutionName, err := s.documentRepository.GetInstitutionByDocumentId(int64(req.DirectoryID))
-
-	if err != nil {
-		return false, err
-	}
-
 	repoReq := &sq.UpdateDocumentNameByIdParams{
 		DocumentID: req.Id,
 		Name:       req.Name,
-		FileRute:   fmt.Sprintf("%s%s/%s", cnf.Env.DigitalOceanFilesEndpoint, institutionName.Institution.InstitutionName, req.Name),
 		UpdatedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
+	/*
+		repoRes, err := s.documentRepository.GetDocument(req.Id)
 
-	repoRes, err := s.documentRepository.GetDocument(req.Id)
+		if err != nil {
+			return false, err
+		}
 
-	if err != nil {
-		return false, err
-	}
+		RenameDocument(repoRes.Name, fileName)
 
-	RenameDocument(repoRes.Name, req.Name)
+	*/
 
 	if err := s.documentRepository.UpdateDocument(repoReq); err != nil {
 		return false, nil
@@ -170,7 +163,9 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 	return true, nil
 }
 
-func RenameDocument(oldName, newName string) error {
+/*
+func RenameDocument(oldName string, newName string) error {
+
 	s3Config := cnf.GetS3Config()
 
 	sess, err := session.NewSession(s3Config)
@@ -199,3 +194,4 @@ func RenameDocument(oldName, newName string) error {
 
 	return nil
 }
+*/

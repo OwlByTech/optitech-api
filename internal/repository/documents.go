@@ -43,7 +43,7 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 	}, nil
 }
 
-func DownloadDocument(name string, directory string) (string, error) {
+func DownloadDocument(route string, directory string) (string, error) {
 
 	s3Config := cnf.GetS3Config()
 
@@ -56,7 +56,7 @@ func DownloadDocument(name string, directory string) (string, error) {
 
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", directory, name)),
+		Key:    aws.String(fmt.Sprintf("%s/%s", directory, route)),
 	})
 	urlStr, err := req.Presign(15 * time.Minute)
 	if err != nil {
@@ -81,7 +81,7 @@ func (r *repositoryDocument) DownloadDocumentById(documentID int64) (string, err
 		return " ", err
 	}
 
-	return DownloadDocument(repoRes.Name, institutionName.Institution.InstitutionName)
+	return DownloadDocument(repoRes.FileRute, institutionName.Institution.InstitutionName)
 }
 
 func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {
