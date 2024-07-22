@@ -1,0 +1,11 @@
+# Production files
+bin
+
+.env
+.air
+.docker-volumes
+
+## html to templates
+internal/service/mailing/templates/*.html
+
+uploads
