@@ -2,21 +2,15 @@ package service
 
 import (
 	"fmt"
-	"mime/multipart"
-	cnf "optitech/internal/config"
+	"github.com/jackc/pgx/v5/pgtype"
 	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
+	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
 	"path/filepath"
 	"strconv"
 	"time"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDocument struct {
@@ -55,7 +49,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 
 	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
 
-	fileRute, err := UploadDocument(req.File, rute, institutionName.Institution.InstitutionName)
+	fileRute, err := digitalOcean.UploadDocument(req.File, rute, institutionName.Institution.InstitutionName)
 
 	if err != nil {
 		return nil, err
@@ -74,39 +68,6 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	return repoRes, err
 }
 
-func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionName string) (string, error) {
-
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
-		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.Env.DigitalOceanRegion),
-	}
-
-	sess, err := session.NewSession(s3Config)
-
-	if err != nil {
-		return "", err
-	}
-	uploader := s3manager.NewUploader(sess)
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return "", err
-	}
-
-	_, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
-		Body:   file,
-	})
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	return name, nil
-}
-
 func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
 
 	exist, err := s.documentRepository.ExistsDocuments(req.Id)
@@ -123,7 +84,11 @@ func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, 
 		return "", err
 	}
 
-	return document, err
+	route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
+	if err != nil {
+		return "", err
+	}
+	return route, err
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
