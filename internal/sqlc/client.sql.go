@@ -122,6 +122,18 @@ func (q *Queries) GetClientByEmail(ctx context.Context, email string) (Client, e
 	return i, err
 }
 
+const getClientPhoto = `-- name: GetClientPhoto :one
+SELECT photo FROM client
+WHERE client_id = $1
+`
+
+func (q *Queries) GetClientPhoto(ctx context.Context, clientID int32) (pgtype.Text, error) {
+	row := q.db.QueryRow(ctx, getClientPhoto, clientID)
+	var photo pgtype.Text
+	err := row.Scan(&photo)
+	return photo, err
+}
+
 const listClients = `-- name: ListClients :many
 SELECT client_id, given_name, surname, photo, email, password, status, created_at, updated_at, deleted_at FROM client
 ORDER BY given_name
