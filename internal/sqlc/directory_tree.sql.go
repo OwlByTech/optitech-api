@@ -291,7 +291,7 @@ func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, erro
 
 const updateDirectoryTreeById = `-- name: UpdateDirectoryTreeById :exec
 UPDATE directory_tree
-SET name = $2, updated_at = $3, parent_id = $4, asesor_id=5
+SET name = $2, updated_at = $3, parent_id = $4, asesor_id = $5
 WHERE directory_id = $1
 `
 
@@ -300,6 +300,7 @@ type UpdateDirectoryTreeByIdParams struct {
 	Name        pgtype.Text      `json:"name"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 	ParentID    pgtype.Int8      `json:"parent_id"`
+	AsesorID    pgtype.Int4      `json:"asesor_id"`
 }
 
 func (q *Queries) UpdateDirectoryTreeById(ctx context.Context, arg UpdateDirectoryTreeByIdParams) error {
@@ -308,6 +309,7 @@ func (q *Queries) UpdateDirectoryTreeById(ctx context.Context, arg UpdateDirecto
 		arg.Name,
 		arg.UpdatedAt,
 		arg.ParentID,
+		arg.AsesorID,
 	)
 	return err
 }
