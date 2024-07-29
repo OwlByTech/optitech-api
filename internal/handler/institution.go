@@ -55,6 +55,20 @@ func (h *handlerInstitution) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+func (h *handlerInstitution) GetLogo(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &cdto.GetInstitutionReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	res, err := h.institutionService.GetLogo(*req)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return c.JSON(res)
+}
+
 func (h *handlerInstitution) List(c *fiber.Ctx) error {
 
 	res, err := h.institutionService.List()
