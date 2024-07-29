@@ -12,3 +12,8 @@ type GetDocumentRes struct {
 	FileRute    string `json:"fileRute"`
 	Status      string `json:"status"`
 }
+
+type GetDocumentDownloadRes struct {
+	InstitutionName string `json:"name"`
+	FileRute        string `json:"fileRute"`
+}
