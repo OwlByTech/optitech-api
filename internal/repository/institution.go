@@ -33,6 +33,21 @@ func (r *repositoryInstitution) GetInstitution(InstitutionID int32) (*dto.GetIns
 	}, nil
 }
 
+func (r *repositoryInstitution) GetInstitutionLogo(InstitutionID int32) (*dto.GetInstitutionRes, error) {
+
+	ctx := context.Background()
+	repoRes, err := r.institutionRepository.GetInstitutionLogo(ctx, InstitutionID)
+
+	if err != nil {
+		return nil, err
+	}
+	return &dto.GetInstitutionRes{
+		InstitutionName: repoRes.InstitutionName,
+		Logo:            repoRes.Logo.String,
+	}, nil
+
+}
+
 func (r *repositoryInstitution) GetInstitutionByClient(ClientID int32) (int32, error) {
 	ctx := context.Background()
 	return r.institutionRepository.GetInstitutionByClient(ctx, ClientID)
