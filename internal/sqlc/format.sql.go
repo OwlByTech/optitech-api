@@ -13,23 +13,27 @@ import (
 )
 
 const createFormat = `-- name: CreateFormat :one
-INSERT INTO format(asesor_id, format_name, description, extension, version, created_at)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO format(updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at
 `
 
 type CreateFormatParams struct {
-	AsesorID    int32            `json:"asesor_id"`
-	FormatName  string           `json:"format_name"`
-	Description string           `json:"description"`
-	Extension   Extensions       `json:"extension"`
-	Version     string           `json:"version"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedFormatID pgtype.Int4      `json:"updated_format_id"`
+	AsesorID        int32            `json:"asesor_id"`
+	ServiceID       pgtype.Int4      `json:"service_id"`
+	FormatName      string           `json:"format_name"`
+	Description     string           `json:"description"`
+	Extension       Extensions       `json:"extension"`
+	Version         string           `json:"version"`
+	CreatedAt       pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (Format, error) {
 	row := q.db.QueryRow(ctx, createFormat,
+		arg.UpdatedFormatID,
 		arg.AsesorID,
+		arg.ServiceID,
 		arg.FormatName,
 		arg.Description,
 		arg.Extension,
@@ -161,7 +165,7 @@ func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 
 const updateFormatById = `-- name: UpdateFormatById :exec
 UPDATE format
-SET format_name = $2, description = $3, extension=$4, version=$5, updated_at=$6
+SET format_name = $2, description = $3, extension=$4, version=$5, service_id=$6, updated_at=$7
 WHERE format_id = $1
 `
 
@@ -171,6 +175,7 @@ type UpdateFormatByIdParams struct {
 	Description string           `json:"description"`
 	Extension   Extensions       `json:"extension"`
 	Version     string           `json:"version"`
+	ServiceID   pgtype.Int4      `json:"service_id"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 }
 
@@ -181,6 +186,7 @@ func (q *Queries) UpdateFormatById(ctx context.Context, arg UpdateFormatByIdPara
 		arg.Description,
 		arg.Extension,
 		arg.Version,
+		arg.ServiceID,
 		arg.UpdatedAt,
 	)
 	return err

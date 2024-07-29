@@ -13,8 +13,8 @@ import (
 )
 
 const createDirectoryTree = `-- name: CreateDirectoryTree :one
-INSERT INTO directory_tree(parent_id, name, created_at, institution_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO directory_tree(parent_id, name, created_at, institution_id, asesor_id)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING directory_id, parent_id, institution_id, name, asesor_id, created_at, updated_at, deleted_at
 `
 
@@ -23,6 +23,7 @@ type CreateDirectoryTreeParams struct {
 	Name          pgtype.Text      `json:"name"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	InstitutionID pgtype.Int4      `json:"institution_id"`
+	AsesorID      pgtype.Int4      `json:"asesor_id"`
 }
 
 func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTreeParams) (DirectoryTree, error) {
@@ -31,6 +32,7 @@ func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTr
 		arg.Name,
 		arg.CreatedAt,
 		arg.InstitutionID,
+		arg.AsesorID,
 	)
 	var i DirectoryTree
 	err := row.Scan(
@@ -289,7 +291,7 @@ func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, erro
 
 const updateDirectoryTreeById = `-- name: UpdateDirectoryTreeById :exec
 UPDATE directory_tree
-SET name = $2, updated_at = $3, parent_id = $4
+SET name = $2, updated_at = $3, parent_id = $4, asesor_id=5
 WHERE directory_id = $1
 `
 
