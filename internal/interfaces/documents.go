@@ -22,7 +22,7 @@ type IDocumentRepository interface {
 	CreateDocument(arg *models.CreateDocumentParams) (*d.CreateDocumentRes, error)
 	ListDocumentByDirectory(directoryID int32) (*[]d.GetDocumentRes, error)
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
-	DownloadDocumentById(documentID int64) (string, error)
+	DownloadDocumentById(documentID int64) (*d.GetDocumentDownloadRes, error)
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
 	ExistsDocuments(documentID int64) (bool, error)
 	GetEndpointExists(fileRute string) (bool, error)

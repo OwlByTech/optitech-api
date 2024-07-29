@@ -39,7 +39,8 @@ func (s *Server) RoutesInstitution() {
 	institutionRoute.Get("/all", handler.List)
 	institutionRoute.Delete("/:id", handler.Delete)
 	institutionRoute.Put("/:id", handler.Update)
-	institutionRoute.Put("/logo/:id", clientMiddleware.ClientJWT, handler.UpdateLogo)
+	institutionRoute.Post("/logo/:id", clientMiddleware.ClientJWT, handler.UpdateLogo)
+	institutionRoute.Get("/logo/:id", clientMiddleware.ClientJWT, handler.GetLogo)
 	institutionRoute.Post("/asesor", handler.UpdateAsesor)
 
 }

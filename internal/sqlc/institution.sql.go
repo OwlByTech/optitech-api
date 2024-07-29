@@ -120,6 +120,23 @@ func (q *Queries) GetInstitutionByName(ctx context.Context, institutionName stri
 	return i, err
 }
 
+const getInstitutionLogo = `-- name: GetInstitutionLogo :one
+SELECT logo,institution_name FROM institution
+WHERE institution_id= $1
+`
+
+type GetInstitutionLogoRow struct {
+	Logo            pgtype.Text `json:"logo"`
+	InstitutionName string      `json:"institution_name"`
+}
+
+func (q *Queries) GetInstitutionLogo(ctx context.Context, institutionID int32) (GetInstitutionLogoRow, error) {
+	row := q.db.QueryRow(ctx, getInstitutionLogo, institutionID)
+	var i GetInstitutionLogoRow
+	err := row.Scan(&i.Logo, &i.InstitutionName)
+	return i, err
+}
+
 const listInstitutions = `-- name: ListInstitutions :many
 SELECT institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
 WHERE deleted_at IS NULL

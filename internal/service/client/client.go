@@ -2,15 +2,14 @@ package service
 
 import (
 	"fmt"
-	"io"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
 	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
 	"optitech/internal/security"
+	digitalOcean "optitech/internal/service/digital_ocean"
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
-	"os"
 	"strconv"
 	"time"
 
@@ -21,6 +20,8 @@ type serviceClient struct {
 	clientRepository interfaces.IClientRepository
 	clientRoleServie interfaces.IClientRoleService
 }
+
+const assets = "assets"
 
 func NewServiceClient(r interfaces.IClientRepository, clientRoleServie interfaces.IClientRoleService) interfaces.IClientService {
 	return &serviceClient{
@@ -39,9 +40,18 @@ func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
 	res.Role = *role
 
 	return res, nil
-
 }
-
+func (s *serviceClient) GetPhoto(req dto.GetClientReq) (string, error) {
+	photo, err := s.clientRepository.GetClientPhoto(req.Id)
+	if err != nil {
+		return "", err
+	}
+	route, err := digitalOcean.DownloadDocument(photo, assets)
+	if err != nil {
+		return "", err
+	}
+	return route, nil
+}
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
 	hash, err := security.BcryptHashPassword(req.Password)
 	if err != nil {
@@ -151,24 +161,12 @@ func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error)
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 	if req.Photo != nil {
-		nameFile := "client" + strconv.Itoa(int(req.ClientId)) + "_photo_" + req.Photo.Filename
-
-		multipart, err := req.Photo.Open()
+		nameFile := fmt.Sprintf("%s%s", "photo_", strconv.Itoa(int(repoReq.ClientID)))
+		name, err := digitalOcean.UploadDocument(req.Photo, nameFile, assets)
 		if err != nil {
 			return false, err
 		}
-		defer multipart.Close()
-		savePath := fmt.Sprintf("./uploads/%s", nameFile)
-
-		outFile, err := os.Create(savePath)
-		if err != nil {
-			return false, err
-		}
-		defer outFile.Close()
-		if _, err = io.Copy(outFile, multipart); err != nil {
-			return false, err
-		}
-		repoReq.Photo = pgtype.Text{String: nameFile, Valid: true}
+		repoReq.Photo = pgtype.Text{String: name, Valid: true}
 	}
 
 	if err := s.clientRepository.UpdatePhotoClient(repoReq); err != nil {

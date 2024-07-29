@@ -231,7 +231,7 @@ func (ns NullStatusClient) Value() (driver.Value, error) {
 
 type Asesor struct {
 	AsesorID  int32            `json:"asesor_id"`
-	About     string           `json:"about"`
+	About     pgtype.Text      `json:"about"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`

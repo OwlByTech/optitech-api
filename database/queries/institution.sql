@@ -4,6 +4,10 @@ WHERE institution_id = $1
 AND deleted_at IS NULL
 LIMIT 1;
 
+-- name: GetInstitutionLogo :one
+SELECT logo,institution_name FROM institution
+WHERE institution_id= $1;
+
 -- name: GetInstitutionByClient :one
 SELECT  i.institution_id FROM institution i
 INNER JOIN institution_client ON i.institution_id=institution_client.institution_id

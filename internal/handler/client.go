@@ -32,6 +32,19 @@ func (h *handlerClient) Get(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+func (h *handlerClient) GetPhoto(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &cdto.GetClientReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.clientService.GetPhoto(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return c.JSON(res)
+}
 
 func (h *handlerClient) GetSecure(c *fiber.Ctx) error {
 	data := c.Locals("clientId")

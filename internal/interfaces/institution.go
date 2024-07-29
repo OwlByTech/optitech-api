@@ -11,6 +11,7 @@ import (
 type IInstitutionService interface {
 	GetByClient(req cdto.GetClientReq) (int32, error)
 	Get(req dto.GetInstitutionReq) (*dto.GetInstitutionRes, error)
+	GetLogo(req dto.GetInstitutionReq) (string, error)
 	Create(req *dto.CreateInstitutionReq) (*dto.CreateInstitutionRes, error)
 	Update(req *dto.UpdateInstitutionReq) (bool, error)
 	UpdateAsesor(req *dto.UpdateAsesorInstitutionReq) (bool, error)
@@ -21,6 +22,7 @@ type IInstitutionService interface {
 type IInstitutionRepository interface {
 	GetInstitutionByClient(ClientID int32) (int32, error)
 	GetInstitution(institutionID int32) (*dto.GetInstitutionRes, error)
+	GetInstitutionLogo(InstitutionID int32) (*dto.GetInstitutionRes, error)
 	CreateInstitution(arg *models.CreateInstitutionParams) (int32, error)
 	UpdateInstitution(arg *models.UpdateInstitutionParams) error
 	ListInstitutions() (*[]dto.GetInstitutionRes, error)
@@ -31,6 +33,7 @@ type IInstitutionRepository interface {
 
 type IInstitutionHandler interface {
 	GetByClient(c *fiber.Ctx) error
+	GetLogo(c *fiber.Ctx) error
 	Get(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
