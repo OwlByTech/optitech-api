@@ -15,7 +15,7 @@ import (
 const createFormat = `-- name: CreateFormat :one
 INSERT INTO format(asesor_id, format_name, description, extension, version, created_at)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at
+RETURNING format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at
 `
 
 type CreateFormatParams struct {
@@ -41,6 +41,7 @@ func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (For
 		&i.FormatID,
 		&i.UpdatedFormatID,
 		&i.AsesorID,
+		&i.ServiceID,
 		&i.FormatName,
 		&i.Description,
 		&i.Extension,
@@ -79,7 +80,7 @@ func (q *Queries) DeleteFormatById(ctx context.Context, arg DeleteFormatByIdPara
 }
 
 const getFormat = `-- name: GetFormat :one
-SELECT format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
+SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
 WHERE format_id = $1 LIMIT 1
 `
 
@@ -90,6 +91,7 @@ func (q *Queries) GetFormat(ctx context.Context, formatID int32) (Format, error)
 		&i.FormatID,
 		&i.UpdatedFormatID,
 		&i.AsesorID,
+		&i.ServiceID,
 		&i.FormatName,
 		&i.Description,
 		&i.Extension,
@@ -121,7 +123,7 @@ func (q *Queries) GetFormatByName(ctx context.Context, formatName string) (GetFo
 }
 
 const listFormats = `-- name: ListFormats :many
-SELECT format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
+SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
 ORDER BY format_name
 `
 
@@ -138,6 +140,7 @@ func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 			&i.FormatID,
 			&i.UpdatedFormatID,
 			&i.AsesorID,
+			&i.ServiceID,
 			&i.FormatName,
 			&i.Description,
 			&i.Extension,
