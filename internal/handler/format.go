@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"log"
 	dto "optitech/internal/dto"
 	fdto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -34,7 +36,7 @@ func (h *handlerFormat) Get(c *fiber.Ctx) error {
 }
 
 func (h *handlerFormat) Create(f *fiber.Ctx) error {
-	req := fdto.CreateFormatReq{}
+	req := &fdto.CreateFormatReq{}
 
 	if err := f.BodyParser(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida: "+err.Error())
@@ -44,7 +46,7 @@ func (h *handlerFormat) Create(f *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.formatService.Create(&req)
+	res, err := h.formatService.Create(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -62,19 +64,29 @@ func (h *handlerFormat) List(c *fiber.Ctx) error {
 }
 
 func (h *handlerFormat) Delete(c *fiber.Ctx) error {
-	data := c.Locals("formatId")
-	formatId, ok := data.(int32)
-	if !ok {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	formatIdStr := c.Params("Id")
+	if formatIdStr == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Missing format ID in URL")
 	}
+
+	formatId, err := strconv.Atoi(formatIdStr)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid format ID")
+	}
+
+	formatId32 := int32(formatId)
+
+	log.Printf("formatId type: %T, value: %v\n", formatId32, formatId32)
+
 	params := c.AllParams()
 	req := &fdto.GetFormatReq{}
+
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	req.Id = formatId
-	res, err := h.formatService.Delete(*req)
 
+	req.Id = formatId32
+	res, err := h.formatService.Delete(*req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -83,24 +95,26 @@ func (h *handlerFormat) Delete(c *fiber.Ctx) error {
 }
 
 func (h *handlerFormat) Update(c *fiber.Ctx) error {
-	data := c.Locals("formatId")
-	formatId, ok := data.(int32)
-	if !ok {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	formatIdStr := c.Params("Id")
+	if formatIdStr == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Missing format ID in URL")
 	}
-	params_id := c.AllParams()
-	req_id := &fdto.GetFormatReq{}
 
-	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	formatId, err := strconv.Atoi(formatIdStr)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid format ID")
 	}
+
+	formatId32 := int32(formatId)
+
+	log.Printf("formatId type: %T, value: %v\n", formatId32, formatId32)
 
 	req := &fdto.UpdateFormatReq{
-		FormatID: formatId,
+		FormatID: formatId32,
 	}
 
 	if err := c.BodyParser(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Unvalid entry: "+err.Error())
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid entry: "+err.Error())
 	}
 
 	if err := dto.ValidateDTO(req); err != nil {

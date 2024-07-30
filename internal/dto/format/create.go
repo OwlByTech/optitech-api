@@ -1,7 +1,7 @@
 package dto
 
 type CreateFormatReq struct {
-	UpdateFormatID int32  `json:updateFormatId`
+	UpdateFormatID int32  `json:"updateFormatId"`
 	AsesorId       int32  `json:"asesorId" validate:"required"`
 	ServiceID      int32  `json:"serviceId"`
 	FormatName     string `json:"formatName" validate:"required"`
