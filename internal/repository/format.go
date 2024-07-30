@@ -81,3 +81,8 @@ func (r *repositoryFormat) DeleteFormat(arg *sq.DeleteFormatByIdParams) error {
 	ctx := context.Background()
 	return r.formatRepository.DeleteFormatById(ctx, *arg)
 }
+
+func (r *repositoryFormat) UpdateFormat(arg *sq.UpdateFormatByIdParams) error {
+	ctx := context.Background()
+	return r.formatRepository.UpdateFormatById(ctx, *arg)
+}

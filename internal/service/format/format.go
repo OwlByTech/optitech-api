@@ -72,3 +72,44 @@ func (s *serviceFormat) Delete(req dto.GetFormatReq) (bool, error) {
 
 	return true, nil
 }
+
+func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
+	format, err := s.Get(dto.GetFormatReq{Id: req.FormatID})
+
+	if err != nil {
+		return false, err
+	}
+
+	repoReq := &sq.UpdateFormatByIdParams{
+		FormatID:    req.FormatID,
+		FormatName:  format.FormatName,
+		Description: format.Description,
+		Extension:   sq.Extensions(format.Extension),
+		Version:     format.Version,
+		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if req.FormatName != "" {
+		repoReq.FormatName = req.FormatName
+	}
+
+	if req.Description != "" {
+		repoReq.Description = req.Description
+	}
+
+	if req.Extension != "" {
+		repoReq.Extension = sq.Extensions(req.Extension)
+	}
+
+	if req.Version != "" {
+		repoReq.Version = req.Version
+	}
+
+	err = s.formatRepository.UpdateFormat(repoReq)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

@@ -13,6 +13,7 @@ type IFormatService interface {
 	Create(req *f.CreateFormatReq) (*f.CreateFormatRes, error)
 	List() (*[]dto.GetFormatRes, error)
 	Delete(req dto.GetFormatReq) (bool, error)
+	Update(req *dto.UpdateFormatReq) (bool, error)
 }
 
 type IFormatRepository interface {
@@ -20,6 +21,7 @@ type IFormatRepository interface {
 	CreateFormat(arg *models.CreateFormatParams) (*f.CreateFormatRes, error)
 	List() (*[]f.GetFormatRes, error)
 	DeleteFormat(arg *models.DeleteFormatByIdParams) error
+	UpdateFormat(arg *models.UpdateFormatByIdParams) error
 }
 
 type IFormatHandler interface {
@@ -27,4 +29,5 @@ type IFormatHandler interface {
 	Create(f *fiber.Ctx) error
 	List(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
+	Update(c *fiber.Ctx) error
 }

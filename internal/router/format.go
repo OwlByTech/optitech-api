@@ -16,4 +16,5 @@ func (s *Server) RoutesFormat() {
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Post("/create", handler.Create)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
+	serviceRoute.Put("/update/:id", handler.Update)
 }

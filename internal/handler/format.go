@@ -81,3 +81,36 @@ func (h *handlerFormat) Delete(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerFormat) Update(c *fiber.Ctx) error {
+	data := c.Locals("formatId")
+	formatId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+	params_id := c.AllParams()
+	req_id := &fdto.GetFormatReq{}
+
+	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	req := &fdto.UpdateFormatReq{
+		FormatID: formatId,
+	}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Unvalid entry: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.formatService.Update(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(success)
+}
