@@ -55,3 +55,24 @@ func (r *repositoryFormat) CreateFormat(arg *sq.CreateFormatParams) (*dto.Create
 		Version:     res.Version,
 	}, nil
 }
+
+func (r *repositoryFormat) List() (*[]dto.GetFormatRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.formatRepository.ListFormats(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	formats := make([]dto.GetFormatRes, len(repoRes))
+	for i, forms := range repoRes {
+		formats[i] = dto.GetFormatRes{
+			Id:          forms.FormatID,
+			AsesorId:    forms.AsesorID,
+			Description: forms.Description,
+			Extension:   string(forms.Extension),
+			Version:     forms.Version,
+		}
+	}
+	return &formats, nil
+}

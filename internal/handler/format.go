@@ -51,3 +51,12 @@ func (h *handlerFormat) Create(f *fiber.Ctx) error {
 
 	return f.JSON(res)
 }
+
+func (h *handlerFormat) List(c *fiber.Ctx) error {
+	res, err := h.formatService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

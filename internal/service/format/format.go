@@ -51,3 +51,11 @@ func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, 
 
 	return r, nil
 }
+
+func (s *serviceFormat) List() (*[]dto.GetFormatRes, error) {
+	repoRes, err := s.formatRepository.List()
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
+}
