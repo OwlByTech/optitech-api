@@ -60,3 +60,24 @@ func (h *handlerFormat) List(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerFormat) Delete(c *fiber.Ctx) error {
+	data := c.Locals("formatId")
+	formatId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+	params := c.AllParams()
+	req := &fdto.GetFormatReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	req.Id = formatId
+	res, err := h.formatService.Delete(*req)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

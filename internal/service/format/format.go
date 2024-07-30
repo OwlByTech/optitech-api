@@ -59,3 +59,16 @@ func (s *serviceFormat) List() (*[]dto.GetFormatRes, error) {
 	}
 	return repoRes, nil
 }
+
+func (s *serviceFormat) Delete(req dto.GetFormatReq) (bool, error) {
+	repoReq := &sq.DeleteFormatByIdParams{
+		FormatID:  req.Id,
+		DeletedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.formatRepository.DeleteFormat(repoReq); err != nil {
+		return false, pgtype.ErrScanTargetTypeChanged
+	}
+
+	return true, nil
+}

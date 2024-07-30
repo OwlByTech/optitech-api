@@ -12,16 +12,19 @@ type IFormatService interface {
 	Get(req f.GetFormatReq) (*f.GetFormatRes, error)
 	Create(req *f.CreateFormatReq) (*f.CreateFormatRes, error)
 	List() (*[]dto.GetFormatRes, error)
+	Delete(req dto.GetFormatReq) (bool, error)
 }
 
 type IFormatRepository interface {
 	GetFormat(formatID int32) (*f.GetFormatRes, error)
 	CreateFormat(arg *models.CreateFormatParams) (*f.CreateFormatRes, error)
 	List() (*[]f.GetFormatRes, error)
+	DeleteFormat(arg *models.DeleteFormatByIdParams) error
 }
 
 type IFormatHandler interface {
 	Get(f *fiber.Ctx) error
 	Create(f *fiber.Ctx) error
 	List(c *fiber.Ctx) error
+	Delete(c *fiber.Ctx) error
 }

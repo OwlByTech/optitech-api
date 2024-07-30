@@ -76,3 +76,8 @@ func (r *repositoryFormat) List() (*[]dto.GetFormatRes, error) {
 	}
 	return &formats, nil
 }
+
+func (r *repositoryFormat) DeleteFormat(arg *sq.DeleteFormatByIdParams) error {
+	ctx := context.Background()
+	return r.formatRepository.DeleteFormatById(ctx, *arg)
+}
