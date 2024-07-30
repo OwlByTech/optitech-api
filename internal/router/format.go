@@ -13,4 +13,5 @@ func (s *Server) RoutesFormat() {
 	handler := handler.NewHandlerFormat(service)
 	serviceRoute := r.Group("/api/format")
 	serviceRoute.Get("/:id", handler.Get)
+	serviceRoute.Post("/create", handler.Create)
 }

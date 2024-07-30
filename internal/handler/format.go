@@ -32,3 +32,22 @@ func (h *handlerFormat) Get(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerFormat) Create(f *fiber.Ctx) error {
+	req := fdto.CreateFormatReq{}
+
+	if err := f.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.formatService.Create(&req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return f.JSON(res)
+}
