@@ -9,27 +9,27 @@ import (
 )
 
 type serviceAsesor struct {
-	clientRepository interfaces.IAsesorRepository
+	asesorRepository interfaces.IAsesorRepository
 }
 
 func NewServiceAsesor(r interfaces.IAsesorRepository) interfaces.IAsesorService {
 	return &serviceAsesor{
-		clientRepository: r,
+		asesorRepository: r,
 	}
 }
 
 func (s *serviceAsesor) Get(req dto.GetAsesorReq) (*dto.GetAsesorRes, error) {
-	return s.clientRepository.GetAsesor(req.Id)
+	return s.asesorRepository.GetAsesor(req.Id)
 }
 
 func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, error) {
 	repoReq := &sq.CreateAsesorParams{
 		AsesorID:  req.ClientId,
-		About:     req.About,
+		About:     pgtype.Text{String: req.About, Valid: true},
 		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	r, err := s.clientRepository.CreateAsesor(repoReq)
+	r, err := s.asesorRepository.CreateAsesor(repoReq)
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +39,10 @@ func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, 
 func (s *serviceAsesor) Update(req *dto.UpdateAsesorReq) (bool, error) {
 	repoReq := &sq.UpdateAsesorByIdParams{
 		AsesorID:  req.AsesorID,
-		About:     req.About,
+		About:     pgtype.Text{String: req.About, Valid: true},
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-
-	err := s.clientRepository.UpdateAsesor(repoReq)
+	err := s.asesorRepository.UpdateAsesor(repoReq)
 
 	if err != nil {
 		return false, err
@@ -53,7 +52,7 @@ func (s *serviceAsesor) Update(req *dto.UpdateAsesorReq) (bool, error) {
 }
 
 func (s *serviceAsesor) List() (*[]dto.GetAsesorRes, error) {
-	repoRes, err := s.clientRepository.ListAsesor()
+	repoRes, err := s.asesorRepository.ListAsesor()
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +65,7 @@ func (s *serviceAsesor) Delete(req dto.GetAsesorReq) (bool, error) {
 		DeletedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	if err := s.clientRepository.DeleteAsesor(repoReq); err != nil {
+	if err := s.asesorRepository.DeleteAsesor(repoReq); err != nil {
 		return false, pgtype.ErrScanTargetTypeChanged
 	}
 

@@ -1,17 +1,14 @@
 package service
 
 import (
-	"fmt"
-	"io"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
 	dto_services "optitech/internal/dto/institution_services"
 	sdto "optitech/internal/dto/services"
 	"optitech/internal/interfaces"
+	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -50,6 +47,17 @@ func (s *serviceInstitution) Get(req dto.GetInstitutionReq) (*dto.GetInstitution
 	repoRes.Services = *repoServices
 
 	return repoRes, err
+}
+func (s *serviceInstitution) GetLogo(req dto.GetInstitutionReq) (string, error) {
+	institution, err := s.institutionRepository.GetInstitutionLogo(req.Id)
+	if err != nil {
+		return "", err
+	}
+	route, err := digitalOcean.DownloadDocument(institution.Logo, institution.InstitutionName)
+	if err != nil {
+		return "", err
+	}
+	return route, nil
 }
 
 func (s *serviceInstitution) List() (*[]dto.GetInstitutionRes, error) {
@@ -181,31 +189,26 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 	return true, nil
 }
 func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
+	institution, err := s.Get(dto.GetInstitutionReq{Id: req.InstitutionID})
+	if err != nil {
+		return false, err
+	}
 	repoReq := &sq.UpdateLogoInstitutionParams{
 		InstitutionID: req.InstitutionID,
 		UpdatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-	if req.LogoFile != nil {
-		nameFile := strconv.Itoa(int(req.InstitutionID)) + "_institution_" + req.LogoFile.Filename
-		multipart, err := req.LogoFile.Open()
-		if err != nil {
-			return false, err
-		}
-		defer multipart.Close()
-		savePath := fmt.Sprintf("./uploads/%s", nameFile)
 
-		outFile, err := os.Create(savePath)
+	if req.LogoFile != nil {
+		name, err := digitalOcean.UploadDocument(req.LogoFile, institution.InstitutionName, institution.InstitutionName)
 		if err != nil {
 			return false, err
 		}
-		//		defer outFilef.Close()
-		if _, err = io.Copy(outFile, multipart); err != nil {
-			return false, err
-		}
-		repoReq.Logo = pgtype.Text{String: nameFile, Valid: true}
+
+		repoReq.Logo = pgtype.Text{String: name, Valid: true}
+
 	}
 
-	err := s.institutionRepository.UpdateLogoInstitution(repoReq)
+	err = s.institutionRepository.UpdateLogoInstitution(repoReq)
 
 	if err != nil {
 		return false, err

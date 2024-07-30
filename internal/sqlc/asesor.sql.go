@@ -20,7 +20,7 @@ RETURNING asesor_id, about, created_at, updated_at, deleted_at
 
 type CreateAsesorParams struct {
 	AsesorID  int32            `json:"asesor_id"`
-	About     string           `json:"about"`
+	About     pgtype.Text      `json:"about"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
@@ -120,7 +120,7 @@ WHERE asesor_id = $1
 
 type UpdateAsesorByIdParams struct {
 	AsesorID  int32            `json:"asesor_id"`
-	About     string           `json:"about"`
+	About     pgtype.Text      `json:"about"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 }
 

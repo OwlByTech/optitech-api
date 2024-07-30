@@ -15,7 +15,6 @@ func (s *Server) RoutesClient() {
 	clientMiddleware := middleware.ClientMiddleware{
 		ClientService: SeviceClient,
 	}
-
 	// The following routes must be use "clientId" locals to get
 	// the current user
 	// https://docs.gofiber.io/api/ctx/#locals
@@ -28,6 +27,7 @@ func (s *Server) RoutesClient() {
 	serviceRoute.Post("/", handler.Create)
 	serviceRoute.Put("/update/:id", handler.Update)
 	serviceRoute.Post("/photo/:id", handler.UpdatePhoto)
+	serviceRoute.Get("/photo/:id", handler.GetPhoto)
 	serviceRoute.Post("/status", handler.UpdateStatus)
 	serviceRoute.Delete("/delete/:id", handler.Delete)
 	serviceRoute.Post("/login", handler.Login)

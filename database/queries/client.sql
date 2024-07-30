@@ -14,6 +14,10 @@ ORDER BY given_name;
 SELECT * FROM client
 WHERE email = $1;
 
+-- name: GetClientPhoto :one
+SELECT photo FROM client
+WHERE client_id = $1;
+
 -- name: CreateClient :one
 INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
