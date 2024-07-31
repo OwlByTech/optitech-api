@@ -2,7 +2,7 @@ package dto
 
 type UpdateFormatReq struct {
 	FormatID    int32  `json:"formatId"`
-	FormatName  string `json:"formatName"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 	Extension   string `json:"extension"`
 	Version     string `json:"version"`
@@ -11,7 +11,7 @@ type UpdateFormatReq struct {
 
 type UpdateFormatRes struct {
 	FormatID    int32  `json:"formatId"`
-	FormatName  string `json:"formatName"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 	Extension   string `json:"extension"`
 	Version     string `json:"version"`

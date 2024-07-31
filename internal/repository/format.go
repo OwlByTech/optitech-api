@@ -47,9 +47,8 @@ func (r *repositoryFormat) CreateFormat(arg *sq.CreateFormatParams) (*dto.Create
 	}
 
 	return &dto.CreateFormatRes{
-		Id:          res.FormatID,
 		AsesorId:    strconv.Itoa(int(res.AsesorID)),
-		FormatName:  res.FormatName,
+		Name:        res.FormatName,
 		Description: res.Description,
 		Extension:   res.Description,
 		Version:     res.Version,

@@ -24,12 +24,12 @@ func (s *serviceFormat) Get(req dto.GetFormatReq) (*dto.GetFormatRes, error) {
 }
 
 func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, error) {
-	var updateFormatID pgtype.Int8
+	var updateFormatID pgtype.Int4
 
 	if req.UpdateFormatID == 0 {
 		updateFormatID.Valid = false
 	} else {
-		updateFormatID.Int64 = int64(req.UpdateFormatID)
+		updateFormatID.Int32 = int32(req.UpdateFormatID)
 		updateFormatID.Valid = true
 	}
 
@@ -37,7 +37,7 @@ func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, 
 		UpdatedFormatID: pgtype.Int4{Int32: req.UpdateFormatID, Valid: false},
 		AsesorID:        req.AsesorId,
 		ServiceID:       pgtype.Int4{Int32: req.ServiceID, Valid: true},
-		FormatName:      req.FormatName,
+		FormatName:      req.Name,
 		Description:     req.Description,
 		Extension:       sq.Extensions(req.Extension),
 		Version:         req.Version,
@@ -82,15 +82,15 @@ func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
 
 	repoReq := &sq.UpdateFormatByIdParams{
 		FormatID:    req.FormatID,
-		FormatName:  format.FormatName,
+		FormatName:  format.Name,
 		Description: format.Description,
 		Extension:   sq.Extensions(format.Extension),
 		Version:     format.Version,
 		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	if req.FormatName != "" {
-		repoReq.FormatName = req.FormatName
+	if req.Name != "" {
+		repoReq.FormatName = req.Name
 	}
 
 	if req.Description != "" {
