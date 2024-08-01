@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
 	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceDocument struct {
@@ -111,52 +112,9 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 		Name:       req.Name,
 		UpdatedAt:  pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-	/*
-		repoRes, err := s.documentRepository.GetDocument(req.Id)
-
-		if err != nil {
-			return false, err
-		}
-
-		RenameDocument(repoRes.Name, fileName)
-
-	*/
 
 	if err := s.documentRepository.UpdateDocument(repoReq); err != nil {
 		return false, nil
 	}
 	return true, nil
 }
-
-/*
-func RenameDocument(oldName string, newName string) error {
-
-	s3Config := cnf.GetS3Config()
-
-	sess, err := session.NewSession(s3Config)
-	if err != nil {
-		return err
-	}
-
-	svc := s3.New(sess)
-
-	_, err = svc.CopyObject(&s3.CopyObjectInput{
-		Bucket:     aws.String(cnf.Env.DigitalOceanBucket),
-		CopySource: aws.String(cnf.Env.DigitalOceanBucket + "/" + oldName),
-		Key:        aws.String(newName),
-	})
-	if err != nil {
-		return err
-	}
-
-	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
-		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(oldName),
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-*/
