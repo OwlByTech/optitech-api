@@ -11,4 +11,5 @@ type GetFormatRes struct {
 	Items       []string `json:"items"`
 	Extension   string   `json:"extension"`
 	Version     string   `json:"version"`
+	Name        string   `json:"name"`
 }

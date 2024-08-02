@@ -273,6 +273,7 @@ type DirectoryTree struct {
 	ParentID      pgtype.Int8      `json:"parent_id"`
 	InstitutionID pgtype.Int4      `json:"institution_id"`
 	Name          pgtype.Text      `json:"name"`
+	AsesorID      pgtype.Int4      `json:"asesor_id"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
@@ -304,6 +305,7 @@ type Format struct {
 	FormatID        int32            `json:"format_id"`
 	UpdatedFormatID pgtype.Int4      `json:"updated_format_id"`
 	AsesorID        int32            `json:"asesor_id"`
+	ServiceID       pgtype.Int4      `json:"service_id"`
 	FormatName      string           `json:"format_name"`
 	Description     string           `json:"description"`
 	Extension       Extensions       `json:"extension"`
