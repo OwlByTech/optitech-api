@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"github.com/jackc/pgx/v5/pgtype"
 	drdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
@@ -11,7 +10,12 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const asesorEnum = "Asesor"
 
 type serviceDocument struct {
 	documentRepository interfaces.IDocumentRepository
@@ -28,28 +32,39 @@ func (s *serviceDocument) Get(req dto.GetDocumentReq) (*dto.GetDocumentRes, erro
 }
 
 func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto.GetDocumentRes, error) {
-	return s.documentRepository.ListDocumentByDirectory(int32(req.Id))
+	return s.documentRepository.ListDocumentByDirectory(req.Id)
 }
 
 func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
 
-	institutionName, err := s.documentRepository.GetInstitutionByDocumentId(int64(req.DirectoryId))
-
-	if err != nil {
-		return nil, err
-	}
-
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
-		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: false},
 		Name:        req.File.Filename,
-		Status:      sq.Status(req.Status),
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+	var nameFolder string
+
+	if req.Status != "" {
+		repoReq.Status = sq.NullStatus{Status: sq.Status(req.Status), Valid: true}
+	}
+	if req.FormatId > 0 {
+		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
+	}
+
+	if req.InstitutionId > 0 {
+		res, err := s.documentRepository.GetInstitutionByDocumentId(repoReq.DirectoryID)
+		if err != nil {
+			return nil, err
+		}
+		nameFolder = res.Institution.InstitutionName
+
+	} else {
+		nameFolder = fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
 	}
 
 	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
 
-	fileRute, err := digitalOcean.UploadDocument(req.File, rute, institutionName.Institution.InstitutionName)
+	fileRute, err := digitalOcean.UploadDocument(req.File, rute, nameFolder)
 
 	if err != nil {
 		return nil, err
@@ -59,6 +74,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
 	repoReq.FileRute = fileRute
+	log.Info(*repoReq, req)
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 
 	if err != nil {
@@ -70,25 +86,31 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 
 func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
 
-	exist, err := s.documentRepository.ExistsDocuments(req.Id)
-	if err != nil {
-		return "", err
-	}
-
-	if exist {
-		return "", fmt.Errorf("the document does not exist")
-	}
-
 	document, err := s.documentRepository.DownloadDocumentById(req.Id)
 	if err != nil {
 		return "", err
 	}
 
-	route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
+	if document.AsesorId != req.AsesorId && document.InstitutionId != req.InstitutionId {
+		return "", fmt.Errorf("the document does not exist")
+	}
+
+	if req.InstitutionId > 0 {
+		route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
+
+		if err != nil {
+			return "", err
+		}
+		return route, err
+
+	}
+	nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
+	route, err := digitalOcean.DownloadDocument(document.FileRute, nameFolder)
 	if err != nil {
 		return "", err
 	}
 	return route, err
+
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {

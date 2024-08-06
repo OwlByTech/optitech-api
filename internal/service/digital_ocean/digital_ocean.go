@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 func DownloadDocument(route string, directory string) (string, error) {
@@ -56,6 +57,8 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 	if err != nil {
 		return "", err
 	}
+
+	log.Info(name, institutionName)
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),

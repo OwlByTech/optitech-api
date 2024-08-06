@@ -1,21 +1,25 @@
 package service
 
 import (
+	ddto "optitech/internal/dto/document"
 	dto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
 
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceFormat struct {
 	formatRepository interfaces.IFormatRepository
+	documentService  interfaces.IDocumentService
 }
 
-func NewServiceFormat(f interfaces.IFormatRepository) interfaces.IFormatService {
+func NewServiceFormat(f interfaces.IFormatRepository, serviceDocument interfaces.IDocumentService) interfaces.IFormatService {
 	return &serviceFormat{
 		formatRepository: f,
+		documentService:  serviceDocument,
 	}
 }
 
@@ -24,32 +28,48 @@ func (s *serviceFormat) Get(req dto.GetFormatReq) (*dto.GetFormatRes, error) {
 }
 
 func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, error) {
-	var updateFormatID pgtype.Int4
-
-	if req.UpdateFormatID == 0 {
-		updateFormatID.Valid = false
-	} else {
-		updateFormatID.Int32 = int32(req.UpdateFormatID)
-		updateFormatID.Valid = true
-	}
-
+	log.Info(req)
 	repoReq := &sq.CreateFormatParams{
-		UpdatedFormatID: pgtype.Int4{Int32: req.UpdateFormatID, Valid: false},
-		AsesorID:        req.AsesorId,
-		ServiceID:       pgtype.Int4{Int32: req.ServiceID, Valid: true},
-		FormatName:      req.Name,
-		Description:     req.Description,
-		Extension:       sq.Extensions(req.Extension),
-		Version:         req.Version,
-		CreatedAt:       pgtype.Timestamp{Time: time.Now(), Valid: true},
+		AsesorID:    req.AsesorId,
+		ServiceID:   pgtype.Int4{Int32: req.ServiceID, Valid: true},
+		FormatName:  req.Name,
+		Description: req.Description,
+		Extension:   sq.Extensions(req.Extension),
+		Version:     req.Version,
+		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+	if req.UpdateFormatID > 0 {
+		repoReq.UpdatedFormatID = pgtype.Int4{Int32: req.UpdateFormatID, Valid: true}
 	}
 
 	r, err := s.formatRepository.CreateFormat(repoReq)
 	if err != nil {
 		return nil, err
 	}
+	log.Info(r.Id, req)
+
+	_, err = s.documentService.Create(&ddto.CreateDocumentReq{
+		FormatId:    r.Id,
+		DirectoryId: req.DirectoryId,
+		File:        req.FormatFile,
+		AsesorId:    r.AsesorId,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return r, nil
+}
+
+func (s *serviceFormat) ListById(req *dto.ListFormatsReq) (*[]dto.GetFormatRes, error) {
+	repoRes, err := s.formatRepository.ListById(&sq.ListFormatsByIdParams{
+		Column1:  req.FormatsId,
+		AsesorID: req.AsesorId,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
 }
 
 func (s *serviceFormat) List() (*[]dto.GetFormatRes, error) {

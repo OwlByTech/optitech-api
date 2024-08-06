@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"log"
 	dto "optitech/internal/dto"
 	fdto "optitech/internal/dto/format"
@@ -36,16 +37,32 @@ func (h *handlerFormat) Get(c *fiber.Ctx) error {
 }
 
 func (h *handlerFormat) Create(f *fiber.Ctx) error {
-	req := &fdto.CreateFormatReq{}
 
-	if err := f.BodyParser(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida: "+err.Error())
+	data := f.Locals("asesorId")
+	asesorID, ok_asesor := data.(int32)
+
+	if !ok_asesor {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+	req := &fdto.CreateFormatReq{}
+	body := f.FormValue("data")
+
+	if err := json.Unmarshal([]byte(body), &req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	if err := dto.ValidateDTO(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
+	file, err := f.FormFile("file")
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	req.FormatFile = file
+	req.AsesorId = asesorID
 	res, err := h.formatService.Create(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -56,6 +73,31 @@ func (h *handlerFormat) Create(f *fiber.Ctx) error {
 
 func (h *handlerFormat) List(c *fiber.Ctx) error {
 	res, err := h.formatService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerFormat) ListById(c *fiber.Ctx) error {
+
+	data := c.Locals("asesorId")
+	asesorID, ok_asesor := data.(int32)
+
+	if !ok_asesor {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+	req := &fdto.ListFormatsReq{
+		AsesorId: asesorID,
+	}
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	res, err := h.formatService.ListById(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

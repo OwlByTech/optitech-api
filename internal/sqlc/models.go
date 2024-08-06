@@ -281,11 +281,11 @@ type DirectoryTree struct {
 
 type Document struct {
 	DocumentID  int64            `json:"document_id"`
-	DirectoryID int32            `json:"directory_id"`
+	DirectoryID int64            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
 	Name        string           `json:"name"`
 	FileRute    string           `json:"file_rute"`
-	Status      Status           `json:"status"`
+	Status      NullStatus       `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 	DeletedAt   pgtype.Timestamp `json:"deleted_at"`

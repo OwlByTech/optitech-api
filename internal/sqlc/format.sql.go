@@ -85,7 +85,9 @@ func (q *Queries) DeleteFormatById(ctx context.Context, arg DeleteFormatByIdPara
 
 const getFormat = `-- name: GetFormat :one
 SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
-WHERE format_id = $1 LIMIT 1
+WHERE format_id = $1
+AND deleted_at is not null
+LIMIT 1
 `
 
 func (q *Queries) GetFormat(ctx context.Context, formatID int32) (Format, error) {
@@ -133,6 +135,50 @@ ORDER BY format_name
 
 func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 	rows, err := q.db.Query(ctx, listFormats)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Format
+	for rows.Next() {
+		var i Format
+		if err := rows.Scan(
+			&i.FormatID,
+			&i.UpdatedFormatID,
+			&i.AsesorID,
+			&i.ServiceID,
+			&i.FormatName,
+			&i.Description,
+			&i.Extension,
+			&i.Version,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFormatsById = `-- name: ListFormatsById :many
+SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
+WHERE format_id = ANY($1::int[])
+AND asesor_id = $2
+AND deleted_at IS NULL
+`
+
+type ListFormatsByIdParams struct {
+	Column1  []int32 `json:"column_1"`
+	AsesorID int32   `json:"asesor_id"`
+}
+
+func (q *Queries) ListFormatsById(ctx context.Context, arg ListFormatsByIdParams) ([]Format, error) {
+	rows, err := q.db.Query(ctx, listFormatsById, arg.Column1, arg.AsesorID)
 	if err != nil {
 		return nil, err
 	}
