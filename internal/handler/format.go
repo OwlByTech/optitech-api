@@ -76,7 +76,6 @@ func (h *handlerFormat) Delete(c *fiber.Ctx) error {
 
 	formatId32 := int32(formatId)
 
-	log.Printf("formatId type: %T, value: %v\n", formatId32, formatId32)
 
 	params := c.AllParams()
 	req := &fdto.GetFormatReq{}
