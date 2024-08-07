@@ -278,6 +278,7 @@ const (
 	ToNotificationInstitution ToNotification = "institution"
 	ToNotificationAsesor      ToNotification = "asesor"
 	ToNotificationSuperUser   ToNotification = "super_user"
+	ToNotificationAll         ToNotification = "all"
 )
 
 func (e *ToNotification) Scan(src interface{}) error {
