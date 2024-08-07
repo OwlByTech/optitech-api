@@ -5,6 +5,7 @@ import (
 	dto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+	"strconv"
 )
 
 type repositoryFormat struct {
@@ -34,4 +35,53 @@ func (r *repositoryFormat) GetFormat(formatID int32) (*dto.GetFormatRes, error) 
 		Extension: string(repoRes.Extension),
 		Version:   repoRes.Version,
 	}, nil
+}
+
+func (r *repositoryFormat) CreateFormat(arg *sq.CreateFormatParams) (*dto.CreateFormatRes, error) {
+	ctx := context.Background()
+
+	res, err := r.formatRepository.CreateFormat(ctx, *arg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.CreateFormatRes{
+		AsesorId:    strconv.Itoa(int(res.AsesorID)),
+		Name:        res.FormatName,
+		Description: res.Description,
+		Extension:   res.Description,
+		Version:     res.Version,
+	}, nil
+}
+
+func (r *repositoryFormat) List() (*[]dto.GetFormatRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.formatRepository.ListFormats(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	formats := make([]dto.GetFormatRes, len(repoRes))
+	for i, forms := range repoRes {
+		formats[i] = dto.GetFormatRes{
+			Id:          forms.FormatID,
+			AsesorId:    forms.AsesorID,
+			Description: forms.Description,
+			Extension:   string(forms.Extension),
+			Version:     forms.Version,
+		}
+	}
+	return &formats, nil
+}
+
+func (r *repositoryFormat) DeleteFormat(arg *sq.DeleteFormatByIdParams) error {
+	ctx := context.Background()
+	return r.formatRepository.DeleteFormatById(ctx, *arg)
+}
+
+func (r *repositoryFormat) UpdateFormat(arg *sq.UpdateFormatByIdParams) error {
+	ctx := context.Background()
+	return r.formatRepository.UpdateFormatById(ctx, *arg)
 }
