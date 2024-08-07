@@ -43,6 +43,7 @@ func (s *serviceDirectoryTree) Create(req *dto.CreateDirectoryTreeReq) (*dto.Cre
 		Name:          pgtype.Text{String: req.Name, Valid: true},
 		InstitutionID: pgtype.Int4{Int32: req.InstitutionID, Valid: true},
 		CreatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
+		AsesorID:      pgtype.Int4{Int32: req.AsesorID, Valid: true},
 	}
 
 	r, err := s.directoryTreeRepository.CreateDirectory(repoReq)
@@ -80,7 +81,8 @@ func (s *serviceDirectoryTree) ListByParent(req dto.GetDirectoryTreeReq) (*dto.G
 		Open:          true,
 		ParentID:      directory.ParentID,
 		InstitutionID: directory.InstitutionID,
-		Directory:     repoRes, Document: documents}, nil
+		Directory:     repoRes, Document: documents,
+	}, nil
 }
 
 func (s *serviceDirectoryTree) GetRoute(req dto.GetDirectoryTreeReq) (*[]int64, *[]dto.GetDirectoryTreeRes, error) {
@@ -214,6 +216,7 @@ func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, er
 		Name:        pgtype.Text{String: directory.Name, Valid: true},
 		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 		ParentID:    pgtype.Int8{Int64: directory.ParentID, Valid: true},
+		AsesorID:    pgtype.Int4{Int32: directory.AsesorID, Valid: true},
 	}
 
 	if req.Name != "" {
@@ -224,6 +227,10 @@ func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, er
 		repoReq.ParentID = pgtype.Int8{Int64: req.ParentID, Valid: true}
 	} else {
 		repoReq.ParentID = pgtype.Int8{Int64: directory.ParentID, Valid: true}
+	}
+
+	if req.AsesorID != 0 {
+		repoReq.AsesorID = pgtype.Int4{Int32: directory.AsesorID, Valid: true}
 	}
 
 	err = s.directoryTreeRepository.UpdateDirectoryTree(repoReq)

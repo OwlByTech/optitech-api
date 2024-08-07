@@ -13,9 +13,9 @@ import (
 )
 
 const createDirectoryTree = `-- name: CreateDirectoryTree :one
-INSERT INTO directory_tree(parent_id, name, created_at, institution_id)
-VALUES ($1, $2, $3, $4)
-RETURNING directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at
+INSERT INTO directory_tree(parent_id, name, created_at, institution_id, asesor_id)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING directory_id, parent_id, institution_id, name, asesor_id, created_at, updated_at, deleted_at
 `
 
 type CreateDirectoryTreeParams struct {
@@ -23,6 +23,7 @@ type CreateDirectoryTreeParams struct {
 	Name          pgtype.Text      `json:"name"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	InstitutionID pgtype.Int4      `json:"institution_id"`
+	AsesorID      pgtype.Int4      `json:"asesor_id"`
 }
 
 func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTreeParams) (DirectoryTree, error) {
@@ -31,6 +32,7 @@ func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTr
 		arg.Name,
 		arg.CreatedAt,
 		arg.InstitutionID,
+		arg.AsesorID,
 	)
 	var i DirectoryTree
 	err := row.Scan(
@@ -38,6 +40,7 @@ func (q *Queries) CreateDirectoryTree(ctx context.Context, arg CreateDirectoryTr
 		&i.ParentID,
 		&i.InstitutionID,
 		&i.Name,
+		&i.AsesorID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -72,7 +75,7 @@ func (q *Queries) DeleteDirectoryTreeById(ctx context.Context, arg DeleteDirecto
 }
 
 const getDirectoryTree = `-- name: GetDirectoryTree :one
-SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
+SELECT directory_id, parent_id, institution_id, name, asesor_id, created_at, updated_at, deleted_at FROM directory_tree
 WHERE directory_id = $1 AND deleted_at IS NULL AND institution_id=$2 LIMIT 1
 `
 
@@ -89,6 +92,7 @@ func (q *Queries) GetDirectoryTree(ctx context.Context, arg GetDirectoryTreePara
 		&i.ParentID,
 		&i.InstitutionID,
 		&i.Name,
+		&i.AsesorID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -110,7 +114,7 @@ func (q *Queries) GetDirectoryTreeByName(ctx context.Context, directoryID int64)
 }
 
 const getDirectoryTreeParent = `-- name: GetDirectoryTreeParent :one
-SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
+SELECT directory_id, parent_id, institution_id, name, asesor_id, created_at, updated_at, deleted_at FROM directory_tree
 WHERE parent_id IS NULL AND deleted_at IS NULL AND institution_id=$1 LIMIT 1
 `
 
@@ -122,6 +126,7 @@ func (q *Queries) GetDirectoryTreeParent(ctx context.Context, institutionID pgty
 		&i.ParentID,
 		&i.InstitutionID,
 		&i.Name,
+		&i.AsesorID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -130,7 +135,7 @@ func (q *Queries) GetDirectoryTreeParent(ctx context.Context, institutionID pgty
 }
 
 const getInstitutionNameByDirectoryId = `-- name: GetInstitutionNameByDirectoryId :one
-SELECT i.institution_id, i.asesor_id, i.institution_name, i.logo, i.description, i.created_at, i.updated_at, i.deleted_at, dt.directory_id, dt.parent_id, dt.institution_id, dt.name, dt.created_at, dt.updated_at, dt.deleted_at
+SELECT i.institution_id, i.asesor_id, i.institution_name, i.logo, i.description, i.created_at, i.updated_at, i.deleted_at, dt.directory_id, dt.parent_id, dt.institution_id, dt.name, dt.asesor_id, dt.created_at, dt.updated_at, dt.deleted_at
 FROM directory_tree dt
 JOIN institution i ON dt.institution_id = i.institution_id
 WHERE dt.directory_id = $1
@@ -157,6 +162,7 @@ func (q *Queries) GetInstitutionNameByDirectoryId(ctx context.Context, directory
 		&i.DirectoryTree.ParentID,
 		&i.DirectoryTree.InstitutionID,
 		&i.DirectoryTree.Name,
+		&i.DirectoryTree.AsesorID,
 		&i.DirectoryTree.CreatedAt,
 		&i.DirectoryTree.UpdatedAt,
 		&i.DirectoryTree.DeletedAt,
@@ -165,7 +171,7 @@ func (q *Queries) GetInstitutionNameByDirectoryId(ctx context.Context, directory
 }
 
 const listDirectoryChildByParent = `-- name: ListDirectoryChildByParent :many
-SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at
+SELECT directory_id, parent_id, institution_id, name, asesor_id, created_at, updated_at, deleted_at
 FROM directory_tree
 WHERE parent_id= $1 AND deleted_at IS NULL AND institution_id=$2
 `
@@ -189,6 +195,7 @@ func (q *Queries) ListDirectoryChildByParent(ctx context.Context, arg ListDirect
 			&i.ParentID,
 			&i.InstitutionID,
 			&i.Name,
+			&i.AsesorID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -249,7 +256,7 @@ func (q *Queries) ListDirectoryHierarchyById(ctx context.Context, arg ListDirect
 }
 
 const listDirectoryTrees = `-- name: ListDirectoryTrees :many
-SELECT directory_id, parent_id, institution_id, name, created_at, updated_at, deleted_at FROM directory_tree
+SELECT directory_id, parent_id, institution_id, name, asesor_id, created_at, updated_at, deleted_at FROM directory_tree
 ORDER BY directory_id AND deleted_at IS NULL
 `
 
@@ -267,6 +274,7 @@ func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, erro
 			&i.ParentID,
 			&i.InstitutionID,
 			&i.Name,
+			&i.AsesorID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -283,7 +291,7 @@ func (q *Queries) ListDirectoryTrees(ctx context.Context) ([]DirectoryTree, erro
 
 const updateDirectoryTreeById = `-- name: UpdateDirectoryTreeById :exec
 UPDATE directory_tree
-SET name = $2, updated_at = $3, parent_id = $4
+SET name = $2, updated_at = $3, parent_id = $4, asesor_id = $5
 WHERE directory_id = $1
 `
 
@@ -292,6 +300,7 @@ type UpdateDirectoryTreeByIdParams struct {
 	Name        pgtype.Text      `json:"name"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 	ParentID    pgtype.Int8      `json:"parent_id"`
+	AsesorID    pgtype.Int4      `json:"asesor_id"`
 }
 
 func (q *Queries) UpdateDirectoryTreeById(ctx context.Context, arg UpdateDirectoryTreeByIdParams) error {
@@ -300,6 +309,7 @@ func (q *Queries) UpdateDirectoryTreeById(ctx context.Context, arg UpdateDirecto
 		arg.Name,
 		arg.UpdatedAt,
 		arg.ParentID,
+		arg.AsesorID,
 	)
 	return err
 }

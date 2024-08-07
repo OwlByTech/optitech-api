@@ -13,7 +13,7 @@ import (
 )
 
 const createDocument = `-- name: CreateDocument :one
-INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
+INSERT INTO document(directory_id, name, format_id, file_rute, status, created_at)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at
 `
