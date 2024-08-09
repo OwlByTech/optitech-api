@@ -48,15 +48,16 @@ func (r *repositoryNotification) GetNotification(req *sq.GetNotificationParams) 
 	}
 
 	return &dto.GetNotificationRes{
-		ID:      repoRes.NotificationID,
-		From:    dto.FromNotification(repoRes.From),
-		To:      dto.ToNotification(repoRes.To),
-		FromID:  repoRes.FromID,
-		ToID:    repoRes.ToID,
-		Message: repoRes.Message,
-		Title:   repoRes.Title,
-		Payload: repoRes.Payload,
-		Type:    dto.TypeNotification(repoRes.Type.TypeNotification),
+		ID:         repoRes.NotificationID,
+		From:       dto.FromNotification(repoRes.From),
+		To:         dto.ToNotification(repoRes.To),
+		FromID:     repoRes.FromID,
+		ToID:       repoRes.ToID,
+		Message:    repoRes.Message,
+		Title:      repoRes.Title,
+		Payload:    repoRes.Payload,
+		Type:       dto.TypeNotification(repoRes.Type.TypeNotification),
+		Visualized: repoRes.Visualized.Bool,
 	}, nil
 }
 

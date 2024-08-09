@@ -9,7 +9,7 @@ type GetNotificationReq struct {
 }
 
 type GetNotificationRes struct {
-	ID         int64            `json:"from"`
+	ID         int64            `json:"id"`
 	From       FromNotification `json:"from"`
 	To         ToNotification   `json:"to"`
 	FromID     int32            `json:"fromId"`

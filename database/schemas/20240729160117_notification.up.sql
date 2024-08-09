@@ -5,7 +5,7 @@ CREATE TYPE type_notification AS ENUM ('information', 'correction', 'error', 'ap
 CREATE TABLE notification (
     notification_id BIGSERIAL PRIMARY KEY,
     "from" from_notification DEFAULT 'super_user' NOT NULL,
-    "to" to_notification DEFAULT 'send_to_all' NOT NULL,
+    "to" to_notification DEFAULT 'all' NOT NULL,
     from_id INT NOT NULL,
     to_id INT NOT NULL,
     message VARCHAR(255) NOT NULL,
