@@ -18,4 +18,5 @@ func (s *Server) RoutesNotification() {
 	serviceRoute.Get("/all", hanlder.List)
 	serviceRoute.Get("/:id", hanlder.Get)
 	serviceRoute.Post("/", hanlder.Create)
+	serviceRoute.Put("/update/:id", hanlder.Update)
 }

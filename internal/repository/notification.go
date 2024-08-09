@@ -84,3 +84,8 @@ func (r *repositoryNotification) ListNotifications() (*[]dto.GetNotificationRes,
 	}
 	return &notifications, nil
 }
+
+func (r *repositoryNotification) UpdateNotificationVisualized(arg *sq.UpdateNotificationVisualizedParams) error {
+	ctx := context.Background()
+	return r.notificationRepository.UpdateNotificationVisualized(ctx, *arg)
+}

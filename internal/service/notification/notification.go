@@ -54,3 +54,36 @@ func (s *serviceNotification) List() (*[]dto.GetNotificationRes, error) {
 	}
 	return repoRes, nil
 }
+
+func (s *serviceNotification) Update(req *dto.UpdateNotificationVisualizedReq) (bool, error) {
+	notification, err := s.Get(dto.GetNotificationReq{ID: req.NotificationID})
+
+	if err != nil {
+		return false, err
+	}
+
+	visualized := pgtype.Bool{
+		Bool:  notification.Visualized,
+		Valid: true,
+	}
+
+	repoReq := &sq.UpdateNotificationVisualizedParams{
+		NotificationID: req.NotificationID,
+		Visualized:     visualized,
+	}
+
+	if req.Visualized != false {
+		visualized = pgtype.Bool{
+			Bool:  req.Visualized,
+			Valid: true,
+		}
+	}
+
+	err = s.notificationRepository.UpdateNotificationVisualized(repoReq)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

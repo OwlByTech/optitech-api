@@ -9,13 +9,14 @@ type GetNotificationReq struct {
 }
 
 type GetNotificationRes struct {
-	ID      int64            `json:"from"`
-	From    FromNotification `json:"from"`
-	To      ToNotification   `json:"to"`
-	FromID  int32            `json:"fromId"`
-	ToID    int32            `json:"toId"`
-	Message string           `json:"message"`
-	Title   string           `json:"title"`
-	Payload json.RawMessage  `json:"payload"`
-	Type    TypeNotification `json:"type"`
+	ID         int64            `json:"from"`
+	From       FromNotification `json:"from"`
+	To         ToNotification   `json:"to"`
+	FromID     int32            `json:"fromId"`
+	ToID       int32            `json:"toId"`
+	Message    string           `json:"message"`
+	Title      string           `json:"title"`
+	Payload    json.RawMessage  `json:"payload"`
+	Type       TypeNotification `json:"type"`
+	Visualized bool             `json:"visualized"`
 }
