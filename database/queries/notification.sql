@@ -1,6 +1,6 @@
 -- name: GetNotification :one
 SELECT * FROM notification
-WHERE notification_id = $1 LIMIT 1;
+WHERE notification_id = $1 AND to_id = $2 LIMIT 1;
 
 -- name: ListNotifications :many
 SELECT * FROM notification

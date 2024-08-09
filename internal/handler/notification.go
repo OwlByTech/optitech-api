@@ -37,3 +37,18 @@ func (h *handlerNotification) Create(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerNotification) Get(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &ndto.GetNotificationReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.notificationService.Get(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

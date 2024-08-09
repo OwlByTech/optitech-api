@@ -39,3 +39,10 @@ func (s *serviceNotification) Create(req *dto.CreateNorificationReq) (*dto.Creat
 
 	return r, nil
 }
+
+func (s *serviceNotification) Get(req dto.GetNotificationReq) (*dto.GetNotificationRes, error) {
+	return s.notificationRepository.GetNotification(&sq.GetNotificationParams{
+		NotificationID: req.ID,
+		ToID:           int32(req.ID),
+	})
+}

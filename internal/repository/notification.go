@@ -37,3 +37,25 @@ func (r *repositoryNotification) CeateNotification(arg *sq.CreateNoficationParam
 		Type:    dto.TypeNotification(res.Type.TypeNotification),
 	}, nil
 }
+
+func (r *repositoryNotification) GetNotification(req *sq.GetNotificationParams) (*dto.GetNotificationRes, error) {
+	ctx := context.Background()
+
+	repoRes, err := r.notificationRepository.GetNotification(ctx, *req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetNotificationRes{
+		ID:      repoRes.NotificationID,
+		From:    dto.FromNotification(repoRes.From),
+		To:      dto.ToNotification(repoRes.To),
+		FromID:  repoRes.FromID,
+		ToID:    repoRes.ToID,
+		Message: repoRes.Message,
+		Title:   repoRes.Title,
+		Payload: repoRes.Payload,
+		Type:    dto.TypeNotification(repoRes.Type.TypeNotification),
+	}, nil
+}

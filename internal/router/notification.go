@@ -15,5 +15,6 @@ func (s *Server) RoutesNotification() {
 
 	serviceRoute := r.Group("/api/notification")
 
+	serviceRoute.Get("/:id", hanlder.Get)
 	serviceRoute.Post("/", hanlder.Create)
 }
