@@ -12,5 +12,9 @@ func (s *Server) RoutesFormat() {
 	service := format.NewServiceFormat(repoFormat)
 	handler := handler.NewHandlerFormat(service)
 	serviceRoute := r.Group("/api/format")
+	serviceRoute.Get("/all", handler.List)
 	serviceRoute.Get("/:id", handler.Get)
+	serviceRoute.Post("/create", handler.Create)
+	serviceRoute.Delete("/delete/:id", handler.Delete)
+	serviceRoute.Put("/update/:id", handler.Update)
 }

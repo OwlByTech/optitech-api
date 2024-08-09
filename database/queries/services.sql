@@ -12,7 +12,6 @@ SELECT name
 FROM services
 WHERE service_id = $1;
 
-
 -- name: CreateServices :one
 INSERT INTO services(name, created_at)
 VALUES ($1, $2)

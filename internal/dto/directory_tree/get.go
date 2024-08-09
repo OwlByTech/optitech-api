@@ -15,4 +15,5 @@ type GetDirectoryTreeRes struct {
 	Name          string                 `json:"name"`
 	Directory     []*GetDirectoryTreeRes `json:"directory"`
 	Document      *[]dto.GetDocumentRes  `json:"document"`
+	AsesorID      int32                  `json:"asesorId"`
 }
