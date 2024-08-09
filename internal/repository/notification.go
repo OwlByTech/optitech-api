@@ -59,3 +59,28 @@ func (r *repositoryNotification) GetNotification(req *sq.GetNotificationParams) 
 		Type:    dto.TypeNotification(repoRes.Type.TypeNotification),
 	}, nil
 }
+
+func (r *repositoryNotification) ListNotifications() (*[]dto.GetNotificationRes, error) {
+	ctx := context.Background()
+	repoRes, err := r.notificationRepository.ListNotifications(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	notifications := make([]dto.GetNotificationRes, len(repoRes))
+	for i, not := range repoRes {
+		notifications[i] = dto.GetNotificationRes{
+			ID:      not.NotificationID,
+			From:    dto.FromNotification(not.From),
+			To:      dto.ToNotification(not.To),
+			FromID:  not.FromID,
+			ToID:    not.ToID,
+			Message: not.Message,
+			Title:   not.Title,
+			Payload: not.Payload,
+			Type:    dto.TypeNotification(not.Type.TypeNotification),
+		}
+	}
+	return &notifications, nil
+}

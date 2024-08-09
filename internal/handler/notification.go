@@ -52,3 +52,12 @@ func (h *handlerNotification) Get(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
+func (h *handlerNotification) List(c *fiber.Ctx) error {
+	res, err := h.notificationService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}

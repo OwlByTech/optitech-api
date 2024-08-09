@@ -46,3 +46,11 @@ func (s *serviceNotification) Get(req dto.GetNotificationReq) (*dto.GetNotificat
 		ToID:           int32(req.ID),
 	})
 }
+
+func (s *serviceNotification) List() (*[]dto.GetNotificationRes, error) {
+	repoRes, err := s.notificationRepository.ListNotifications()
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
+}
