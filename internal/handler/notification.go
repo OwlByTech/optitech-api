@@ -3,6 +3,7 @@ package handler
 import (
 	ndto "optitech/internal/dto/notification"
 	"optitech/internal/interfaces"
+	"strconv"
 
 	dto "optitech/internal/dto"
 
@@ -39,9 +40,17 @@ func (h *handlerNotification) Create(c *fiber.Ctx) error {
 }
 
 func (h *handlerNotification) Get(c *fiber.Ctx) error {
-	params := c.AllParams()
-	req := &ndto.GetNotificationReq{}
-	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "ID inválido: "+err.Error())
+	}
+
+	req := &ndto.GetNotificationReq{
+		ID: id,
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 

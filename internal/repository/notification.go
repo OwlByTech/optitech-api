@@ -38,10 +38,10 @@ func (r *repositoryNotification) CeateNotification(arg *sq.CreateNoficationParam
 	}, nil
 }
 
-func (r *repositoryNotification) GetNotification(req *sq.GetNotificationParams) (*dto.GetNotificationRes, error) {
+func (r *repositoryNotification) GetNotification(ID int64) (*dto.GetNotificationRes, error) {
 	ctx := context.Background()
 
-	repoRes, err := r.notificationRepository.GetNotification(ctx, *req)
+	repoRes, err := r.notificationRepository.GetNotification(ctx, ID)
 
 	if err != nil {
 		return nil, err

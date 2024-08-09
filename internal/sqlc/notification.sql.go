@@ -60,16 +60,11 @@ func (q *Queries) CreateNofication(ctx context.Context, arg CreateNoficationPara
 
 const getNotification = `-- name: GetNotification :one
 SELECT notification_id, "from", "to", from_id, to_id, message, title, visualized, payload, type, created_at FROM notification
-WHERE notification_id = $1 AND to_id = $2 LIMIT 1
+WHERE notification_id = $1 LIMIT 1
 `
 
-type GetNotificationParams struct {
-	NotificationID int64 `json:"notification_id"`
-	ToID           int32 `json:"to_id"`
-}
-
-func (q *Queries) GetNotification(ctx context.Context, arg GetNotificationParams) (Notification, error) {
-	row := q.db.QueryRow(ctx, getNotification, arg.NotificationID, arg.ToID)
+func (q *Queries) GetNotification(ctx context.Context, notificationID int64) (Notification, error) {
+	row := q.db.QueryRow(ctx, getNotification, notificationID)
 	var i Notification
 	err := row.Scan(
 		&i.NotificationID,

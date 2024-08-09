@@ -16,7 +16,7 @@ type INotificationService interface {
 
 type INotificationRepositoy interface {
 	CeateNotification(arg *models.CreateNoficationParams) (*dto.CreateNotificationRes, error)
-	GetNotification(req *models.GetNotificationParams) (*dto.GetNotificationRes, error)
+	GetNotification(ID int64) (*dto.GetNotificationRes, error)
 	ListNotifications() (*[]dto.GetNotificationRes, error)
 	UpdateNotificationVisualized(arg *models.UpdateNotificationVisualizedParams) error
 }

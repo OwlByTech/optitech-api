@@ -41,15 +41,7 @@ func (s *serviceNotification) Create(req *dto.CreateNorificationReq) (*dto.Creat
 }
 
 func (s *serviceNotification) Get(req dto.GetNotificationReq) (*dto.GetNotificationRes, error) {
-	params := &sq.GetNotificationParams{
-		NotificationID: req.ID,
-	}
-
-	res, err := s.notificationRepository.GetNotification(params)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	return s.notificationRepository.GetNotification(req.ID)
 }
 
 func (s *serviceNotification) List() (*[]dto.GetNotificationRes, error) {
