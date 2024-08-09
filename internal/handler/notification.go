@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	ndto "optitech/internal/dto/notification"
 	"optitech/internal/interfaces"
 	"strconv"
@@ -72,22 +73,13 @@ func (h *handlerNotification) List(c *fiber.Ctx) error {
 }
 
 func (h *handlerNotification) Update(c *fiber.Ctx) error {
-	params_id := c.AllParams()
-	req_id := &ndto.GetNotificationReq{}
-
-	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
-
-	visualized := true
-
-	req := &ndto.UpdateNotificationVisualizedReq{
-		NotificationID: req_id.ID,
-		Visualized:     visualized,
-	}
+	params := c.AllParams()
+	log.Print(params)
+	req := &ndto.UpdateNotificationVisualizedReq{}
+	log.Print(req)
 
 	if err := c.BodyParser(req); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Unvalid entry: "+err.Error())
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid entry: "+err.Error())
 	}
 
 	if err := dto.ValidateDTO(req); err != nil {
@@ -95,7 +87,6 @@ func (h *handlerNotification) Update(c *fiber.Ctx) error {
 	}
 
 	success, err := h.notificationService.Update(req)
-
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
