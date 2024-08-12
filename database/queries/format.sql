@@ -1,6 +1,14 @@
 -- name: GetFormat :one
 SELECT * FROM format
-WHERE format_id = $1 LIMIT 1;
+WHERE format_id = $1
+AND deleted_at is not null
+LIMIT 1;
+
+-- name: ListFormatsById :many
+SELECT * FROM format
+WHERE format_id = ANY($1::int[])
+AND asesor_id = $2
+AND deleted_at IS NULL;
 
 -- name: ListFormats :many
 SELECT * FROM format
