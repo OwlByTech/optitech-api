@@ -74,7 +74,6 @@ func (h *handlerNotification) List(c *fiber.Ctx) error {
 
 func (h *handlerNotification) Update(c *fiber.Ctx) error {
 	params := c.AllParams()
-	log.Print(params)
 	req := &ndto.UpdateNotificationVisualizedReq{}
 	log.Print(req)
 
