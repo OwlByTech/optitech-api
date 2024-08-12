@@ -28,7 +28,7 @@ const (
 	TypeNotificationAproved     TypeNotification = "aproved"
 )
 
-type CreateNorificationReq struct {
+type CreateNotificationReq struct {
 	From    FromNotification `json:"from" validate:"required"`
 	To      ToNotification   `json:"to" validate:"required"`
 	FromID  int32            `json:"fromId" validate:"required"`
