@@ -5,6 +5,7 @@ type UpdateDirectoryTreeReq struct {
 	ParentID      int64  `json:"parentId"`
 	Name          string `json:"name"`
 	InstitutionID int32  `json:"institutionId"`
+	AsesorID      int32  `json:"asesorId"`
 }
 
 type UpdateDirectoryTreeRes struct {
@@ -12,4 +13,5 @@ type UpdateDirectoryTreeRes struct {
 	InstitutionID int32  `json:"institutionId"`
 	ParentID      int64  `json:"parentId"`
 	Name          string `json:"name"`
+	AsesorID      int32  `json:"asesorId"`
 }
