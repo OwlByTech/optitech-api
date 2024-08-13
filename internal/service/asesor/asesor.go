@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	dto "optitech/internal/dto/asesor"
 	ddto "optitech/internal/dto/directory_tree"
 	sdto "optitech/internal/dto/services"
@@ -47,6 +48,7 @@ func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, 
 	}
 
 	rootDirectoryID, err := s.directoryTreeService.Create(directoryTreeRoot)
+	log.Print(rootDirectoryID.DirectoryId)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +62,7 @@ func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, 
 	for _, service := range *services {
 
 		serviceDirectoryReq := &ddto.CreateDirectoryTreeReq{
-			ParentID: rootDirectoryID.ParentID,
+			ParentID: rootDirectoryID.DirectoryId,
 			Name:     service.Name,
 			AsesorID: r.Id,
 		}
