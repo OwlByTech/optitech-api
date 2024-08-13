@@ -7,7 +7,7 @@ import (
 )
 
 var repoAsesor = repository.NewRepositoryAsesor(&repository.Queries)
-var serviceAsesor = service.NewServiceAsesor(repoAsesor, serviceDirectoryTree)
+var serviceAsesor = service.NewServiceAsesor(repoAsesor, serviceDirectoryTree, serviceServices)
 
 func (s *Server) RoutesAsesor() {
 	r := s.app
