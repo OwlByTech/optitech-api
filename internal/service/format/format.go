@@ -7,7 +7,6 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -28,7 +27,6 @@ func (s *serviceFormat) Get(req dto.GetFormatReq) (*dto.GetFormatRes, error) {
 }
 
 func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, error) {
-	log.Info(req)
 	repoReq := &sq.CreateFormatParams{
 		AsesorID:    req.AsesorId,
 		ServiceID:   pgtype.Int4{Int32: req.ServiceID, Valid: true},
@@ -46,7 +44,6 @@ func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, 
 	if err != nil {
 		return nil, err
 	}
-	log.Info(r.Id, req)
 
 	_, err = s.documentService.Create(&ddto.CreateDocumentReq{
 		FormatId:    r.Id,

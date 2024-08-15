@@ -123,7 +123,6 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	}
 
 	for _, serviceID := range req.Services {
-
 		getServiceReq := sdto.GetServiceReq{
 			Id: serviceID,
 		}
