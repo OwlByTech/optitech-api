@@ -101,3 +101,32 @@ func DownloadDocumentByte(route string, directory string) ([]byte, error) {
 
 	return buf.Bytes(), nil
 }
+
+func UploadDocumentByte(fileBytes []byte, name string, institutionName string) (string, error) {
+
+	s3Config := &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
+		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
+		S3ForcePathStyle: aws.Bool(false),
+		Region:           aws.String(cnf.Env.DigitalOceanRegion),
+	}
+
+	sess, err := session.NewSession(s3Config)
+	if err != nil {
+		return "", err
+	}
+
+	uploader := s3manager.NewUploader(sess)
+	fileReader := bytes.NewReader(fileBytes)
+
+	_, err = uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
+		Body:   fileReader,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return name, nil
+}
