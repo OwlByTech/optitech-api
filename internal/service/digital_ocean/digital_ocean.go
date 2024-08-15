@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"mime/multipart"
 	cnf "optitech/internal/config"
 	"time"
@@ -70,4 +72,32 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 	}
 	defer file.Close()
 	return name, nil
+}
+
+func DownloadDocumentByte(route string, directory string) ([]byte, error) {
+	s3Config := cnf.GetS3Config()
+
+	sess, err := session.NewSession(s3Config)
+	if err != nil {
+		return nil, err
+	}
+
+	svc := s3.New(sess)
+
+	result, err := svc.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(fmt.Sprintf("%s/%s", directory, route)),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer result.Body.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, result.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }

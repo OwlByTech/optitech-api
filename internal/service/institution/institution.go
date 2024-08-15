@@ -233,3 +233,7 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 
 	return true, nil
 }
+
+func (s *serviceInstitution) CreateAllFormat() (bool, error) {
+	return true, nil
+}

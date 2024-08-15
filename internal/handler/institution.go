@@ -168,7 +168,6 @@ func (h *handlerInstitution) UpdateLogo(c *fiber.Ctx) error {
 }
 
 func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
-
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
@@ -183,4 +182,8 @@ func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 
+}
+
+func (h *handlerInstitution) CreateAllFormat(c *fiber.Ctx) error {
+	return nil
 }
