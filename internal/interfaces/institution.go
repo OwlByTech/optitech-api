@@ -18,7 +18,7 @@ type IInstitutionService interface {
 	UpdateLogo(req *dto.UpdateLogoReq) (bool, error)
 	List() (*[]dto.GetInstitutionRes, error)
 	Delete(req dto.GetInstitutionReq) (bool, error)
-	CreateAllFormat() (bool, error)
+	CreateAllFormat(req dto.GetInstitutionReq) (bool, error)
 }
 type IInstitutionRepository interface {
 	GetInstitutionByClient(ClientID int32) (int32, error)

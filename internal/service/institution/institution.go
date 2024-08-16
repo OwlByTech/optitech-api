@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
@@ -234,6 +235,48 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 	return true, nil
 }
 
-func (s *serviceInstitution) CreateAllFormat() (bool, error) {
+func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, error) {
+
+	institution, err := s.Get(req)
+	if err != nil {
+		return false, err
+	}
+
+	asesorId := institution.AsesorId
+	if asesorId == 0 {
+		return false, fmt.Errorf("Asesor not find")
+	}
+
+	directoryTreeReq := dtdto.GetDirectoryTreeReq{
+		AsesorID: asesorId,
+	}
+
+	services, err := s.directoryTreeService.ListByParent(&directoryTreeReq)
+	if err != nil {
+		return false, err
+	}
+
+	for _, service := range services {
+		// Descargar los formatos asociados al servicio
+		formatos, err := s.servicesService.ListFormats(service.ID)
+		if err != nil {
+			return false, err
+		}
+
+		for _, formato := range formatos {
+			// Descargar el documento desde DigitalOcean (S3)
+			formatoBytes, err := digitalOcean.DownloadDocument(formato.Route, institution.InstitutionName)
+			if err != nil {
+				return false, err
+			}
+
+			// Subir el documento a la institución en DigitalOcean (S3)
+			_, err = digitalOcean.UploadDocument(formatoBytes, formato.Name, institution.InstitutionName)
+			if err != nil {
+				return false, err
+			}
+		}
+
+	}
 	return true, nil
 }
