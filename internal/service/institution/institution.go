@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
@@ -245,8 +246,7 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 }
 
 func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, error) {
-
-	/*institution, err := s.Get(req)
+	institution, err := s.Get(req)
 	if err != nil {
 		return false, err
 	}
@@ -256,36 +256,58 @@ func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, e
 		return false, fmt.Errorf("Asesor not find")
 	}
 
-	directoryTreeReq := dtdto.GetDirectoryTreeReq{
+	directoryAsesor := dtdto.GetDirectoryTreeReq{
 		AsesorID: asesorId,
 	}
 
-	services, err := s.directoryTreeService.ListByParent(&directoryTreeReq)
+	directoryInstitution := dtdto.GetDirectoryTreeReq{
+		InstitutionID: institution.Id,
+	}
+
+	servicesAsesor, err := s.directoryTreeService.ListByParent(&directoryAsesor)
 	if err != nil {
 		return false, err
 	}
 
-	for _, service := range services.Directory {
-		// Descargar los formatos asociados al servicio
-		formatos, err := s.formatService.ListById(service.ID)
-		if err != nil {
-			return false, err
-		}
+	servicesInstitution, err := s.directoryTreeService.ListByParent(&directoryInstitution)
+	if err != nil {
+		return false, err
+	}
 
-		for _, formato := range formatos {
-			formatoBytes, err := digitalOcean.DownloadDocument(formato.Route, institution.InstitutionName)
+	// Carpetas de la institucion
+	institutionFoldersMap := make(map[string]bool)
+	for _, folder := range servicesInstitution.Directory {
+		institutionFoldersMap[folder.Name] = true
+	}
+
+	// Filtrar las carpetas del asesor que están en la institucion
+	var commonFolders []*dtdto.GetDirectoryTreeRes
+	if servicesAsesor.Directory != nil {
+		for _, folder := range servicesAsesor.Directory {
+			if institutionFoldersMap[folder.Name] {
+				commonFolders = append(commonFolders, folder)
+			}
+		}
+	}
+
+	for _, folder := range commonFolders {
+		for _, doc := range *folder.Document {
+			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute, folder.Name)
+			if err != nil {
+				return false, err
+			}
+			// Aplicar docustream
+			format, err := s.formatService.ApplyFormat(docBytes)
 			if err != nil {
 				return false, err
 			}
 
-			// antes de subir debe convertirse al nuevo formato
-
-			_, err = digitalOcean.UploadDocument(formatoBytes, formato.Name, institution.InstitutionName)
+			_, err = digitalOcean.UploadDocument(format, folder.Name, institution.InstitutionName)
 			if err != nil {
 				return false, err
 			}
 		}
-	}*/
+	}
 
 	return true, nil
 }

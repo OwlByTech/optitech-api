@@ -7,6 +7,9 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
+	docustream "github.com/owlbytech/docu-stream-go"
+	ds "github.com/owlbytech/docu-stream-go"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -129,4 +132,51 @@ func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *serviceFormat) ApplyFormat(format []byte) ([]byte, error) {
+	// Traer info
+
+	// Convertir Archivos
+	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: "localhost:5000"}) // TODO: obtenerlo de .env
+
+	if err != nil {
+		return nil, err
+	}
+
+	header := convertToDocuValues(map[string]string{
+		"Company Name": "OwlByTech",
+	})
+
+	body := convertToDocuValues(map[string]string{
+		"Company Name": "OwlByTech",
+	})
+
+	footer := convertToDocuValues(map[string]string{
+		"Company Name": "OwlByTech",
+	})
+
+	res, err := c.Apply(&ds.WordApplyReq{
+		Docu:   format,
+		Header: header,
+		Body:   body,
+		Footer: footer,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Docu, nil
+}
+
+func convertToDocuValues(data map[string]string) []docustream.DocuValue {
+	values := make([]docustream.DocuValue, 0, len(data))
+	for k, v := range data {
+		values = append(values, docustream.DocuValue{
+			Key:   k,
+			Value: v,
+		})
+	}
+	return values
 }
