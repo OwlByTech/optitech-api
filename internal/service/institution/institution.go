@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
@@ -10,6 +9,7 @@ import (
 	"optitech/internal/interfaces"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -21,15 +21,17 @@ type serviceInstitution struct {
 	clientInstitutionService  interfaces.IInstitutionClientService
 	directoryTreeService      interfaces.IDirectoryService
 	servicesService           interfaces.IService
+	formatService             interfaces.IFormatService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService) interfaces.IInstitutionService {
+func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService, serviceFormat interfaces.IFormatService) interfaces.IInstitutionService {
 	return &serviceInstitution{
 		institutionRepository:     r,
 		serviceInstitutionService: serviceInstitutionService,
 		clientInstitutionService:  serviceInstitutionClient,
 		directoryTreeService:      serviceDirectoryTree,
 		servicesService:           services,
+		formatService:             serviceFormat,
 	}
 }
 
@@ -188,6 +190,7 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 
 	return true, nil
 }
+
 func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 	institution, err := s.Get(dto.GetInstitutionReq{Id: req.InstitutionID})
 	if err != nil {
@@ -198,13 +201,18 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 		UpdatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
+	logo, err := tools.FileToBytes(req.LogoFile)
+	if err != nil {
+		return false, err
+	}
+
 	if req.LogoFile != nil {
-		name, err := digitalOcean.UploadDocument(req.LogoFile, institution.InstitutionName, institution.InstitutionName)
+		name, err := digitalOcean.UploadDocument(logo, institution.InstitutionName, institution.InstitutionName)
 		if err != nil {
 			return false, err
 		}
 
-		repoReq.Logo = pgtype.Text{String: name, Valid: true}
+		repoReq.Logo = pgtype.Text{String: *name, Valid: true}
 
 	}
 
@@ -216,6 +224,7 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 
 	return true, nil
 }
+
 func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 	repoReq := &sq.DeleteInstitutionParams{
 		InstitutionID: req.Id,
@@ -237,7 +246,7 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 
 func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, error) {
 
-	institution, err := s.Get(req)
+	/*institution, err := s.Get(req)
 	if err != nil {
 		return false, err
 	}
@@ -256,27 +265,27 @@ func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, e
 		return false, err
 	}
 
-	for _, service := range services {
+	for _, service := range services.Directory {
 		// Descargar los formatos asociados al servicio
-		formatos, err := s.servicesService.ListFormats(service.ID)
+		formatos, err := s.formatService.ListById(service.ID)
 		if err != nil {
 			return false, err
 		}
 
 		for _, formato := range formatos {
-			// Descargar el documento desde DigitalOcean (S3)
 			formatoBytes, err := digitalOcean.DownloadDocument(formato.Route, institution.InstitutionName)
 			if err != nil {
 				return false, err
 			}
 
-			// Subir el documento a la institución en DigitalOcean (S3)
+			// antes de subir debe convertirse al nuevo formato
+
 			_, err = digitalOcean.UploadDocument(formatoBytes, formato.Name, institution.InstitutionName)
 			if err != nil {
 				return false, err
 			}
 		}
+	}*/
 
-	}
 	return true, nil
 }

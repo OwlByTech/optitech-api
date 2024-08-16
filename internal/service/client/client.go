@@ -11,6 +11,7 @@ import (
 	digitalOcean "optitech/internal/service/digital_ocean"
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"strconv"
 	"time"
 
@@ -176,11 +177,15 @@ func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error)
 	}
 	if req.Photo != nil {
 		nameFile := fmt.Sprintf("%s%s", "photo_", strconv.Itoa(int(repoReq.ClientID)))
-		name, err := digitalOcean.UploadDocument(req.Photo, nameFile, assets)
+		photo, err := tools.FileToBytes(req.Photo)
 		if err != nil {
 			return false, err
 		}
-		repoReq.Photo = pgtype.Text{String: name, Valid: true}
+		name, err := digitalOcean.UploadDocument(photo, nameFile, assets)
+		if err != nil {
+			return false, err
+		}
+		repoReq.Photo = pgtype.Text{String: *name, Valid: true}
 	}
 
 	if err := s.clientRepository.UpdatePhotoClient(repoReq); err != nil {

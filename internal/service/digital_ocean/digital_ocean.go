@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"mime/multipart"
 	cnf "optitech/internal/config"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 func DownloadDocument(route string, directory string) (string, error) {
@@ -37,41 +35,6 @@ func DownloadDocument(route string, directory string) (string, error) {
 	}
 
 	return urlStr, nil
-}
-
-func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionName string) (string, error) {
-
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
-		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.Env.DigitalOceanRegion),
-	}
-
-	sess, err := session.NewSession(s3Config)
-
-	if err != nil {
-		return "", err
-	}
-	uploader := s3manager.NewUploader(sess)
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return "", err
-	}
-
-	log.Info(name, institutionName)
-
-	_, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
-		Body:   file,
-	})
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	return name, nil
 }
 
 func DownloadDocumentByte(route string, directory string) ([]byte, error) {
@@ -102,7 +65,7 @@ func DownloadDocumentByte(route string, directory string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func UploadDocumentByte(fileBytes []byte, name string, institutionName string) (string, error) {
+func UploadDocument(fileBytes []byte, name string, institutionName string) (*string, error) {
 
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
@@ -113,7 +76,7 @@ func UploadDocumentByte(fileBytes []byte, name string, institutionName string) (
 
 	sess, err := session.NewSession(s3Config)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	uploader := s3manager.NewUploader(sess)
@@ -125,8 +88,8 @@ func UploadDocumentByte(fileBytes []byte, name string, institutionName string) (
 		Body:   fileReader,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return name, nil
+	return &name, nil
 }

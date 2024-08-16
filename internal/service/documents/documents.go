@@ -7,6 +7,7 @@ import (
 	"optitech/internal/interfaces"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -64,7 +65,12 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 
 	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
 
-	fileRute, err := digitalOcean.UploadDocument(req.File, rute, nameFolder)
+	file, err := tools.FileToBytes(req.File)
+	if err != nil {
+		return nil, err
+	}
+
+	fileRute, err := digitalOcean.UploadDocument(file, rute, nameFolder)
 
 	if err != nil {
 		return nil, err
@@ -73,7 +79,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	if req.FormatId > 0 {
 		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
-	repoReq.FileRute = fileRute
+	repoReq.FileRute = *fileRute
 	log.Info(*repoReq, req)
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 
@@ -84,32 +90,32 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	return repoRes, err
 }
 
-func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
+func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*string, error) {
 
 	document, err := s.documentRepository.DownloadDocumentById(req.Id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if document.AsesorId != req.AsesorId && document.InstitutionId != req.InstitutionId {
-		return "", fmt.Errorf("the document does not exist")
+		return nil, fmt.Errorf("the document does not exist")
 	}
 
 	if req.InstitutionId > 0 {
 		route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
 
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		return route, err
+		return &route, err
 
 	}
 	nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
 	route, err := digitalOcean.DownloadDocument(document.FileRute, nameFolder)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return route, err
+	return &route, err
 
 }
 

@@ -13,7 +13,7 @@ type IDocumentService interface {
 	Create(arg *d.CreateDocumentReq) (*d.CreateDocumentRes, error)
 	ListByDirectory(req dto.GetDirectoryTreeReq) (*[]d.GetDocumentRes, error)
 	DeleteDocument(req d.GetDocumentReq) (bool, error)
-	DownloadDocumentById(req d.GetDocumentReq) (string, error)
+	DownloadDocumentById(req d.GetDocumentReq) (*string, error)
 	UpdateDocument(req *d.UpdateDocumentReq) (bool, error)
 }
 
