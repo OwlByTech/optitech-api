@@ -84,9 +84,7 @@ func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*string,
 		return nil, fmt.Errorf("the document does not exist")
 	}
 
-	folder := folderPath(req.InstitutionId, req.AsesorId)
-	filePath := filepath.Join(folder, doc.FileRute)
-	url, err := digitalOcean.DownloadDocument(filePath)
+	url, err := digitalOcean.DownloadDocument(doc.FileRute)
 	if err != nil {
 		return nil, err
 	}
