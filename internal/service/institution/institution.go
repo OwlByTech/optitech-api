@@ -15,6 +15,10 @@ import (
 	"strconv"
 	"time"
 
+	docustream "github.com/owlbytech/docu-stream-go"
+
+	ds "github.com/owlbytech/docu-stream-go"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -329,7 +333,14 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 				return false, err
 			}
 
-			format, err := s.formatService.ApplyWordFormat(docBytes)
+			formatReq := ds.WordApplyReq{
+				Docu:   docBytes,
+				Header: convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
+				Body:   convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
+				Footer: convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
+			}
+
+			format, err := s.formatService.ApplyWordFormat(formatReq)
 			if err != nil {
 				return false, err
 			}
@@ -348,4 +359,15 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		}
 	}
 	return true, nil
+}
+
+func convertToDocuValues(data map[string]string) []docustream.DocuValue {
+	values := make([]docustream.DocuValue, 0, len(data))
+	for k, v := range data {
+		values = append(values, docustream.DocuValue{
+			Key:   k,
+			Value: v,
+		})
+	}
+	return values
 }

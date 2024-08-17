@@ -10,7 +10,6 @@ import (
 	"os"
 	"time"
 
-	docustream "github.com/owlbytech/docu-stream-go"
 	ds "github.com/owlbytech/docu-stream-go"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -143,10 +142,7 @@ func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
 	return true, nil
 }
 
-func (s *serviceFormat) ApplyWordFormat(format []byte) ([]byte, error) {
-	// Traer info
-
-	// Convertir Archivos
+func (s *serviceFormat) ApplyWordFormat(req ds.WordApplyReq) ([]byte, error) {
 	url := os.Getenv("DOCU_STREAM_IP")
 	if url == "" {
 		log.Fatalf("WORD_CLIENT_URL not set in .env file")
@@ -157,39 +153,11 @@ func (s *serviceFormat) ApplyWordFormat(format []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	header := convertToDocuValues(map[string]string{
-		"Company Name": "Otra",
-	})
-
-	body := convertToDocuValues(map[string]string{
-		"Company Name": "Body",
-	})
-
-	footer := convertToDocuValues(map[string]string{
-		"Company Name": "IPS",
-	})
-
-	res, err := c.Apply(&ds.WordApplyReq{
-		Docu:   format,
-		Header: header,
-		Body:   body,
-		Footer: footer,
-	})
+	res, err := c.Apply(&req)
 
 	if err != nil {
 		return nil, err
 	}
 
 	return res.Docu, nil
-}
-
-func convertToDocuValues(data map[string]string) []docustream.DocuValue {
-	values := make([]docustream.DocuValue, 0, len(data))
-	for k, v := range data {
-		values = append(values, docustream.DocuValue{
-			Key:   k,
-			Value: v,
-		})
-	}
-	return values
 }
