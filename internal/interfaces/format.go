@@ -15,7 +15,7 @@ type IFormatService interface {
 	ListById(req *f.ListFormatsReq) (*[]dto.GetFormatRes, error)
 	Delete(req dto.GetFormatReq) (bool, error)
 	Update(req *dto.UpdateFormatReq) (bool, error)
-	ApplyFormat(format []byte) ([]byte, error)
+	ApplyWordFormat(format []byte) ([]byte, error)
 }
 
 type IFormatRepository interface {

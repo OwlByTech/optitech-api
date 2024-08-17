@@ -1,11 +1,13 @@
 package service
 
 import (
+	"log"
 	ddto "optitech/internal/dto/document"
 	dto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
+	"os"
 	"time"
 
 	docustream "github.com/owlbytech/docu-stream-go"
@@ -141,11 +143,15 @@ func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
 	return true, nil
 }
 
-func (s *serviceFormat) ApplyFormat(format []byte) ([]byte, error) {
+func (s *serviceFormat) ApplyWordFormat(format []byte) ([]byte, error) {
 	// Traer info
 
 	// Convertir Archivos
-	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: "192.168.18.8:5000"}) // TODO: obtenerlo de .env
+	url := os.Getenv("DOCU_STREAM_IP")
+	if url == "" {
+		log.Fatalf("WORD_CLIENT_URL not set in .env file")
+	}
+	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: url})
 
 	if err != nil {
 		return nil, err

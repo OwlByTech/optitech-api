@@ -329,7 +329,7 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 				return false, err
 			}
 
-			format, err := s.formatService.ApplyFormat(docBytes)
+			format, err := s.formatService.ApplyWordFormat(docBytes)
 			if err != nil {
 				return false, err
 			}
