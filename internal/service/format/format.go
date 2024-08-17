@@ -145,7 +145,7 @@ func (s *serviceFormat) ApplyFormat(format []byte) ([]byte, error) {
 	// Traer info
 
 	// Convertir Archivos
-	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: "192.168.18.8:5000"}) // TODO: obtenerlo de .env
+	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: "192.168.1.86:5000"}) // TODO: obtenerlo de .env
 
 	if err != nil {
 		return nil, err

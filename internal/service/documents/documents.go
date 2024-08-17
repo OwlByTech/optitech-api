@@ -7,15 +7,14 @@ import (
 	"optitech/internal/interfaces"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"path/filepath"
-	"strconv"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const asesorEnum = "Asesor"
+
 
 type serviceDocument struct {
 	documentRepository interfaces.IDocumentRepository
@@ -27,6 +26,14 @@ func NewServiceDocument(d interfaces.IDocumentRepository) interfaces.IDocumentSe
 	}
 }
 
+func folderPath(institutionId int32, asesorId int32) string {
+	if institutionId > 0 {
+		return tools.FolderTypePath(tools.InstitutionFolderType, institutionId)
+	}
+
+	return tools.FolderTypePath(tools.AsesorFolderType, asesorId)
+}
+
 func (s *serviceDocument) Get(req dto.GetDocumentReq) (*dto.GetDocumentRes, error) {
 	return s.documentRepository.GetDocument(req.Id)
 }
@@ -36,46 +43,30 @@ func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto
 }
 
 func (s *serviceDocument) Create(req *dto.CreateDocumentByteReq) (*dto.CreateDocumentRes, error) {
-
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
 		Name:        req.Filename,
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-	var nameFolder string
 
 	if req.Status != "" {
 		repoReq.Status = sq.NullStatus{Status: sq.Status(req.Status), Valid: true}
 	}
+
 	if req.FormatId > 0 {
 		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
 
-	if req.InstitutionId > 0 {
-		res, err := s.documentRepository.GetInstitutionByDocumentId(repoReq.DirectoryID)
-		if err != nil {
-			return nil, err
-		}
-		nameFolder = res.Institution.InstitutionName
+	folder := folderPath(req.InstitutionId, req.AsesorId)
+	filename := tools.NormalizeFilename(req.Filename)
+	filePath := filepath.Join(folder, filename)
 
-	} else {
-		nameFolder = fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
-	}
-
-	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.Filename))
-
-	fileRute, err := digitalOcean.UploadDocument(*req.File, rute, nameFolder)
-	if err != nil {
+	if err := digitalOcean.UploadDocument(*req.File, filePath); err != nil {
 		return nil, err
 	}
 
-	if req.FormatId > 0 {
-		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
-	}
-	repoReq.FileRute = *fileRute
-	log.Info(*repoReq, req)
+	repoReq.FileRute = filePath
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
-
 	if err != nil {
 		return nil, err
 	}
@@ -84,32 +75,23 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentByteReq) (*dto.CreateDoc
 }
 
 func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*string, error) {
-
-	document, err := s.documentRepository.DownloadDocumentById(req.Id)
+	doc, err := s.documentRepository.DownloadDocumentById(req.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	if document.AsesorId != req.AsesorId && document.InstitutionId != req.InstitutionId {
+	if doc.AsesorId != req.AsesorId && doc.InstitutionId != req.InstitutionId {
 		return nil, fmt.Errorf("the document does not exist")
 	}
 
-	if req.InstitutionId > 0 {
-		route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
-
-		if err != nil {
-			return nil, err
-		}
-		return &route, err
-
-	}
-	nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
-	route, err := digitalOcean.DownloadDocument(document.FileRute, nameFolder)
+	folder := folderPath(req.InstitutionId, req.AsesorId)
+	filePath := filepath.Join(folder, doc.FileRute)
+	url, err := digitalOcean.DownloadDocument(filePath)
 	if err != nil {
 		return nil, err
 	}
-	return &route, err
 
+	return url, err
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
@@ -126,7 +108,6 @@ func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
 }
 
 func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, error) {
-
 	repoReq := &sq.UpdateDocumentNameByIdParams{
 		DocumentID: req.Id,
 		Name:       req.Name,

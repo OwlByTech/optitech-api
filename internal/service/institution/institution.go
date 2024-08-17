@@ -12,7 +12,7 @@ import (
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
-	"strconv"
+	"path/filepath"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -63,11 +63,11 @@ func (s *serviceInstitution) GetLogo(req dto.GetInstitutionReq) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	route, err := digitalOcean.DownloadDocument(institution.Logo, institution.InstitutionName)
+	url, err := digitalOcean.DownloadDocument(institution.Logo)
 	if err != nil {
 		return "", err
 	}
-	return route, nil
+	return *url, nil
 }
 
 func (s *serviceInstitution) List() (*[]dto.GetInstitutionRes, error) {
@@ -213,14 +213,16 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 		return false, err
 	}
 
+	folder := tools.FolderTypePath(tools.ClientFolderType, institution.Id)
+	filename := tools.NormalizeFilename(req.LogoFile.Filename)
+	filePath := filepath.Join(folder, filename)
+
 	if req.LogoFile != nil {
-		name, err := digitalOcean.UploadDocument(logo, institution.InstitutionName, institution.InstitutionName)
-		if err != nil {
+		if err := digitalOcean.UploadDocument(logo, filePath); err != nil {
 			return false, err
 		}
 
-		repoReq.Logo = pgtype.Text{String: *name, Valid: true}
-
+		repoReq.Logo = pgtype.Text{String: filePath, Valid: true}
 	}
 
 	err = s.institutionRepository.UpdateLogoInstitution(repoReq)
@@ -323,8 +325,7 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		}
 
 		for _, doc := range *folderDocuments.Document {
-			nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(directoryAsesor.AsesorID)))
-			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute, nameFolder)
+			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute)
 			if err != nil {
 				return false, err
 			}
