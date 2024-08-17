@@ -68,7 +68,7 @@ func (h *handlerDocument) CreateDocument(c *fiber.Ctx) error {
 		DirectoryId:   req.DirectoryId,
 		FormatId:      req.FormatId,
 		File:          &fileByte,
-		Filename:      req.File.Filename,
+		Filename:      file.Filename,
 		Status:        req.Status,
 		AsesorId:      req.AsesorId,
 		InstitutionId: req.InstitutionId,
