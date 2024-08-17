@@ -185,5 +185,22 @@ func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
 }
 
 func (h *handlerInstitution) CreateAllFormat(c *fiber.Ctx) error {
-	return nil
+	req := &cdto.GetInstitutionReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.institutionService.CreateAllFormat(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"success": success,
+	})
 }

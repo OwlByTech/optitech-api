@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
 	dto "optitech/internal/dto/institution"
@@ -11,10 +12,14 @@ import (
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
+	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const asesorEnum = "Asesor"
 
 type serviceInstitution struct {
 	institutionRepository     interfaces.IInstitutionRepository
@@ -245,29 +250,44 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 	return true, nil
 }
 
-func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, error) {
-	institution, err := s.Get(req)
+func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, error) {
+	institution, err := s.Get(*req)
 	if err != nil {
 		return false, err
 	}
 
 	asesorId := institution.AsesorId
 	if asesorId == 0 {
-		return false, fmt.Errorf("Asesor not find")
+		return false, fmt.Errorf("Asesor not found")
 	}
 
 	directoryAsesor := dtdto.GetDirectoryTreeReq{
 		AsesorID: asesorId,
 	}
 
+	directoryAsesorParent, err := s.directoryTreeService.GetIdByParent(&directoryAsesor)
+	if err != nil {
+		return false, err
+	}
+
 	directoryInstitution := dtdto.GetDirectoryTreeReq{
 		InstitutionID: institution.Id,
 	}
 
-	servicesAsesor, err := s.directoryTreeService.ListByParent(&directoryAsesor)
+	directoryInstitutionParentId, err := s.directoryTreeService.GetIdByParent(&directoryInstitution)
 	if err != nil {
 		return false, err
 	}
+
+	directoryAsesor.Id = *directoryAsesorParent
+
+	servicesAsesor, err := s.directoryTreeService.ListByParent(&directoryAsesor)
+
+	if err != nil {
+		return false, err
+	}
+
+	directoryInstitution.Id = *directoryInstitutionParentId
 
 	servicesInstitution, err := s.directoryTreeService.ListByParent(&directoryInstitution)
 	if err != nil {
@@ -291,8 +311,18 @@ func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, e
 	}
 
 	for _, folder := range commonFolders {
-		for _, doc := range *folder.Document {
-			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute, folder.Name)
+		directoryAsesor.Id = folder.Id
+		folderDocuments, err := s.directoryTreeService.ListByParent(&directoryAsesor)
+		if err != nil {
+			return false, err
+		}
+		log.Print(folderDocuments.Document)
+		if folderDocuments.Document == nil {
+			continue
+		}
+		for _, doc := range *folderDocuments.Document {
+			nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(directoryAsesor.AsesorID)))
+			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute, nameFolder)
 			if err != nil {
 				return false, err
 			}
@@ -302,7 +332,8 @@ func (s *serviceInstitution) CreateAllFormat(req dto.GetInstitutionReq) (bool, e
 				return false, err
 			}
 
-			_, err = digitalOcean.UploadDocument(format, folder.Name, institution.InstitutionName)
+			rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(doc.Name))
+			_, err = digitalOcean.UploadDocument(format, rute, institution.InstitutionName)
 			if err != nil {
 				return false, err
 			}

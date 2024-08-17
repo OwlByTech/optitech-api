@@ -240,3 +240,7 @@ func (s *serviceDirectoryTree) Update(req *dto.UpdateDirectoryTreeReq) (bool, er
 
 	return true, nil
 }
+
+func (s *serviceDirectoryTree) GetIdByParent(req *dto.GetDirectoryTreeReq) (*int64, error) {
+	return s.directoryTreeRepository.GetDirectoryIdByParent(req)
+}

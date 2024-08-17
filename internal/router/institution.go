@@ -33,5 +33,6 @@ func (s *Server) RoutesInstitution() {
 	institutionRoute.Post("/logo/:id", clientMiddleware.ClientJWT, handler.UpdateLogo)
 	institutionRoute.Get("/logo/:id", clientMiddleware.ClientJWT, handler.GetLogo)
 	institutionRoute.Post("/asesor", handler.UpdateAsesor)
+	institutionRoute.Post("/create-all-formats", handler.CreateAllFormat)
 
 }

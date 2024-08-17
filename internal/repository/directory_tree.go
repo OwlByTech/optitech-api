@@ -206,3 +206,25 @@ func (r *repositoryDirectoryTree) UpdateDirectoryTree(arg *sq.UpdateDirectoryTre
 	ctx := context.Background()
 	return r.directoryRepository.UpdateDirectoryTreeById(ctx, *arg)
 }
+
+func (r *repositoryDirectoryTree) GetDirectoryIdByParent(req *dto.GetDirectoryTreeReq) (*int64, error) {
+	ctx := context.Background()
+
+	if req.AsesorID > 0 {
+		repoRes, err := r.directoryRepository.GetDirectoryIdByAsesorId(ctx, pgtype.Int4{Int32: req.AsesorID, Valid: true})
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &repoRes.DirectoryID, nil
+
+	}
+	repoRes, err := r.directoryRepository.GetDirectoryIdByInstitutionId(ctx, pgtype.Int4{Int32: req.InstitutionID, Valid: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &repoRes.DirectoryID, nil
+}
