@@ -14,7 +14,7 @@ var serviceInstitutionService = serviceInstitution.NewServiceInstitutionServices
 var repositoryInstitutionClient = repository.NewRepositoryInstitutionClient(&repository.Queries)
 var serviceInstitutionClient = institutionClient.NewServiceInstitutionClient(repositoryInstitutionClient)
 var repositoryInstitution = repository.NewRepositoryInstitution(&repository.Queries)
-var ServiceInstitution = service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices, serviceFormat)
+var ServiceInstitution = service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices, serviceFormat, serviceDocument)
 
 func (s *Server) RoutesInstitution() {
 	clientMiddleware := middleware.ClientMiddleware{

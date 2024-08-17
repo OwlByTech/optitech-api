@@ -2,9 +2,9 @@ package service
 
 import (
 	"fmt"
-	"log"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
+	ddto "optitech/internal/dto/document"
 	dto "optitech/internal/dto/institution"
 	dto_services "optitech/internal/dto/institution_services"
 	sdto "optitech/internal/dto/services"
@@ -12,7 +12,6 @@ import (
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -28,9 +27,10 @@ type serviceInstitution struct {
 	directoryTreeService      interfaces.IDirectoryService
 	servicesService           interfaces.IService
 	formatService             interfaces.IFormatService
+	documentsService          interfaces.IDocumentService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService, serviceFormat interfaces.IFormatService) interfaces.IInstitutionService {
+func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService, serviceFormat interfaces.IFormatService, serviceDocument interfaces.IDocumentService) interfaces.IInstitutionService {
 	return &serviceInstitution{
 		institutionRepository:     r,
 		serviceInstitutionService: serviceInstitutionService,
@@ -38,6 +38,7 @@ func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstituti
 		directoryTreeService:      serviceDirectoryTree,
 		servicesService:           services,
 		formatService:             serviceFormat,
+		documentsService:          serviceDocument,
 	}
 }
 
@@ -294,51 +295,57 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		return false, err
 	}
 
-	// Carpetas de la institucion
-	institutionFoldersMap := make(map[string]bool)
+	institutionFoldersMap := make(map[string]*dtdto.GetDirectoryTreeRes)
 	for _, folder := range servicesInstitution.Directory {
-		institutionFoldersMap[folder.Name] = true
+		institutionFoldersMap[folder.Name] = folder
 	}
 
-	// Filtrar las carpetas del asesor que están en la institucion
-	var commonFolders []*dtdto.GetDirectoryTreeRes
+	var commonFolders [][]*dtdto.GetDirectoryTreeRes
 	if servicesAsesor.Directory != nil {
 		for _, folder := range servicesAsesor.Directory {
-			if institutionFoldersMap[folder.Name] {
-				commonFolders = append(commonFolders, folder)
+			if institutionFoldersMap[folder.Name] != nil {
+				commonFolders = append(commonFolders, []*dtdto.GetDirectoryTreeRes{
+					folder,
+					institutionFoldersMap[folder.Name],
+				})
 			}
 		}
 	}
 
 	for _, folder := range commonFolders {
-		directoryAsesor.Id = folder.Id
+		directoryAsesor.Id = folder[0].Id
 		folderDocuments, err := s.directoryTreeService.ListByParent(&directoryAsesor)
 		if err != nil {
 			return false, err
 		}
-		log.Print(folderDocuments.Document)
 		if folderDocuments.Document == nil {
 			continue
 		}
+
 		for _, doc := range *folderDocuments.Document {
 			nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(directoryAsesor.AsesorID)))
 			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute, nameFolder)
 			if err != nil {
 				return false, err
 			}
-			// Aplicar docustream
+
 			format, err := s.formatService.ApplyFormat(docBytes)
 			if err != nil {
 				return false, err
 			}
+			documentReq := ddto.CreateDocumentByteReq{
+				DirectoryId:   folder[1].Id,
+				Status:        "en revision",
+				File:          &format,
+				Filename:      doc.Name,
+				InstitutionId: folder[1].InstitutionID,
+			}
 
-			rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(doc.Name))
-			_, err = digitalOcean.UploadDocument(format, rute, institution.InstitutionName)
+			_, err = s.documentsService.Create(&documentReq)
 			if err != nil {
 				return false, err
 			}
 		}
 	}
-
 	return true, nil
 }

@@ -7,7 +7,6 @@ import (
 	"optitech/internal/interfaces"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
-	"optitech/internal/tools"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -36,11 +35,11 @@ func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto
 	return s.documentRepository.ListDocumentByDirectory(req.Id)
 }
 
-func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
+func (s *serviceDocument) Create(req *dto.CreateDocumentByteReq) (*dto.CreateDocumentRes, error) {
 
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
-		Name:        req.File.Filename,
+		Name:        req.Filename,
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 	var nameFolder string
@@ -63,15 +62,9 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		nameFolder = fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
 	}
 
-	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
+	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.Filename))
 
-	file, err := tools.FileToBytes(req.File)
-	if err != nil {
-		return nil, err
-	}
-
-	fileRute, err := digitalOcean.UploadDocument(file, rute, nameFolder)
-
+	fileRute, err := digitalOcean.UploadDocument(*req.File, rute, nameFolder)
 	if err != nil {
 		return nil, err
 	}

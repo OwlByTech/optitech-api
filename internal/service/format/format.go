@@ -5,6 +5,7 @@ import (
 	dto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"time"
 
 	docustream "github.com/owlbytech/docu-stream-go"
@@ -48,11 +49,17 @@ func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, 
 		return nil, err
 	}
 
-	_, err = s.documentService.Create(&ddto.CreateDocumentReq{
+	fileByte, err := tools.FileToBytes(req.FormatFile)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.documentService.Create(&ddto.CreateDocumentByteReq{
 		FormatId:    r.Id,
 		DirectoryId: req.DirectoryId,
-		File:        req.FormatFile,
+		File:        &fileByte,
 		AsesorId:    r.AsesorId,
+		Filename:    req.FormatFile.Filename,
 	})
 	if err != nil {
 		return nil, err
@@ -145,15 +152,15 @@ func (s *serviceFormat) ApplyFormat(format []byte) ([]byte, error) {
 	}
 
 	header := convertToDocuValues(map[string]string{
-		"Company Name": "OwlByTech",
+		"Company Name": "Otra",
 	})
 
 	body := convertToDocuValues(map[string]string{
-		"Company Name": "OwlByTech",
+		"Company Name": "Body",
 	})
 
 	footer := convertToDocuValues(map[string]string{
-		"Company Name": "OwlByTech",
+		"Company Name": "IPS",
 	})
 
 	res, err := c.Apply(&ds.WordApplyReq{

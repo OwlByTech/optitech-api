@@ -5,6 +5,7 @@ import (
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
+	"optitech/internal/tools"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -35,7 +36,6 @@ func (h *handlerDocument) Get(c *fiber.Ctx) error {
 }
 
 func (h *handlerDocument) CreateDocument(c *fiber.Ctx) error {
-
 	data := c.Locals("institutionId")
 	institutionId, ok := data.(int32)
 
@@ -58,9 +58,23 @@ func (h *handlerDocument) CreateDocument(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	req.File = file
 
-	res, err := h.documentService.Create(req)
+	fileByte, err := tools.FileToBytes(file)
+	if err != nil {
+		return nil
+	}
+
+	reqFile := ddto.CreateDocumentByteReq{
+		DirectoryId:   req.DirectoryId,
+		FormatId:      req.FormatId,
+		File:          &fileByte,
+		Filename:      req.File.Filename,
+		Status:        req.Status,
+		AsesorId:      req.AsesorId,
+		InstitutionId: req.InstitutionId,
+	}
+
+	res, err := h.documentService.Create(&reqFile)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
