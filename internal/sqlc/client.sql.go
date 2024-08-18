@@ -227,7 +227,7 @@ func (q *Queries) UpdateClientById(ctx context.Context, arg UpdateClientByIdPara
 
 const updateClientPhoto = `-- name: UpdateClientPhoto :exec
 UPDATE client
-SET  photo= $2, updated_at = $3
+SET  photo = $2, updated_at = $3
 WHERE client_id = $1
 `
 
@@ -244,7 +244,7 @@ func (q *Queries) UpdateClientPhoto(ctx context.Context, arg UpdateClientPhotoPa
 
 const updateClientStatusById = `-- name: UpdateClientStatusById :exec
 UPDATE client
-SET status= $2, updated_at = $3
+SET status = $2, updated_at = $3
 WHERE client_id = $1
 `
 
