@@ -15,8 +15,6 @@ import (
 	"path/filepath"
 	"time"
 
-	docustream "github.com/owlbytech/docu-stream-go"
-
 	ds "github.com/owlbytech/docu-stream-go"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -263,6 +261,11 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		return false, err
 	}
 
+	logo, err := digitalOcean.DownloadDocumentByte(institution.Logo)
+	if err != nil {
+		return false, err
+	}
+
 	asesorId := institution.AsesorId
 	if asesorId == 0 {
 		return false, fmt.Errorf("Asesor not found")
@@ -335,10 +338,26 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 			}
 
 			formatReq := ds.WordApplyReq{
-				Docu:   docBytes,
-				Header: convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
-				Body:   convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
-				Footer: convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
+				Docu: docBytes,
+				Header: []ds.DocuValue{
+					{
+						Type:  ds.DocuValueTypeText,
+						Key:   "company name",
+						Value: institution.InstitutionName,
+					},
+					{
+						Type:  ds.DocuValueTypeImage,
+						Key:   "company logo",
+						Value: &logo,
+					},
+				},
+				Body: []ds.DocuValue{
+					{
+						Type:  ds.DocuValueTypeText,
+						Key:   "description",
+						Value: institution.Description,
+					},
+				},
 			}
 
 			format, err := s.formatService.ApplyWordFormat(formatReq)
@@ -360,15 +379,4 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		}
 	}
 	return true, nil
-}
-
-func convertToDocuValues(data map[string]string) []docustream.DocuValue {
-	values := make([]docustream.DocuValue, 0, len(data))
-	for k, v := range data {
-		values = append(values, docustream.DocuValue{
-			Key:   k,
-			Value: v,
-		})
-	}
-	return values
 }
