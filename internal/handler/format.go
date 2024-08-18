@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	dto "optitech/internal/dto"
 	fdto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
@@ -118,8 +117,6 @@ func (h *handlerFormat) Delete(c *fiber.Ctx) error {
 
 	formatId32 := int32(formatId)
 
-	log.Printf("formatId type: %T, value: %v\n", formatId32, formatId32)
-
 	params := c.AllParams()
 	req := &fdto.GetFormatReq{}
 
@@ -142,14 +139,18 @@ func (h *handlerFormat) Update(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Missing format ID in URL")
 	}
 
+	params := c.AllParams()
+	req_id := fdto.GetFormatReq{}
+	if err := dto.ValidateParamsToDTO(params, req_id); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
 	formatId, err := strconv.Atoi(formatIdStr)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid format ID")
 	}
 
 	formatId32 := int32(formatId)
-
-	log.Printf("formatId type: %T, value: %v\n", formatId32, formatId32)
 
 	req := &fdto.UpdateFormatReq{
 		FormatID: formatId32,

@@ -58,6 +58,7 @@ func (s *serviceDirectoryTree) List() (*[]dto.GetDirectoryTreeRes, error) {
 	}
 	return repoRes, nil
 }
+
 func (s *serviceDirectoryTree) ListByParent(req *dto.GetDirectoryTreeReq) (*dto.GetDirectoryTreeRes, error) {
 	repoRes, err := s.directoryTreeRepository.ListDirectoryByParent(req)
 	if err != nil {
