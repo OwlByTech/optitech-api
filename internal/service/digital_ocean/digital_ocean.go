@@ -22,6 +22,28 @@ func createSessionS3() (*session.Session, error) {
 	return sess, nil
 }
 
+func DownloadDocumentWithFilename(path string, filename string) (*string, error) {
+	sess, err := createSessionS3()
+	if err != nil {
+		return nil, err
+	}
+
+	c := s3.New(sess)
+	rcd := "attachment; filename =\"" + filename + "\""
+	req, _ := c.GetObjectRequest(&s3.GetObjectInput{
+		Bucket:                     aws.String(cnf.Env.DigitalOceanBucket),
+		Key:                        aws.String(path),
+		ResponseContentDisposition: &rcd,
+	})
+
+	signUrl, err := req.Presign(15 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
+
+	return &signUrl, nil
+}
+
 func DownloadDocument(path string) (*string, error) {
 	sess, err := createSessionS3()
 	if err != nil {

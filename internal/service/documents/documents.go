@@ -14,8 +14,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-
-
 type serviceDocument struct {
 	documentRepository interfaces.IDocumentRepository
 }
@@ -84,12 +82,12 @@ func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*string,
 		return nil, fmt.Errorf("the document does not exist")
 	}
 
-	url, err := digitalOcean.DownloadDocument(doc.FileRute)
+	url, err := digitalOcean.DownloadDocumentWithFilename(doc.FileRute, doc.Filename)
 	if err != nil {
 		return nil, err
 	}
 
-	return url, err
+	return url, nil
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {

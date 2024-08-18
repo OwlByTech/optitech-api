@@ -45,6 +45,7 @@ func (r *repositoryDocument) DownloadDocumentById(documentID int64) (*dto.GetDoc
 	}
 	res := &dto.GetDocumentDownloadRes{
 		FileRute: repoRes.FileRute,
+		Filename: repoRes.Name,
 	}
 
 	directory, err := r.documentRepository.GetDirectoryTreeById(ctx, repoRes.DirectoryID)
