@@ -1,0 +1,93 @@
+package handler
+
+import (
+	"log"
+	ndto "optitech/internal/dto/notification"
+	"optitech/internal/interfaces"
+	"strconv"
+
+	dto "optitech/internal/dto"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type handlerNotification struct {
+	notificationService interfaces.INotificationService
+}
+
+func NewHandlerNotification(r interfaces.INotificationService) interfaces.INotificationHandler {
+	return &handlerNotification{
+		notificationService: r,
+	}
+}
+
+func (h *handlerNotification) Create(c *fiber.Ctx) error {
+	req := &ndto.CreateNotificationReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida"+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.notificationService.Create(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerNotification) Get(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "ID inválido: "+err.Error())
+	}
+
+	req := &ndto.GetNotificationReq{
+		ID: id,
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.notificationService.Get(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerNotification) List(c *fiber.Ctx) error {
+	res, err := h.notificationService.List()
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerNotification) Update(c *fiber.Ctx) error {
+	req := &ndto.UpdateNotificationVisualizedReq{}
+	log.Print(req)
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid entry: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.notificationService.Update(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(success)
+}
