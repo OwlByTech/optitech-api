@@ -4,29 +4,33 @@ import (
 	"fmt"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
+	idto "optitech/internal/dto/institution"
 	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
 	"optitech/internal/security"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
-	"strconv"
+	"optitech/internal/tools"
+	"path/filepath"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceClient struct {
-	clientRepository interfaces.IClientRepository
-	clientRoleServie interfaces.IClientRoleService
+	clientRepository   interfaces.IClientRepository
+	clientRoleServie   interfaces.IClientRoleService
+	institutionService interfaces.IInstitutionService
 }
 
 const assets = "assets"
 
-func NewServiceClient(r interfaces.IClientRepository, clientRoleServie interfaces.IClientRoleService) interfaces.IClientService {
+func NewServiceClient(r interfaces.IClientRepository, clientRoleServie interfaces.IClientRoleService, serviceInstitution interfaces.IInstitutionService) interfaces.IClientService {
 	return &serviceClient{
-		clientRepository: r,
-		clientRoleServie: clientRoleServie,
+		clientRepository:   r,
+		clientRoleServie:   clientRoleServie,
+		institutionService: serviceInstitution,
 	}
 }
 
@@ -46,11 +50,11 @@ func (s *serviceClient) GetPhoto(req dto.GetClientReq) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	route, err := digitalOcean.DownloadDocument(photo, assets)
+	url, err := digitalOcean.DownloadDocument(photo)
 	if err != nil {
 		return "", err
 	}
-	return route, nil
+	return *url, nil
 }
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
 	hash, err := security.BcryptHashPassword(req.Password)
@@ -152,6 +156,17 @@ func (s *serviceClient) UpdateStatus(req *dto.UpdateClientStatusReq) (bool, erro
 	if err := s.clientRepository.UpdateStatusClient(repoReq); err != nil {
 		return false, nil
 	}
+
+	updateAsesorReq := &idto.UpdateAsesorInstitutionReq{
+		AsesorID:      req.AsesorID,
+		InstitutionID: req.InstitutionId,
+	}
+
+	_, err := s.institutionService.UpdateAsesor(updateAsesorReq)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
@@ -160,15 +175,25 @@ func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error)
 		ClientID:  req.ClientId,
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-	if req.Photo != nil {
-		nameFile := fmt.Sprintf("%s%s", "photo_", strconv.Itoa(int(repoReq.ClientID)))
-		name, err := digitalOcean.UploadDocument(req.Photo, nameFile, assets)
-		if err != nil {
-			return false, err
-		}
-		repoReq.Photo = pgtype.Text{String: name, Valid: true}
+
+	if req.Photo == nil {
+		return false, fmt.Errorf("The photo is not provided.")
 	}
 
+	photo, err := tools.FileToBytes(req.Photo)
+	if err != nil {
+		return false, err
+	}
+
+	folder := tools.FolderTypePath(tools.ClientFolderType, repoReq.ClientID)
+	filename := tools.NormalizeFilename(req.Photo.Filename)
+	filePath := filepath.Join(folder, filename)
+
+	if err := digitalOcean.UploadDocument(photo, filePath);  err != nil {
+		return false, err
+	}
+
+	repoReq.Photo = pgtype.Text{String: filePath, Valid: true}
 	if err := s.clientRepository.UpdatePhotoClient(repoReq); err != nil {
 		return false, nil
 	}

@@ -1,70 +1,112 @@
 package service
 
 import (
-	"fmt"
-	"mime/multipart"
+	"bytes"
+	"io"
 	cnf "optitech/internal/config"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-func DownloadDocument(route string, directory string) (string, error) {
-
+func createSessionS3() (*session.Session, error) {
 	s3Config := cnf.GetS3Config()
-
 	sess, err := session.NewSession(s3Config)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	svc := s3.New(sess)
-
-	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", directory, route)),
-	})
-	urlStr, err := req.Presign(15 * time.Minute)
-	if err != nil {
-		return "", err
-	}
-
-	return urlStr, nil
+	return sess, nil
 }
 
-func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionName string) (string, error) {
-
-	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
-		Endpoint:         aws.String(cnf.Env.DigitalOceanEndpoint),
-		S3ForcePathStyle: aws.Bool(false),
-		Region:           aws.String(cnf.Env.DigitalOceanRegion),
+func DownloadDocumentWithFilename(path string, filename string) (*string, error) {
+	sess, err := createSessionS3()
+	if err != nil {
+		return nil, err
 	}
 
-	sess, err := session.NewSession(s3Config)
+	c := s3.New(sess)
+	rcd := "attachment; filename =\"" + filename + "\""
+	req, _ := c.GetObjectRequest(&s3.GetObjectInput{
+		Bucket:                     aws.String(cnf.Env.DigitalOceanBucket),
+		Key:                        aws.String(path),
+		ResponseContentDisposition: &rcd,
+	})
+
+	signUrl, err := req.Presign(15 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
+
+	return &signUrl, nil
+}
+
+func DownloadDocument(path string) (*string, error) {
+	sess, err := createSessionS3()
+	if err != nil {
+		return nil, err
+	}
+
+	c := s3.New(sess)
+	req, _ := c.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(path),
+	})
+
+	urlStr, err := req.Presign(15 * time.Minute)
+	if err != nil {
+		return nil, err
+	}
+	return &urlStr, nil
+}
+
+func DownloadDocumentByte(path string) ([]byte, error) {
+	sess, err := createSessionS3()
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
+	c := s3.New(sess)
+	result, err := c.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(path),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer result.Body.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, result.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func UploadDocument(fileBytes []byte, path string) error {
+	sess, err := createSessionS3()
+	if err != nil {
+		return nil
+	}
+
 	uploader := s3manager.NewUploader(sess)
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return "", err
-	}
+	fileReader := bytes.NewReader(fileBytes)
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
-		Body:   file,
+		Key:    aws.String(path),
+		Body:   fileReader,
 	})
+
 	if err != nil {
-		return "", err
+		return err
 	}
-	defer file.Close()
-	return name, nil
+
+	return nil
 }

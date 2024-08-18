@@ -4,12 +4,9 @@ import (
 	"optitech/internal/handler"
 	"optitech/internal/middleware"
 	"optitech/internal/repository"
-	directoryTreeService "optitech/internal/service/directory_tree"
-	documentsService "optitech/internal/service/documents"
 	service "optitech/internal/service/institution"
 	institutionClient "optitech/internal/service/institution_client"
 	serviceInstitution "optitech/internal/service/institution_services"
-	services "optitech/internal/service/services"
 )
 
 var repositoryInstitutionService = repository.NewRepositoryInstitutionServices(&repository.Queries)
@@ -17,13 +14,7 @@ var serviceInstitutionService = serviceInstitution.NewServiceInstitutionServices
 var repositoryInstitutionClient = repository.NewRepositoryInstitutionClient(&repository.Queries)
 var serviceInstitutionClient = institutionClient.NewServiceInstitutionClient(repositoryInstitutionClient)
 var repositoryInstitution = repository.NewRepositoryInstitution(&repository.Queries)
-var repositoryDirectoryTree = repository.NewRepositoryDirectoryTree(&repository.Queries)
-var repositoryDocuments = repository.NewRepositoryDocument(&repository.Queries)
-var serviceDocument = documentsService.NewServiceDocument(repositoryDocuments)
-var serviceDirectoryTree = directoryTreeService.NewServiceDirectory(repositoryDirectoryTree, serviceDocument)
-var repositoryServices = repository.NewRepositoryService(&repository.Queries)
-var serviceServices = services.NewServiceServices(repositoryServices)
-var ServiceInstitution = service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices)
+var ServiceInstitution = service.NewServiceInstitution(repositoryInstitution, serviceInstitutionService, serviceInstitutionClient, serviceDirectoryTree, serviceServices, serviceFormat, serviceDocument)
 
 func (s *Server) RoutesInstitution() {
 	clientMiddleware := middleware.ClientMiddleware{
@@ -42,5 +33,6 @@ func (s *Server) RoutesInstitution() {
 	institutionRoute.Post("/logo/:id", clientMiddleware.ClientJWT, handler.UpdateLogo)
 	institutionRoute.Get("/logo/:id", clientMiddleware.ClientJWT, handler.GetLogo)
 	institutionRoute.Post("/asesor", handler.UpdateAsesor)
+	institutionRoute.Post("/create-all-formats", handler.CreateAllFormat)
 
 }

@@ -7,8 +7,8 @@ import (
 	"optitech/internal/interfaces"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"path/filepath"
-	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -24,44 +24,47 @@ func NewServiceDocument(d interfaces.IDocumentRepository) interfaces.IDocumentSe
 	}
 }
 
+func folderPath(institutionId int32, asesorId int32) string {
+	if institutionId > 0 {
+		return tools.FolderTypePath(tools.InstitutionFolderType, institutionId)
+	}
+
+	return tools.FolderTypePath(tools.AsesorFolderType, asesorId)
+}
+
 func (s *serviceDocument) Get(req dto.GetDocumentReq) (*dto.GetDocumentRes, error) {
 	return s.documentRepository.GetDocument(req.Id)
 }
 
 func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto.GetDocumentRes, error) {
-	return s.documentRepository.ListDocumentByDirectory(int32(req.Id))
+	return s.documentRepository.ListDocumentByDirectory(req.Id)
 }
 
-func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
-
-	institutionName, err := s.documentRepository.GetInstitutionByDocumentId(int64(req.DirectoryId))
-
-	if err != nil {
-		return nil, err
-	}
-
+func (s *serviceDocument) Create(req *dto.CreateDocumentByteReq) (*dto.CreateDocumentRes, error) {
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
-		FormatID:    pgtype.Int4{Int32: req.FormatId, Valid: false},
-		Name:        req.File.Filename,
-		Status:      sq.Status(req.Status),
+		Name:        req.Filename,
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
-
-	fileRute, err := digitalOcean.UploadDocument(req.File, rute, institutionName.Institution.InstitutionName)
-
-	if err != nil {
-		return nil, err
+	if req.Status != "" {
+		repoReq.Status = sq.NullStatus{Status: sq.Status(req.Status), Valid: true}
 	}
 
 	if req.FormatId > 0 {
 		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
-	repoReq.FileRute = fileRute
-	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 
+	folder := folderPath(req.InstitutionId, req.AsesorId)
+	filename := tools.NormalizeFilename(req.Filename)
+	filePath := filepath.Join(folder, filename)
+
+	if err := digitalOcean.UploadDocument(*req.File, filePath); err != nil {
+		return nil, err
+	}
+
+	repoReq.FileRute = filePath
+	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 	if err != nil {
 		return nil, err
 	}
@@ -69,27 +72,22 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	return repoRes, err
 }
 
-func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
-
-	exist, err := s.documentRepository.ExistsDocuments(req.Id)
+func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*string, error) {
+	doc, err := s.documentRepository.DownloadDocumentById(req.Id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	if exist {
-		return "", fmt.Errorf("the document does not exist")
+	if doc.AsesorId != req.AsesorId && doc.InstitutionId != req.InstitutionId {
+		return nil, fmt.Errorf("the document does not exist")
 	}
 
-	document, err := s.documentRepository.DownloadDocumentById(req.Id)
+	url, err := digitalOcean.DownloadDocumentWithFilename(doc.FileRute, doc.Filename)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
-	if err != nil {
-		return "", err
-	}
-	return route, err
+	return url, nil
 }
 
 func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
@@ -106,7 +104,6 @@ func (s *serviceDocument) DeleteDocument(req dto.GetDocumentReq) (bool, error) {
 }
 
 func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, error) {
-
 	repoReq := &sq.UpdateDocumentNameByIdParams{
 		DocumentID: req.Id,
 		Name:       req.Name,

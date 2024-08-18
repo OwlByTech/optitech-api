@@ -13,23 +13,27 @@ import (
 )
 
 const createFormat = `-- name: CreateFormat :one
-INSERT INTO format(asesor_id, format_name, description, extension, version, created_at)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at
+INSERT INTO format(updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at
 `
 
 type CreateFormatParams struct {
-	AsesorID    int32            `json:"asesor_id"`
-	FormatName  string           `json:"format_name"`
-	Description string           `json:"description"`
-	Extension   Extensions       `json:"extension"`
-	Version     string           `json:"version"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedFormatID pgtype.Int4      `json:"updated_format_id"`
+	AsesorID        int32            `json:"asesor_id"`
+	ServiceID       pgtype.Int4      `json:"service_id"`
+	FormatName      string           `json:"format_name"`
+	Description     string           `json:"description"`
+	Extension       Extensions       `json:"extension"`
+	Version         string           `json:"version"`
+	CreatedAt       pgtype.Timestamp `json:"created_at"`
 }
 
 func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (Format, error) {
 	row := q.db.QueryRow(ctx, createFormat,
+		arg.UpdatedFormatID,
 		arg.AsesorID,
+		arg.ServiceID,
 		arg.FormatName,
 		arg.Description,
 		arg.Extension,
@@ -41,6 +45,7 @@ func (q *Queries) CreateFormat(ctx context.Context, arg CreateFormatParams) (For
 		&i.FormatID,
 		&i.UpdatedFormatID,
 		&i.AsesorID,
+		&i.ServiceID,
 		&i.FormatName,
 		&i.Description,
 		&i.Extension,
@@ -79,8 +84,10 @@ func (q *Queries) DeleteFormatById(ctx context.Context, arg DeleteFormatByIdPara
 }
 
 const getFormat = `-- name: GetFormat :one
-SELECT format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
-WHERE format_id = $1 LIMIT 1
+SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
+WHERE format_id = $1
+AND deleted_at is not null
+LIMIT 1
 `
 
 func (q *Queries) GetFormat(ctx context.Context, formatID int32) (Format, error) {
@@ -90,6 +97,7 @@ func (q *Queries) GetFormat(ctx context.Context, formatID int32) (Format, error)
 		&i.FormatID,
 		&i.UpdatedFormatID,
 		&i.AsesorID,
+		&i.ServiceID,
 		&i.FormatName,
 		&i.Description,
 		&i.Extension,
@@ -121,7 +129,7 @@ func (q *Queries) GetFormatByName(ctx context.Context, formatName string) (GetFo
 }
 
 const listFormats = `-- name: ListFormats :many
-SELECT format_id, updated_format_id, asesor_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
+SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
 ORDER BY format_name
 `
 
@@ -138,6 +146,51 @@ func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 			&i.FormatID,
 			&i.UpdatedFormatID,
 			&i.AsesorID,
+			&i.ServiceID,
+			&i.FormatName,
+			&i.Description,
+			&i.Extension,
+			&i.Version,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listFormatsById = `-- name: ListFormatsById :many
+SELECT format_id, updated_format_id, asesor_id, service_id, format_name, description, extension, version, created_at, updated_at, deleted_at FROM format
+WHERE format_id = ANY($1::int[])
+AND asesor_id = $2
+AND deleted_at IS NULL
+`
+
+type ListFormatsByIdParams struct {
+	Column1  []int32 `json:"column_1"`
+	AsesorID int32   `json:"asesor_id"`
+}
+
+func (q *Queries) ListFormatsById(ctx context.Context, arg ListFormatsByIdParams) ([]Format, error) {
+	rows, err := q.db.Query(ctx, listFormatsById, arg.Column1, arg.AsesorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Format
+	for rows.Next() {
+		var i Format
+		if err := rows.Scan(
+			&i.FormatID,
+			&i.UpdatedFormatID,
+			&i.AsesorID,
+			&i.ServiceID,
 			&i.FormatName,
 			&i.Description,
 			&i.Extension,
@@ -158,7 +211,7 @@ func (q *Queries) ListFormats(ctx context.Context) ([]Format, error) {
 
 const updateFormatById = `-- name: UpdateFormatById :exec
 UPDATE format
-SET format_name = $2, description = $3, extension=$4, version=$5, updated_at=$6
+SET format_name = $2, description = $3, extension=$4, version=$5, service_id=$6, updated_at=$7
 WHERE format_id = $1
 `
 
@@ -168,6 +221,7 @@ type UpdateFormatByIdParams struct {
 	Description string           `json:"description"`
 	Extension   Extensions       `json:"extension"`
 	Version     string           `json:"version"`
+	ServiceID   pgtype.Int4      `json:"service_id"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 }
 
@@ -178,6 +232,7 @@ func (q *Queries) UpdateFormatById(ctx context.Context, arg UpdateFormatByIdPara
 		arg.Description,
 		arg.Extension,
 		arg.Version,
+		arg.ServiceID,
 		arg.UpdatedAt,
 	)
 	return err

@@ -32,7 +32,7 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 		DirectoryId: repoRes.DirectoryID,
 		FormatId:    repoRes.FormatID.Int32,
 		FileRute:    repoRes.FileRute,
-		Status:      string(repoRes.Status),
+		Status:      string(repoRes.Status.Status),
 	}, nil
 }
 
@@ -40,21 +40,34 @@ func (r *repositoryDocument) DownloadDocumentById(documentID int64) (*dto.GetDoc
 	ctx := context.Background()
 
 	repoRes, err := r.documentRepository.GetDocument(ctx, (documentID))
+	if err != nil {
+		return nil, err
+	}
+	res := &dto.GetDocumentDownloadRes{
+		FileRute: repoRes.FileRute,
+		Filename: repoRes.Name,
+	}
+
+	directory, err := r.documentRepository.GetDirectoryTreeById(ctx, repoRes.DirectoryID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	institution, err := r.documentRepository.GetInstitutionNameByDirectoryId(ctx, int64(repoRes.DirectoryID))
-
-	if err != nil {
-		return nil, err
+	if directory.InstitutionID.Int32 > 0 {
+		institution, err := r.documentRepository.GetInstitutionNameByDirectoryId(ctx, repoRes.DirectoryID)
+		if err != nil {
+			return nil, err
+		}
+		res.InstitutionName = institution.Institution.InstitutionName
+		res.InstitutionId = institution.Institution.InstitutionID
+	} else {
+		res.AsesorId = directory.AsesorID.Int32
 	}
-
-	return &dto.GetDocumentDownloadRes{FileRute: repoRes.FileRute, InstitutionName: institution.Institution.InstitutionName}, nil
+	return res, nil
 }
 
-func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {
+func (r *repositoryDocument) ListDocumentByDirectory(directoryID int64) (*[]dto.GetDocumentRes, error) {
 	ctx := context.Background()
 
 	repoRes, err := r.documentRepository.ListDocumentsByDirectory(ctx, directoryID)
@@ -70,7 +83,7 @@ func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.
 			DirectoryId: inst.DirectoryID,
 			FormatId:    inst.FormatID.Int32,
 			FileRute:    inst.FileRute,
-			Status:      string(inst.Status),
+			Status:      string(inst.Status.Status),
 		}
 	}
 	return &documents, nil
@@ -91,7 +104,7 @@ func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.
 		Name:        res.Name,
 		FormatId:    res.FormatID.Int32,
 		FileRute:    res.FileRute,
-		Status:      string(res.Status),
+		Status:      string(res.Status.Status),
 	}, nil
 
 }

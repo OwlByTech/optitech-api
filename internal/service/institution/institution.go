@@ -1,18 +1,26 @@
 package service
 
 import (
+	"fmt"
 	cdto "optitech/internal/dto/client"
 	dtdto "optitech/internal/dto/directory_tree"
+	ddto "optitech/internal/dto/document"
 	dto "optitech/internal/dto/institution"
 	dto_services "optitech/internal/dto/institution_services"
 	sdto "optitech/internal/dto/services"
 	"optitech/internal/interfaces"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
+	"path/filepath"
 	"time"
+
+	ds "github.com/owlbytech/docu-stream-go"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const asesorEnum = "Asesor"
 
 type serviceInstitution struct {
 	institutionRepository     interfaces.IInstitutionRepository
@@ -20,15 +28,19 @@ type serviceInstitution struct {
 	clientInstitutionService  interfaces.IInstitutionClientService
 	directoryTreeService      interfaces.IDirectoryService
 	servicesService           interfaces.IService
+	formatService             interfaces.IFormatService
+	documentsService          interfaces.IDocumentService
 }
 
-func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService) interfaces.IInstitutionService {
+func NewServiceInstitution(r interfaces.IInstitutionRepository, serviceInstitutionService interfaces.IServiceInstitutionService, serviceInstitutionClient interfaces.IInstitutionClientService, serviceDirectoryTree interfaces.IDirectoryService, services interfaces.IService, serviceFormat interfaces.IFormatService, serviceDocument interfaces.IDocumentService) interfaces.IInstitutionService {
 	return &serviceInstitution{
 		institutionRepository:     r,
 		serviceInstitutionService: serviceInstitutionService,
 		clientInstitutionService:  serviceInstitutionClient,
 		directoryTreeService:      serviceDirectoryTree,
 		servicesService:           services,
+		formatService:             serviceFormat,
+		documentsService:          serviceDocument,
 	}
 }
 
@@ -53,11 +65,11 @@ func (s *serviceInstitution) GetLogo(req dto.GetInstitutionReq) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	route, err := digitalOcean.DownloadDocument(institution.Logo, institution.InstitutionName)
+	url, err := digitalOcean.DownloadDocument(institution.Logo)
 	if err != nil {
 		return "", err
 	}
-	return route, nil
+	return *url, nil
 }
 
 func (s *serviceInstitution) List() (*[]dto.GetInstitutionRes, error) {
@@ -123,7 +135,6 @@ func (s *serviceInstitution) Create(req *dto.CreateInstitutionReq) (*dto.CreateI
 	}
 
 	for _, serviceID := range req.Services {
-
 		getServiceReq := sdto.GetServiceReq{
 			Id: serviceID,
 		}
@@ -188,6 +199,7 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 
 	return true, nil
 }
+
 func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 	institution, err := s.Get(dto.GetInstitutionReq{Id: req.InstitutionID})
 	if err != nil {
@@ -198,14 +210,21 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 		UpdatedAt:     pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
+	logo, err := tools.FileToBytes(req.LogoFile)
+	if err != nil {
+		return false, err
+	}
+
+	folder := tools.FolderTypePath(tools.ClientFolderType, institution.Id)
+	filename := tools.NormalizeFilename(req.LogoFile.Filename)
+	filePath := filepath.Join(folder, filename)
+
 	if req.LogoFile != nil {
-		name, err := digitalOcean.UploadDocument(req.LogoFile, institution.InstitutionName, institution.InstitutionName)
-		if err != nil {
+		if err := digitalOcean.UploadDocument(logo, filePath); err != nil {
 			return false, err
 		}
 
-		repoReq.Logo = pgtype.Text{String: name, Valid: true}
-
+		repoReq.Logo = pgtype.Text{String: filePath, Valid: true}
 	}
 
 	err = s.institutionRepository.UpdateLogoInstitution(repoReq)
@@ -216,6 +235,7 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 
 	return true, nil
 }
+
 func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 	repoReq := &sq.DeleteInstitutionParams{
 		InstitutionID: req.Id,
@@ -232,5 +252,131 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 		return false, err
 	}
 
+	return true, nil
+}
+
+func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, error) {
+	institution, err := s.Get(*req)
+	if err != nil {
+		return false, err
+	}
+
+	logo, err := digitalOcean.DownloadDocumentByte(institution.Logo)
+	if err != nil {
+		return false, err
+	}
+
+	asesorId := institution.AsesorId
+	if asesorId == 0 {
+		return false, fmt.Errorf("Asesor not found")
+	}
+
+	directoryAsesor := dtdto.GetDirectoryTreeReq{
+		AsesorID: asesorId,
+	}
+
+	directoryAsesorParent, err := s.directoryTreeService.GetIdByParent(&directoryAsesor)
+	if err != nil {
+		return false, err
+	}
+
+	directoryInstitution := dtdto.GetDirectoryTreeReq{
+		InstitutionID: institution.Id,
+	}
+
+	directoryInstitutionParentId, err := s.directoryTreeService.GetIdByParent(&directoryInstitution)
+	if err != nil {
+		return false, err
+	}
+
+	directoryAsesor.Id = *directoryAsesorParent
+
+	servicesAsesor, err := s.directoryTreeService.ListByParent(&directoryAsesor)
+
+	if err != nil {
+		return false, err
+	}
+
+	directoryInstitution.Id = *directoryInstitutionParentId
+
+	servicesInstitution, err := s.directoryTreeService.ListByParent(&directoryInstitution)
+	if err != nil {
+		return false, err
+	}
+
+	institutionFoldersMap := make(map[string]*dtdto.GetDirectoryTreeRes)
+	for _, folder := range servicesInstitution.Directory {
+		institutionFoldersMap[folder.Name] = folder
+	}
+
+	var commonFolders [][]*dtdto.GetDirectoryTreeRes
+	if servicesAsesor.Directory != nil {
+		for _, folder := range servicesAsesor.Directory {
+			if institutionFoldersMap[folder.Name] != nil {
+				commonFolders = append(commonFolders, []*dtdto.GetDirectoryTreeRes{
+					folder,
+					institutionFoldersMap[folder.Name],
+				})
+			}
+		}
+	}
+
+	for _, folder := range commonFolders {
+		directoryAsesor.Id = folder[0].Id
+		folderDocuments, err := s.directoryTreeService.ListByParent(&directoryAsesor)
+		if err != nil {
+			return false, err
+		}
+		if folderDocuments.Document == nil {
+			continue
+		}
+
+		for _, doc := range *folderDocuments.Document {
+			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute)
+			if err != nil {
+				return false, err
+			}
+
+			formatReq := ds.WordApplyReq{
+				Docu: docBytes,
+				Header: []ds.DocuValue{
+					{
+						Type:  ds.DocuValueTypeText,
+						Key:   "company name",
+						Value: institution.InstitutionName,
+					},
+					{
+						Type:  ds.DocuValueTypeImage,
+						Key:   "company logo",
+						Value: &logo,
+					},
+				},
+				Body: []ds.DocuValue{
+					{
+						Type:  ds.DocuValueTypeText,
+						Key:   "description",
+						Value: institution.Description,
+					},
+				},
+			}
+
+			format, err := s.formatService.ApplyWordFormat(formatReq)
+			if err != nil {
+				return false, err
+			}
+			documentReq := ddto.CreateDocumentByteReq{
+				DirectoryId:   folder[1].Id,
+				Status:        "en revision",
+				File:          &format,
+				Filename:      doc.Name,
+				InstitutionId: folder[1].InstitutionID,
+			}
+
+			_, err = s.documentsService.Create(&documentReq)
+			if err != nil {
+				return false, err
+			}
+		}
+	}
 	return true, nil
 }

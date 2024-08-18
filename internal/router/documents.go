@@ -7,20 +7,29 @@ import (
 	document "optitech/internal/service/documents"
 )
 
+var repoDocument = repository.NewRepositoryDocument(&repository.Queries)
+var serviceDocument = document.NewServiceDocument(repoDocument)
+
 func (s *Server) RoutesDocument() {
 
 	clientMiddleware := middleware.ClientMiddleware{
 		ClientService: SeviceClient,
 	}
+	directoryMiddleware := middleware.DirectoryMiddleware{
+		InstitutionService: ServiceInstitution,
+		AsesorService:      serviceAsesor,
+	}
+	institutionMiddleware := middleware.InstitutionMiddleware{
+		InstitutionService: ServiceInstitution,
+	}
+
 	r := s.app
 
-	repoDocument := repository.NewRepositoryDocument(&repository.Queries)
-	service := document.NewServiceDocument(repoDocument)
-	handler := handler.NewHandlerDocument(service)
+	handler := handler.NewHandlerDocument(serviceDocument)
 	serviceRoute := r.Group("/api/document")
-	serviceRoute.Get("/:id", clientMiddleware.ClientJWT, handler.Get)
-	serviceRoute.Post("/", clientMiddleware.ClientJWT, handler.CreateDocument)
-	serviceRoute.Delete("/:id", clientMiddleware.ClientJWT, handler.DeleteDocument)
-	serviceRoute.Get("download/:id", clientMiddleware.ClientJWT, handler.DownloadDocumentById)
-	serviceRoute.Put("update", clientMiddleware.ClientJWT, handler.UpdateDocument)
+	serviceRoute.Get("/:id", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.Get)
+	serviceRoute.Post("/", clientMiddleware.ClientJWT, institutionMiddleware.InstitutionJWT, handler.CreateDocument)
+	serviceRoute.Delete("/:id", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.DeleteDocument)
+	serviceRoute.Get("download/:id", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.DownloadDocumentById)
+	serviceRoute.Put("update", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.UpdateDocument)
 }
