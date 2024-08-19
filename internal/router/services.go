@@ -6,11 +6,13 @@ import (
 	service "optitech/internal/service/services"
 )
 
+var repoServiceServices = repository.NewRepositoryService(&repository.Queries)
+var serviceServices = service.NewServiceServices(repoServiceServices)
+
 func (s *Server) RoutesServices() {
 	r := s.app
-	repoService := repository.NewRepositoryService(&repository.Queries)
-	sevice := service.NewServiceServices(repoService)
-	handler := handler.NewHandlerService(sevice)
+
+	handler := handler.NewHandlerService(serviceServices)
 	serviceRoute := r.Group("/api/services")
 	serviceRoute.Get("/:id", handler.Get)
 	serviceRoute.Get("/", handler.List)

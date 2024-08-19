@@ -8,7 +8,7 @@ import (
 )
 
 type INotificationService interface {
-	Create(req *dto.CreateNorificationReq) (*dto.CreateNotificationRes, error)
+	Create(req *dto.CreateNotificationReq) (*dto.CreateNotificationRes, error)
 	Get(req dto.GetNotificationReq) (*dto.GetNotificationRes, error)
 	List() (*[]dto.GetNotificationRes, error)
 	Update(req *dto.UpdateNotificationVisualizedReq) (bool, error)

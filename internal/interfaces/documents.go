@@ -20,7 +20,7 @@ type IDocumentService interface {
 type IDocumentRepository interface {
 	GetDocument(documentID int64) (*d.GetDocumentRes, error)
 	CreateDocument(arg *models.CreateDocumentParams) (*d.CreateDocumentRes, error)
-	ListDocumentByDirectory(directoryID int32) (*[]d.GetDocumentRes, error)
+	ListDocumentByDirectory(directoryID int64) (*[]d.GetDocumentRes, error)
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
 	DownloadDocumentById(documentID int64) (*d.GetDocumentDownloadRes, error)
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error

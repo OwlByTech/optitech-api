@@ -19,7 +19,7 @@ func NewServiceNotification(r interfaces.INotificationRepositoy) interfaces.INot
 	}
 }
 
-func (s *serviceNotification) Create(req *dto.CreateNorificationReq) (*dto.CreateNotificationRes, error) {
+func (s *serviceNotification) Create(req *dto.CreateNotificationReq) (*dto.CreateNotificationRes, error) {
 	repoReq := &sq.CreateNoficationParams{
 		From:      sq.FromNotification(req.From),
 		To:        sq.ToNotification(req.To),

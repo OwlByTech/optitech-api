@@ -6,11 +6,12 @@ import (
 	service "optitech/internal/service/asesor"
 )
 
+var repoAsesor = repository.NewRepositoryAsesor(&repository.Queries)
+var serviceAsesor = service.NewServiceAsesor(repoAsesor, serviceDirectoryTree)
+
 func (s *Server) RoutesAsesor() {
 	r := s.app
-	repoService := repository.NewRepositoryAsesor(&repository.Queries)
-	sevice := service.NewServiceAsesor(repoService)
-	handler := handler.NewHandlerAsesor(sevice)
+	handler := handler.NewHandlerAsesor(serviceAsesor)
 	serviceRoute := r.Group("/api/asesor")
 
 	serviceRoute.Get("/all", handler.List)

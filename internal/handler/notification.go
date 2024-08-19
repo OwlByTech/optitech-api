@@ -22,7 +22,7 @@ func NewHandlerNotification(r interfaces.INotificationService) interfaces.INotif
 }
 
 func (h *handlerNotification) Create(c *fiber.Ctx) error {
-	req := &ndto.CreateNorificationReq{}
+	req := &ndto.CreateNotificationReq{}
 
 	if err := c.BodyParser(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida"+err.Error())
@@ -73,7 +73,6 @@ func (h *handlerNotification) List(c *fiber.Ctx) error {
 }
 
 func (h *handlerNotification) Update(c *fiber.Ctx) error {
-	params := c.AllParams()
 	req := &ndto.UpdateNotificationVisualizedReq{}
 	log.Print(req)
 

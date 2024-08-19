@@ -3,18 +3,21 @@ package service
 import (
 	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/asesor"
+	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
 )
 
 type serviceAsesor struct {
-	asesorRepository interfaces.IAsesorRepository
+	asesorRepository     interfaces.IAsesorRepository
+	directoryTreeService interfaces.IDirectoryService
 }
 
-func NewServiceAsesor(r interfaces.IAsesorRepository) interfaces.IAsesorService {
+func NewServiceAsesor(r interfaces.IAsesorRepository, serviceDirectory interfaces.IDirectoryService) interfaces.IAsesorService {
 	return &serviceAsesor{
-		asesorRepository: r,
+		asesorRepository:     r,
+		directoryTreeService: serviceDirectory,
 	}
 }
 
@@ -30,6 +33,14 @@ func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, 
 	}
 
 	r, err := s.asesorRepository.CreateAsesor(repoReq)
+	if err != nil {
+		return nil, err
+	}
+	_, err = s.directoryTreeService.Create(&ddto.CreateDirectoryTreeReq{
+		AsesorID: r.Id,
+		Name:     "/",
+	})
+
 	if err != nil {
 		return nil, err
 	}
