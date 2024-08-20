@@ -11,7 +11,7 @@ import (
 var repoServiceClientRole = repository.NewRepositoryClientRole(&repository.Queries)
 var serviceClientRole = service.NewServiceClientRole(repoServiceClientRole)
 var repoServiceClient = repository.NewRepositoryClient(&repository.Queries)
-var SeviceClient = cs.NewServiceClient(repoServiceClient, serviceClientRole)
+var SeviceClient = cs.NewServiceClient(repoServiceClient, serviceClientRole, ServiceInstitution)
 
 func (s *Server) RoutesClient() {
 	r := s.app

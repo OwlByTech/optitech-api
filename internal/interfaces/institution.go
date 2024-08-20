@@ -18,6 +18,7 @@ type IInstitutionService interface {
 	UpdateLogo(req *dto.UpdateLogoReq) (bool, error)
 	List() (*[]dto.GetInstitutionRes, error)
 	Delete(req dto.GetInstitutionReq) (bool, error)
+	CreateAllFormat(req *dto.GetInstitutionReq) (bool, error)
 }
 type IInstitutionRepository interface {
 	GetInstitutionByClient(ClientID int32) (int32, error)
@@ -41,4 +42,5 @@ type IInstitutionHandler interface {
 	UpdateAsesor(c *fiber.Ctx) error
 	List(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
+	CreateAllFormat(c *fiber.Ctx) error
 }

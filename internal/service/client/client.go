@@ -4,12 +4,14 @@ import (
 	"fmt"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
+	idto "optitech/internal/dto/institution"
 	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
 	"optitech/internal/security"
 	digitalOcean "optitech/internal/service/digital_ocean"
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
 	"strconv"
 	"time"
 
@@ -17,16 +19,18 @@ import (
 )
 
 type serviceClient struct {
-	clientRepository interfaces.IClientRepository
-	clientRoleServie interfaces.IClientRoleService
+	clientRepository   interfaces.IClientRepository
+	clientRoleServie   interfaces.IClientRoleService
+	institutionService interfaces.IInstitutionService
 }
 
 const assets = "assets"
 
-func NewServiceClient(r interfaces.IClientRepository, clientRoleServie interfaces.IClientRoleService) interfaces.IClientService {
+func NewServiceClient(r interfaces.IClientRepository, clientRoleServie interfaces.IClientRoleService, serviceInstitution interfaces.IInstitutionService) interfaces.IClientService {
 	return &serviceClient{
-		clientRepository: r,
-		clientRoleServie: clientRoleServie,
+		clientRepository:   r,
+		clientRoleServie:   clientRoleServie,
+		institutionService: serviceInstitution,
 	}
 }
 
@@ -152,6 +156,17 @@ func (s *serviceClient) UpdateStatus(req *dto.UpdateClientStatusReq) (bool, erro
 	if err := s.clientRepository.UpdateStatusClient(repoReq); err != nil {
 		return false, nil
 	}
+
+	updateAsesorReq := &idto.UpdateAsesorInstitutionReq{
+		AsesorID:      req.AsesorID,
+		InstitutionID: req.InstitutionId,
+	}
+
+	_, err := s.institutionService.UpdateAsesor(updateAsesorReq)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
@@ -162,11 +177,15 @@ func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error)
 	}
 	if req.Photo != nil {
 		nameFile := fmt.Sprintf("%s%s", "photo_", strconv.Itoa(int(repoReq.ClientID)))
-		name, err := digitalOcean.UploadDocument(req.Photo, nameFile, assets)
+		photo, err := tools.FileToBytes(req.Photo)
 		if err != nil {
 			return false, err
 		}
-		repoReq.Photo = pgtype.Text{String: name, Valid: true}
+		name, err := digitalOcean.UploadDocument(photo, nameFile, assets)
+		if err != nil {
+			return false, err
+		}
+		repoReq.Photo = pgtype.Text{String: *name, Valid: true}
 	}
 
 	if err := s.clientRepository.UpdatePhotoClient(repoReq); err != nil {
