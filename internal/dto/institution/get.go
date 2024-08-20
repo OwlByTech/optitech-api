@@ -15,6 +15,6 @@ type GetInstitutionRes struct {
 	Logo            string                       `json:"logo"`
 	Description     string                       `json:"description"`
 	Services        []dto_services.GetServiceRes `json:"services"`
-	AsesorId        int32
-	Clients         []dto_client.GetClientRes `json:"clients"`
+	AsesorId        int32                        `json:"asesorId"`
+	Clients         []dto_client.GetClientRes    `json:"clients"`
 }
