@@ -11,7 +11,7 @@ import (
 	"optitech/internal/service/mailing"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
-	"strconv"
+	"path/filepath"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -49,11 +49,11 @@ func (s *serviceClient) GetPhoto(req dto.GetClientReq) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	route, err := digitalOcean.DownloadDocument(photo, assets)
+	url, err := digitalOcean.DownloadDocument(photo)
 	if err != nil {
 		return "", err
 	}
-	return route, nil
+	return *url, nil
 }
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
 	hash, err := security.BcryptHashPassword(req.Password)
@@ -164,19 +164,25 @@ func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error)
 		ClientID:  req.ClientId,
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-	if req.Photo != nil {
-		nameFile := fmt.Sprintf("%s%s", "photo_", strconv.Itoa(int(repoReq.ClientID)))
-		photo, err := tools.FileToBytes(req.Photo)
-		if err != nil {
-			return false, err
-		}
-		name, err := digitalOcean.UploadDocument(photo, nameFile, assets)
-		if err != nil {
-			return false, err
-		}
-		repoReq.Photo = pgtype.Text{String: *name, Valid: true}
+
+	if req.Photo == nil {
+		return false, fmt.Errorf("The photo is not provided.")
 	}
 
+	photo, err := tools.FileToBytes(req.Photo)
+	if err != nil {
+		return false, err
+	}
+
+	folder := tools.FolderTypePath(tools.ClientFolderType, repoReq.ClientID)
+	filename := tools.NormalizeFilename(req.Photo.Filename)
+	filePath := filepath.Join(folder, filename)
+
+	if err := digitalOcean.UploadDocument(photo, filePath);  err != nil {
+		return false, err
+	}
+
+	repoReq.Photo = pgtype.Text{String: filePath, Valid: true}
 	if err := s.clientRepository.UpdatePhotoClient(repoReq); err != nil {
 		return false, nil
 	}

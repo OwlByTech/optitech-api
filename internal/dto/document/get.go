@@ -20,4 +20,5 @@ type GetDocumentDownloadRes struct {
 	InstitutionId   int32  `json:"institutionId"`
 	InstitutionName string `json:"name"`
 	FileRute        string `json:"fileRute"`
+	Filename        string `json:"filename"`
 }

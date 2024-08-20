@@ -7,7 +7,6 @@ import (
 	sq "optitech/internal/sqlc"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -85,7 +84,6 @@ func (s *serviceDirectoryTree) ListByParent(req *dto.GetDirectoryTreeReq) (*dto.
 
 func (s *serviceDirectoryTree) GetRoute(req *dto.GetDirectoryTreeReq) (*[]int64, *[]dto.GetDirectoryTreeRes, error) {
 	directory, err := s.ListByParent(req)
-	log.Info(req)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"log"
+	"fmt"
 	ddto "optitech/internal/dto/document"
 	dto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
@@ -145,7 +145,7 @@ func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
 func (s *serviceFormat) ApplyWordFormat(req ds.WordApplyReq) ([]byte, error) {
 	url := os.Getenv("DOCU_STREAM_IP")
 	if url == "" {
-		log.Fatalf("WORD_CLIENT_URL not set in .env file")
+		return nil, fmt.Errorf("WORD_CLIENT_URL not set in .env file")
 	}
 	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: url})
 
