@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	ndto "optitech/internal/dto/notification"
 	"optitech/internal/interfaces"
 	"strconv"
@@ -74,7 +73,6 @@ func (h *handlerNotification) List(c *fiber.Ctx) error {
 
 func (h *handlerNotification) Update(c *fiber.Ctx) error {
 	req := &ndto.UpdateNotificationVisualizedReq{}
-	log.Print(req)
 
 	if err := c.BodyParser(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid entry: "+err.Error())
