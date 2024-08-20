@@ -2,8 +2,6 @@ module optitech
 
 go 1.22.1
 
-toolchain go1.22.3
-
 require (
 	github.com/aws/aws-sdk-go v1.49.6
 	github.com/go-playground/validator/v10 v10.20.0
