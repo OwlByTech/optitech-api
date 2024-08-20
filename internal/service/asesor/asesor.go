@@ -1,23 +1,28 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"log"
 	dto "optitech/internal/dto/asesor"
 	ddto "optitech/internal/dto/directory_tree"
+	sdto "optitech/internal/dto/services"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceAsesor struct {
 	asesorRepository     interfaces.IAsesorRepository
 	directoryTreeService interfaces.IDirectoryService
+	servicesRepository   interfaces.IService
 }
 
-func NewServiceAsesor(r interfaces.IAsesorRepository, serviceDirectory interfaces.IDirectoryService) interfaces.IAsesorService {
+func NewServiceAsesor(r interfaces.IAsesorRepository, serviceDirectory interfaces.IDirectoryService, serviceServices interfaces.IService) interfaces.IAsesorService {
 	return &serviceAsesor{
 		asesorRepository:     r,
 		directoryTreeService: serviceDirectory,
+		servicesRepository:   serviceServices,
 	}
 }
 
@@ -36,14 +41,38 @@ func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, 
 	if err != nil {
 		return nil, err
 	}
-	_, err = s.directoryTreeService.Create(&ddto.CreateDirectoryTreeReq{
+
+	directoryTreeRoot := &ddto.CreateDirectoryTreeReq{
 		AsesorID: r.Id,
 		Name:     "/",
-	})
+	}
 
+	rootDirectoryID, err := s.directoryTreeService.Create(directoryTreeRoot)
+	log.Print(rootDirectoryID.DirectoryId)
 	if err != nil {
 		return nil, err
 	}
+
+	var services *[]sdto.GetServiceRes
+	services, err = s.servicesRepository.List()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, service := range *services {
+
+		serviceDirectoryReq := &ddto.CreateDirectoryTreeReq{
+			ParentID: rootDirectoryID.DirectoryId,
+			Name:     service.Name,
+			AsesorID: r.Id,
+		}
+
+		_, err = s.directoryTreeService.Create(serviceDirectoryReq)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return r, nil
 }
 
