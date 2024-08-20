@@ -35,11 +35,11 @@ func (s *serviceDocument) ListByDirectory(req drdto.GetDirectoryTreeReq) (*[]dto
 	return s.documentRepository.ListDocumentByDirectory(req.Id)
 }
 
-func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumentRes, error) {
+func (s *serviceDocument) Create(req *dto.CreateDocumentByteReq) (*dto.CreateDocumentRes, error) {
 
 	repoReq := &sq.CreateDocumentParams{
 		DirectoryID: req.DirectoryId,
-		Name:        req.File.Filename,
+		Name:        req.Filename,
 		CreatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 	var nameFolder string
@@ -62,10 +62,9 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 		nameFolder = fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
 	}
 
-	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.File.Filename))
+	rute := fmt.Sprintf("%s%s", strconv.FormatInt(time.Now().UTC().UnixMicro(), 10), filepath.Ext(req.Filename))
 
-	fileRute, err := digitalOcean.UploadDocument(req.File, rute, nameFolder)
-
+	fileRute, err := digitalOcean.UploadDocument(*req.File, rute, nameFolder)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +72,7 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	if req.FormatId > 0 {
 		repoReq.FormatID = pgtype.Int4{Int32: req.FormatId, Valid: true}
 	}
-	repoReq.FileRute = fileRute
+	repoReq.FileRute = *fileRute
 	log.Info(*repoReq, req)
 	repoRes, err := s.documentRepository.CreateDocument(repoReq)
 
@@ -84,32 +83,32 @@ func (s *serviceDocument) Create(req *dto.CreateDocumentReq) (*dto.CreateDocumen
 	return repoRes, err
 }
 
-func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (string, error) {
+func (s *serviceDocument) DownloadDocumentById(req dto.GetDocumentReq) (*string, error) {
 
 	document, err := s.documentRepository.DownloadDocumentById(req.Id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if document.AsesorId != req.AsesorId && document.InstitutionId != req.InstitutionId {
-		return "", fmt.Errorf("the document does not exist")
+		return nil, fmt.Errorf("the document does not exist")
 	}
 
 	if req.InstitutionId > 0 {
 		route, err := digitalOcean.DownloadDocument(document.FileRute, document.InstitutionName)
 
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		return route, err
+		return &route, err
 
 	}
 	nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(req.AsesorId)))
 	route, err := digitalOcean.DownloadDocument(document.FileRute, nameFolder)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return route, err
+	return &route, err
 
 }
 

@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type handlerDirectoryTree struct {

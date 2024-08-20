@@ -2,10 +2,11 @@ package repository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type repositoryDirectoryTree struct {
@@ -123,6 +124,7 @@ func (r *repositoryDirectoryTree) ListDirectory() (*[]dto.GetDirectoryTreeRes, e
 	}
 	return &directorys, nil
 }
+
 func (r *repositoryDirectoryTree) ListDirectoryByParent(req *dto.GetDirectoryTreeReq) ([]*dto.GetDirectoryTreeRes, error) {
 	ctx := context.Background()
 	if req.InstitutionID > 0 {
@@ -159,6 +161,7 @@ func (r *repositoryDirectoryTree) ListDirectoryByParent(req *dto.GetDirectoryTre
 	}
 	return directorys, nil
 }
+
 func (r *repositoryDirectoryTree) ListDirectoryHierarchy(req *dto.GetDirectoryTreeReq) (*[]dto.GetDirectoryTreeRes, error) {
 	ctx := context.Background()
 	if req.InstitutionID > 0 {
@@ -202,4 +205,26 @@ func (r *repositoryDirectoryTree) DeleteDirectory(arg *sq.DeleteDirectoryTreeByI
 func (r *repositoryDirectoryTree) UpdateDirectoryTree(arg *sq.UpdateDirectoryTreeByIdParams) error {
 	ctx := context.Background()
 	return r.directoryRepository.UpdateDirectoryTreeById(ctx, *arg)
+}
+
+func (r *repositoryDirectoryTree) GetDirectoryIdByParent(req *dto.GetDirectoryTreeReq) (*int64, error) {
+	ctx := context.Background()
+
+	if req.AsesorID > 0 {
+		repoRes, err := r.directoryRepository.GetDirectoryIdByAsesorId(ctx, pgtype.Int4{Int32: req.AsesorID, Valid: true})
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &repoRes.DirectoryID, nil
+
+	}
+	repoRes, err := r.directoryRepository.GetDirectoryIdByInstitutionId(ctx, pgtype.Int4{Int32: req.InstitutionID, Valid: true})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &repoRes.DirectoryID, nil
 }

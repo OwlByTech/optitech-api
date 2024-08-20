@@ -19,3 +19,13 @@ type CreateDocumentRes struct {
 	FileRute    string `json:"fileRute"`
 	Status      string `json:"status"`
 }
+
+type CreateDocumentByteReq struct {
+	DirectoryId   int64
+	FormatId      int32
+	File          *[]byte
+	Filename      string
+	Status        string
+	AsesorId      int32
+	InstitutionId int32
+}

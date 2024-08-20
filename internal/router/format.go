@@ -7,11 +7,12 @@ import (
 	format "optitech/internal/service/format"
 )
 
+var repoFormat = repository.NewRepositoryFormat(&repository.Queries)
+var serviceFormat = format.NewServiceFormat(repoFormat, serviceDocument)
+
 func (s *Server) RoutesFormat() {
 
-	repoFormat := repository.NewRepositoryFormat(&repository.Queries)
-	service := format.NewServiceFormat(repoFormat, serviceDocument)
-	handler := handler.NewHandlerFormat(service)
+	handler := handler.NewHandlerFormat(serviceFormat)
 
 	clientMiddleware := middleware.ClientMiddleware{
 		ClientService: SeviceClient,

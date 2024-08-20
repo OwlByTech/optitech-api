@@ -168,7 +168,6 @@ func (h *handlerInstitution) UpdateLogo(c *fiber.Ctx) error {
 }
 
 func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
-
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
@@ -183,4 +182,25 @@ func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 
+}
+
+func (h *handlerInstitution) CreateAllFormat(c *fiber.Ctx) error {
+	req := &cdto.GetInstitutionReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.institutionService.CreateAllFormat(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"success": success,
+	})
 }

@@ -1,8 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
-	"mime/multipart"
+	"io"
 	cnf "optitech/internal/config"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 func DownloadDocument(route string, directory string) (string, error) {
@@ -37,7 +37,35 @@ func DownloadDocument(route string, directory string) (string, error) {
 	return urlStr, nil
 }
 
-func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionName string) (string, error) {
+func DownloadDocumentByte(route string, directory string) ([]byte, error) {
+	s3Config := cnf.GetS3Config()
+
+	sess, err := session.NewSession(s3Config)
+	if err != nil {
+		return nil, err
+	}
+
+	svc := s3.New(sess)
+
+	result, err := svc.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
+		Key:    aws.String(fmt.Sprintf("%s/%s", directory, route)),
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer result.Body.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, result.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func UploadDocument(fileBytes []byte, name string, institutionName string) (*string, error) {
 
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cnf.Env.DigitalOceanKey, cnf.Env.DigitalOceanSecret, ""),
@@ -47,27 +75,21 @@ func UploadDocument(fileHeader *multipart.FileHeader, name string, institutionNa
 	}
 
 	sess, err := session.NewSession(s3Config)
-
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
 	uploader := s3manager.NewUploader(sess)
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return "", err
-	}
-
-	log.Info(name, institutionName)
+	fileReader := bytes.NewReader(fileBytes)
 
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
 		Key:    aws.String(fmt.Sprintf("%s/%s", institutionName, name)),
-		Body:   file,
+		Body:   fileReader,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	defer file.Close()
-	return name, nil
+
+	return &name, nil
 }
