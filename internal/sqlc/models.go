@@ -190,9 +190,10 @@ func (ns NullPermissions) Value() (driver.Value, error) {
 type Status string
 
 const (
-	StatusAprobado   Status = "aprobado"
-	StatusEnrevision Status = "en revision"
-	StatusRechazado  Status = "rechazado"
+	StatusGenerated Status = "generated"
+	StatusReview    Status = "review"
+	StatusRejected  Status = "rejected"
+	StatusApproved  Status = "approved"
 )
 
 func (e *Status) Scan(src interface{}) error {

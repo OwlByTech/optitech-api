@@ -1,4 +1,4 @@
-CREATE TYPE status AS ENUM ('aprobado', 'en revision', 'rechazado');
+CREATE TYPE status AS ENUM ('generated', 'review', 'rejected', 'approved');
 
 CREATE TABLE document(
     document_id BIGSERIAL PRIMARY KEY,
