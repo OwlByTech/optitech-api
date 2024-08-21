@@ -102,6 +102,7 @@ func (h *handlerInstitution) Create(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
 func (h *handlerInstitution) UpdateAsesor(c *fiber.Ctx) error {
 	req := &cdto.UpdateAsesorInstitutionReq{}
 
