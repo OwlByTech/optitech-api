@@ -1,13 +1,17 @@
 package service
 
 import (
+	"fmt"
 	ddto "optitech/internal/dto/document"
 	dto "optitech/internal/dto/format"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+	"optitech/internal/tools"
+	"os"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
+	ds "github.com/owlbytech/docu-stream-go"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -28,7 +32,6 @@ func (s *serviceFormat) Get(req dto.GetFormatReq) (*dto.GetFormatRes, error) {
 }
 
 func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, error) {
-	log.Info(req)
 	repoReq := &sq.CreateFormatParams{
 		AsesorID:    req.AsesorId,
 		ServiceID:   pgtype.Int4{Int32: req.ServiceID, Valid: true},
@@ -46,13 +49,18 @@ func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, 
 	if err != nil {
 		return nil, err
 	}
-	log.Info(r.Id, req)
 
-	_, err = s.documentService.Create(&ddto.CreateDocumentReq{
+	fileByte, err := tools.FileToBytes(req.FormatFile)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.documentService.Create(&ddto.CreateDocumentByteReq{
 		FormatId:    r.Id,
 		DirectoryId: req.DirectoryId,
-		File:        req.FormatFile,
+		File:        &fileByte,
 		AsesorId:    r.AsesorId,
+		Filename:    req.FormatFile.Filename,
 	})
 	if err != nil {
 		return nil, err
@@ -132,4 +140,24 @@ func (s *serviceFormat) Update(req *dto.UpdateFormatReq) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *serviceFormat) ApplyWordFormat(req ds.WordApplyReq) ([]byte, error) {
+	url := os.Getenv("DOCU_STREAM_IP")
+	if url == "" {
+		return nil, fmt.Errorf("WORD_CLIENT_URL not set in .env file")
+	}
+	c, err := ds.NewWordClient(&ds.ConnectOptions{Url: url})
+
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := c.Apply(&req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Docu, nil
 }

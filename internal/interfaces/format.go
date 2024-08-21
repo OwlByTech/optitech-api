@@ -5,6 +5,8 @@ import (
 	f "optitech/internal/dto/format"
 	models "optitech/internal/sqlc"
 
+	ds "github.com/owlbytech/docu-stream-go"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -15,6 +17,7 @@ type IFormatService interface {
 	ListById(req *f.ListFormatsReq) (*[]dto.GetFormatRes, error)
 	Delete(req dto.GetFormatReq) (bool, error)
 	Update(req *dto.UpdateFormatReq) (bool, error)
+	ApplyWordFormat(req ds.WordApplyReq) ([]byte, error)
 }
 
 type IFormatRepository interface {

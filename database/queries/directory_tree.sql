@@ -89,3 +89,12 @@ FROM directory_tree dt
 LEFT JOIN institution i ON dt.institution_id = i.institution_id
 WHERE dt.directory_id = $1;
 
+-- name: GetDirectoryIdByAsesorId :one
+SELECT directory_id,name,parent_id
+  FROM directory_tree dt
+  WHERE parent_id IS null AND dt.deleted_at IS NULL AND dt.asesor_id = $1;
+
+-- name: GetDirectoryIdByInstitutionId :one
+SELECT directory_id,name,parent_id
+  FROM directory_tree dt
+  WHERE parent_id IS null AND dt.deleted_at IS NULL AND dt.institution_id = $1;
