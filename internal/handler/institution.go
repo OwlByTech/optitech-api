@@ -127,17 +127,23 @@ func (h *handlerInstitution) UpdateAsesor(c *fiber.Ctx) error {
 
 func (h *handlerInstitution) Update(c *fiber.Ctx) error {
 	params_id := c.AllParams()
+
 	req_id := &cdto.GetInstitutionReq{}
+
 	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+
 	req := &cdto.UpdateInstitutionReq{
 		InstitutionID: req_id.Id,
 	}
-	params := c.FormValue("data")
-	if err := json.Unmarshal([]byte(params), &req); err != nil {
+
+	body := c.Body()
+
+	if err := json.Unmarshal(body, &req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+
 	res, err := h.institutionService.Update(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
