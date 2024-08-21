@@ -173,26 +173,36 @@ func (s *serviceInstitution) UpdateAsesor(req *dto.UpdateAsesorInstitutionReq) (
 
 func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error) {
 	institution, err := s.Get(dto.GetInstitutionReq{Id: req.InstitutionID})
+	if err != nil {
+		return false, err
+	}
+
 	repoReq := &sq.UpdateInstitutionParams{
 		InstitutionID:   req.InstitutionID,
 		InstitutionName: institution.InstitutionName,
 		Description:     institution.Description,
 		UpdatedAt:       pgtype.Timestamp{Time: time.Now(), Valid: true},
+		AsesorID:        pgtype.Int4{Int32: institution.AsesorId, Valid: true},
 	}
+
 	if req.InstitutionName != "" {
 		repoReq.InstitutionName = req.InstitutionName
 	}
 	if req.Description != "" {
 		repoReq.Description = req.Description
 	}
+	if req.Services != nil {
+		err = s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionId: req.InstitutionID, Services: req.Services})
+		if err != nil {
+			return false, err
+		}
+	}
+
+	if institution.AsesorId == 0 {
+		repoReq.AsesorID = pgtype.Int4{Valid: false}
+	}
 
 	err = s.institutionRepository.UpdateInstitution(repoReq)
-
-	if err != nil {
-		return false, err
-	}
-	err = s.serviceInstitutionService.Update(&dto_services.UpdateInstitutionServicesReq{InstitutionId: req.InstitutionID, Services: req.Services})
-
 	if err != nil {
 		return false, err
 	}

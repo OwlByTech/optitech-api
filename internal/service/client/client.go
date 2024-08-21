@@ -4,7 +4,6 @@ import (
 	"fmt"
 	cfg "optitech/internal/config"
 	dto "optitech/internal/dto/client"
-	idto "optitech/internal/dto/institution"
 	dto_mailing "optitech/internal/dto/mailing"
 	"optitech/internal/interfaces"
 	"optitech/internal/security"
@@ -155,16 +154,6 @@ func (s *serviceClient) UpdateStatus(req *dto.UpdateClientStatusReq) (bool, erro
 
 	if err := s.clientRepository.UpdateStatusClient(repoReq); err != nil {
 		return false, nil
-	}
-
-	updateAsesorReq := &idto.UpdateAsesorInstitutionReq{
-		AsesorID:      req.AsesorID,
-		InstitutionID: req.InstitutionId,
-	}
-
-	_, err := s.institutionService.UpdateAsesor(updateAsesorReq)
-	if err != nil {
-		return false, err
 	}
 
 	return true, nil
