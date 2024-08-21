@@ -115,3 +115,33 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 	}
 	return true, nil
 }
+
+func (s *serviceDocument) CreateVersion(req *dto.CreateDocumentVersionByteReq) (bool, error) {
+	repoRes, err := s.Get(dto.GetDocumentReq{Id: req.Id})
+	if err != nil {
+		return false, err
+	}
+
+	folder := folderPath(req.InstitutionId, req.AsesorId)
+	filename := tools.NormalizeFilename(req.Filename)
+	filePath := filepath.Join(folder, filename)
+
+	if err := digitalOcean.UploadDocument(*req.File, filePath); err != nil {
+		return false, err
+	}
+
+	repoReq := &sq.UpdateDocumentByIdParams{
+		FormatID:    pgtype.Int4{Int32: repoRes.FormatId, Valid: true},
+		DirectoryID: repoRes.DirectoryId,
+		DocumentID:  req.Id,
+		Status:      sq.NullStatus{Status: sq.Status(req.Status), Valid: true},
+		FileRute:    filePath,
+		UpdatedAt:   pgtype.Timestamp{Time: time.Now(), Valid: true},
+	}
+
+	if err := s.documentRepository.UpdateDocumentById(repoReq); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

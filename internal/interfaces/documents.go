@@ -11,6 +11,7 @@ import (
 type IDocumentService interface {
 	Get(req d.GetDocumentReq) (*d.GetDocumentRes, error)
 	Create(arg *d.CreateDocumentByteReq) (*d.CreateDocumentRes, error)
+	CreateVersion(arg *d.CreateDocumentVersionByteReq) (bool, error)
 	ListByDirectory(req dto.GetDirectoryTreeReq) (*[]d.GetDocumentRes, error)
 	DeleteDocument(req d.GetDocumentReq) (bool, error)
 	DownloadDocumentById(req d.GetDocumentReq) (*string, error)
@@ -24,6 +25,7 @@ type IDocumentRepository interface {
 	DeleteDocument(arg *models.DeleteDocumentByIdParams) error
 	DownloadDocumentById(documentID int64) (*d.GetDocumentDownloadRes, error)
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
+	UpdateDocumentById(arg *models.UpdateDocumentByIdParams) error
 	ExistsDocuments(documentID int64) (bool, error)
 	GetEndpointExists(fileRute string) (bool, error)
 	GetInstitutionByDocumentId(directoryId int64) (models.GetInstitutionNameByDirectoryIdRow, error)
@@ -35,4 +37,5 @@ type IDocumentHandler interface {
 	DeleteDocument(f *fiber.Ctx) error
 	DownloadDocumentById(f *fiber.Ctx) error
 	UpdateDocument(c *fiber.Ctx) error
+	CreateVersion(f *fiber.Ctx) error
 }

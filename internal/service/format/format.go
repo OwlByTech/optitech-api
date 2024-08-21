@@ -61,6 +61,7 @@ func (s *serviceFormat) Create(req *dto.CreateFormatReq) (*dto.CreateFormatRes, 
 		File:        &fileByte,
 		AsesorId:    r.AsesorId,
 		Filename:    req.FormatFile.Filename,
+		Status:      string(sq.StatusUploaded),
 	})
 	if err != nil {
 		return nil, err
