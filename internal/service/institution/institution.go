@@ -366,7 +366,7 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 			}
 			documentReq := ddto.CreateDocumentByteReq{
 				DirectoryId:   folder[1].Id,
-				Status:        "en revision",
+				Status:        string(sq.StatusGenerated),
 				File:          &format,
 				Filename:      doc.Name,
 				InstitutionId: folder[1].InstitutionID,
