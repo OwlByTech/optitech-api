@@ -12,10 +12,8 @@ import (
 	digitalOcean "optitech/internal/service/digital_ocean"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
-	"strconv"
+	"path/filepath"
 	"time"
-
-	docustream "github.com/owlbytech/docu-stream-go"
 
 	ds "github.com/owlbytech/docu-stream-go"
 
@@ -67,11 +65,11 @@ func (s *serviceInstitution) GetLogo(req dto.GetInstitutionReq) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	route, err := digitalOcean.DownloadDocument(institution.Logo, institution.InstitutionName)
+	url, err := digitalOcean.DownloadDocument(institution.Logo)
 	if err != nil {
 		return "", err
 	}
-	return route, nil
+	return *url, nil
 }
 
 func (s *serviceInstitution) List() (*[]dto.GetInstitutionRes, error) {
@@ -217,14 +215,16 @@ func (s *serviceInstitution) UpdateLogo(req *dto.UpdateLogoReq) (bool, error) {
 		return false, err
 	}
 
+	folder := tools.FolderTypePath(tools.ClientFolderType, institution.Id)
+	filename := tools.NormalizeFilename(req.LogoFile.Filename)
+	filePath := filepath.Join(folder, filename)
+
 	if req.LogoFile != nil {
-		name, err := digitalOcean.UploadDocument(logo, institution.InstitutionName, institution.InstitutionName)
-		if err != nil {
+		if err := digitalOcean.UploadDocument(logo, filePath); err != nil {
 			return false, err
 		}
 
-		repoReq.Logo = pgtype.Text{String: *name, Valid: true}
-
+		repoReq.Logo = pgtype.Text{String: filePath, Valid: true}
 	}
 
 	err = s.institutionRepository.UpdateLogoInstitution(repoReq)
@@ -257,6 +257,11 @@ func (s *serviceInstitution) Delete(req dto.GetInstitutionReq) (bool, error) {
 
 func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, error) {
 	institution, err := s.Get(*req)
+	if err != nil {
+		return false, err
+	}
+
+	logo, err := digitalOcean.DownloadDocumentByte(institution.Logo)
 	if err != nil {
 		return false, err
 	}
@@ -327,17 +332,32 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		}
 
 		for _, doc := range *folderDocuments.Document {
-			nameFolder := fmt.Sprintf("%s%s", asesorEnum, strconv.Itoa(int(directoryAsesor.AsesorID)))
-			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute, nameFolder)
+			docBytes, err := digitalOcean.DownloadDocumentByte(doc.FileRute)
 			if err != nil {
 				return false, err
 			}
 
 			formatReq := ds.WordApplyReq{
-				Docu:   docBytes,
-				Header: convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
-				Body:   convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
-				Footer: convertToDocuValues(map[string]string{"Company Name": institution.InstitutionName}),
+				Docu: docBytes,
+				Header: []ds.DocuValue{
+					{
+						Type:  ds.DocuValueTypeText,
+						Key:   "company name",
+						Value: institution.InstitutionName,
+					},
+					{
+						Type:  ds.DocuValueTypeImage,
+						Key:   "company logo",
+						Value: &logo,
+					},
+				},
+				Body: []ds.DocuValue{
+					{
+						Type:  ds.DocuValueTypeText,
+						Key:   "description",
+						Value: institution.Description,
+					},
+				},
 			}
 
 			format, err := s.formatService.ApplyWordFormat(formatReq)
@@ -359,15 +379,4 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 		}
 	}
 	return true, nil
-}
-
-func convertToDocuValues(data map[string]string) []docustream.DocuValue {
-	values := make([]docustream.DocuValue, 0, len(data))
-	for k, v := range data {
-		values = append(values, docustream.DocuValue{
-			Key:   k,
-			Value: v,
-		})
-	}
-	return values
 }
