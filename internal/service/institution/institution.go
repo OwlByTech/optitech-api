@@ -386,3 +386,7 @@ func (s *serviceInstitution) CreateAllFormat(req *dto.GetInstitutionReq) (bool, 
 	}
 	return true, nil
 }
+
+func (s *serviceInstitution) GetByAsesor(req cdto.GetClientReq) (int32, error) {
+	return s.institutionRepository.GetInstitutionByAsesor(req.Id)
+}

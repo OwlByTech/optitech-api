@@ -19,6 +19,7 @@ func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IInstitu
 		institutionService: r,
 	}
 }
+
 func (h *handlerInstitution) GetByClient(c *fiber.Ctx) error {
 	data := c.Locals("clientId")
 	clientId, ok := data.(int32)
@@ -210,4 +211,24 @@ func (h *handlerInstitution) CreateAllFormat(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"success": success,
 	})
+}
+
+func (h *handlerInstitution) GetByAsesor(c *fiber.Ctx) error {
+	data := c.Locals("clientId")
+	clientId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+
+	res_id, err := h.institutionService.GetByAsesor(clientDto.GetClientReq{Id: clientId})
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.institutionService.Get(cdto.GetInstitutionReq{Id: res_id})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return c.JSON(res)
 }

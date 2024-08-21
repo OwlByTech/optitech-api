@@ -53,3 +53,10 @@ WHERE institution_id = $1 AND deleted_at IS NULL;
 UPDATE institution
 set deleted_at = $1
 where deleted_at is NULL;
+
+-- name: GetInstitutionByAsesor :one
+SELECT  i.institution_id FROM institution i
+INNER JOIN institution_client ON i.institution_id=institution_client.institution_id
+WHERE  i.asesor_id = $1
+AND i.deleted_at IS NULL
+LIMIT 1;

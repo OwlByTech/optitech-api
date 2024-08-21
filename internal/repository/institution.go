@@ -5,6 +5,8 @@ import (
 	dto "optitech/internal/dto/institution"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type repositoryInstitution struct {
@@ -51,7 +53,6 @@ func (r *repositoryInstitution) GetInstitutionLogo(InstitutionID int32) (*dto.Ge
 func (r *repositoryInstitution) GetInstitutionByClient(ClientID int32) (int32, error) {
 	ctx := context.Background()
 	return r.institutionRepository.GetInstitutionByClient(ctx, ClientID)
-
 }
 
 func (r *repositoryInstitution) ListInstitutions() (*[]dto.GetInstitutionRes, error) {
@@ -100,4 +101,13 @@ func (r *repositoryInstitution) DeleteInstitution(arg *sq.DeleteInstitutionParam
 	ctx := context.Background()
 	return r.institutionRepository.DeleteInstitution(ctx, *arg)
 
+}
+
+func (r *repositoryInstitution) GetInstitutionByAsesor(ClientID int32) (int32, error) {
+	ctx := context.Background()
+	pgClientID := pgtype.Int4{
+		Int32: ClientID,
+		Valid: true,
+	}
+	return r.institutionRepository.GetInstitutionByAsesor(ctx, pgClientID)
 }
