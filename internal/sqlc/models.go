@@ -191,7 +191,8 @@ type Status string
 
 const (
 	StatusGenerated Status = "generated"
-	StatusReview    Status = "review"
+	StatusUploaded  Status = "uploaded"
+	StatusInReview  Status = "in_review"
 	StatusRejected  Status = "rejected"
 	StatusApproved  Status = "approved"
 )
