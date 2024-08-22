@@ -110,25 +110,20 @@ func (r *repositoryInstitution) GetInstitutionByAsesor(ClientID int32) (*[]dto.G
 		Valid: true,
 	}
 
-	institutionIDs, err := r.institutionRepository.GetInstitutionByAsesor(ctx, pgClientID)
+	repoRes, err := r.institutionRepository.GetInstitutionByAsesor(ctx, pgClientID)
 	if err != nil {
 		return nil, err
 	}
 
-	var institutions []dto.GetInstitutionRes
-	for _, id := range institutionIDs {
-		institution, err := r.institutionRepository.GetInstitution(ctx, id)
-		if err != nil {
-			return nil, err
+	institutions := make([]dto.GetInstitutionRes, len(repoRes))
+	for i, inst := range repoRes {
+		institutions[i] = dto.GetInstitutionRes{
+			Id:              inst.InstitutionID,
+			InstitutionName: inst.InstitutionName,
+			Logo:            inst.Logo.String,
+			Description:     inst.Description,
+			AsesorId:        inst.AsesorID.Int32,
 		}
-
-		institutions = append(institutions, dto.GetInstitutionRes{
-			Id:              institution.InstitutionID,
-			InstitutionName: institution.InstitutionName,
-			Logo:            institution.Logo.String,
-			Description:     institution.Description,
-			AsesorId:        institution.AsesorID.Int32,
-		})
 	}
 
 	return &institutions, nil

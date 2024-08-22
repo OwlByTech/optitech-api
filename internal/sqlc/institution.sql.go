@@ -87,26 +87,33 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int32) (Inst
 }
 
 const getInstitutionByAsesor = `-- name: GetInstitutionByAsesor :many
-SELECT  i.institution_id FROM institution i
-INNER JOIN institution_client ON i.institution_id=institution_client.institution_id
-WHERE  i.asesor_id = $1
-AND i.deleted_at IS NULL
-LIMIT 1
+SELECT  institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
+WHERE asesor_id = $1
+AND deleted_at IS NULL
 `
 
-func (q *Queries) GetInstitutionByAsesor(ctx context.Context, asesorID pgtype.Int4) ([]int32, error) {
+func (q *Queries) GetInstitutionByAsesor(ctx context.Context, asesorID pgtype.Int4) ([]Institution, error) {
 	rows, err := q.db.Query(ctx, getInstitutionByAsesor, asesorID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []int32
+	var items []Institution
 	for rows.Next() {
-		var institution_id int32
-		if err := rows.Scan(&institution_id); err != nil {
+		var i Institution
+		if err := rows.Scan(
+			&i.InstitutionID,
+			&i.AsesorID,
+			&i.InstitutionName,
+			&i.Logo,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
 			return nil, err
 		}
-		items = append(items, institution_id)
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
