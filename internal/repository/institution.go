@@ -103,11 +103,33 @@ func (r *repositoryInstitution) DeleteInstitution(arg *sq.DeleteInstitutionParam
 
 }
 
-func (r *repositoryInstitution) GetInstitutionByAsesor(ClientID int32) (int32, error) {
+func (r *repositoryInstitution) GetInstitutionByAsesor(ClientID int32) (*[]dto.GetInstitutionRes, error) {
 	ctx := context.Background()
 	pgClientID := pgtype.Int4{
 		Int32: ClientID,
 		Valid: true,
 	}
-	return r.institutionRepository.GetInstitutionByAsesor(ctx, pgClientID)
+
+	institutionIDs, err := r.institutionRepository.GetInstitutionByAsesor(ctx, pgClientID)
+	if err != nil {
+		return nil, err
+	}
+
+	var institutions []dto.GetInstitutionRes
+	for _, id := range institutionIDs {
+		institution, err := r.institutionRepository.GetInstitution(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+
+		institutions = append(institutions, dto.GetInstitutionRes{
+			Id:              institution.InstitutionID,
+			InstitutionName: institution.InstitutionName,
+			Logo:            institution.Logo.String,
+			Description:     institution.Description,
+			AsesorId:        institution.AsesorID.Int32,
+		})
+	}
+
+	return &institutions, nil
 }

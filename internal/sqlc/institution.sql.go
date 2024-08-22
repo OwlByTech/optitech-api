@@ -86,7 +86,7 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int32) (Inst
 	return i, err
 }
 
-const getInstitutionByAsesor = `-- name: GetInstitutionByAsesor :one
+const getInstitutionByAsesor = `-- name: GetInstitutionByAsesor :many
 SELECT  i.institution_id FROM institution i
 INNER JOIN institution_client ON i.institution_id=institution_client.institution_id
 WHERE  i.asesor_id = $1
@@ -94,11 +94,24 @@ AND i.deleted_at IS NULL
 LIMIT 1
 `
 
-func (q *Queries) GetInstitutionByAsesor(ctx context.Context, asesorID pgtype.Int4) (int32, error) {
-	row := q.db.QueryRow(ctx, getInstitutionByAsesor, asesorID)
-	var institution_id int32
-	err := row.Scan(&institution_id)
-	return institution_id, err
+func (q *Queries) GetInstitutionByAsesor(ctx context.Context, asesorID pgtype.Int4) ([]int32, error) {
+	rows, err := q.db.Query(ctx, getInstitutionByAsesor, asesorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int32
+	for rows.Next() {
+		var institution_id int32
+		if err := rows.Scan(&institution_id); err != nil {
+			return nil, err
+		}
+		items = append(items, institution_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getInstitutionByClient = `-- name: GetInstitutionByClient :one
