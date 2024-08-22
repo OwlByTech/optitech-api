@@ -53,3 +53,8 @@ WHERE institution_id = $1 AND deleted_at IS NULL;
 UPDATE institution
 set deleted_at = $1
 where deleted_at is NULL;
+
+-- name: GetInstitutionByAsesor :many
+SELECT  * FROM institution
+WHERE asesor_id = $1
+AND deleted_at IS NULL;

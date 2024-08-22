@@ -19,6 +19,7 @@ type IInstitutionService interface {
 	List() (*[]dto.GetInstitutionRes, error)
 	Delete(req dto.GetInstitutionReq) (bool, error)
 	CreateAllFormat(req *dto.GetInstitutionReq) (bool, error)
+	GetByAsesor(req cdto.GetClientReq) (*[]dto.GetInstitutionRes, error)
 }
 type IInstitutionRepository interface {
 	GetInstitutionByClient(ClientID int32) (int32, error)
@@ -30,6 +31,7 @@ type IInstitutionRepository interface {
 	DeleteInstitution(arg *models.DeleteInstitutionParams) error
 	UpdateAsesorInstitution(arg *models.UpdateAsesorInstitutionParams) error
 	UpdateLogoInstitution(arg *models.UpdateLogoInstitutionParams) error
+	GetInstitutionByAsesor(ClientID int32) (*[]dto.GetInstitutionRes, error)
 }
 
 type IInstitutionHandler interface {
@@ -43,4 +45,5 @@ type IInstitutionHandler interface {
 	List(c *fiber.Ctx) error
 	Delete(c *fiber.Ctx) error
 	CreateAllFormat(c *fiber.Ctx) error
+	GetByAsesor(c *fiber.Ctx) error
 }
