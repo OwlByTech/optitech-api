@@ -1,10 +1,13 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"log"
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/institution_client"
 	"optitech/internal/interfaces"
+	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type handlerInstitutionClient struct {
@@ -31,6 +34,29 @@ func (h *handlerInstitutionClient) Update(c *fiber.Ctx) error {
 	}
 
 	res, err := h.institutionClientService.Update(*req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
+}
+
+func (h *handlerInstitutionClient) GetClient(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &cdto.GetInstitutionClientReq{}
+
+	if id, ok := params["id"]; ok {
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "Invalid ID format")
+		}
+		req.InstitutionId = int32(idInt)
+	}
+
+	log.Print(req)
+
+	res, err := h.institutionClientService.GetByInstitutionId(*req)
+	log.Print(res)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}

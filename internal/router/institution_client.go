@@ -7,11 +7,12 @@ import (
 )
 
 func (s *Server) RoutesInstitutionClient() {
+
 	r := s.app
 	repo := repository.NewRepositoryInstitutionClient(&repository.Queries)
 	sevice := service.NewServiceInstitutionClient(repo)
 	handler := handler.NewHandlerInstitutionClient(sevice)
 	serviceRoute := r.Group("/api/institution-client")
 	serviceRoute.Post("/", handler.Update)
-
+	serviceRoute.Get("/get/institution/:id", handler.GetClient)
 }

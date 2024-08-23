@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	dtoClient "optitech/internal/dto/client"
+	dto "optitech/internal/dto/institution_client"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 )
@@ -63,8 +64,25 @@ func (r *repositoryInstitutionClient) DeleteInstitutionClientById(arg *sq.Delete
 	return r.insititutionClientRepository.DeleteInstitutionByClient(ctx, *arg)
 
 }
+
 func (r *repositoryInstitutionClient) DeleteInstitutionClientByInstitution(arg *sq.DeleteInstitutionClientParams) error {
 	ctx := context.Background()
 	return r.insititutionClientRepository.DeleteInstitutionClient(ctx, *arg)
 
+}
+
+func (r *repositoryInstitutionClient) GetClientByInstitutionId(institutionID int32) (*dto.GetInstitutionClientRes, error) {
+	ctx := context.Background()
+
+	repoRes, err := r.insititutionClientRepository.GetClientByInstitutionId(ctx, (institutionID))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetInstitutionClientRes{
+		Id:            int64(repoRes.InstitutionID),
+		InstitutionId: int64(repoRes.InstitutionID),
+		ClientId:      int64(repoRes.ClientID),
+	}, nil
 }
