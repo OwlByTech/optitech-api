@@ -54,9 +54,7 @@ func (h *handlerDirectoryTree) GetRoute(c *fiber.Ctx) error {
 		}
 
 		req.InstitutionID = int32(institutionID)
-	}
-
-	if institution == "" {
+	}else{
 		institutionId, ok := data.(int32)
 		asesorID, ok_asesor := data_asesor.(int32)
 		if !ok && !ok_asesor {

@@ -7,6 +7,7 @@ import (
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"optitech/internal/tools"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -112,20 +113,32 @@ func (h *handlerDocument) DeleteDocument(c *fiber.Ctx) error {
 
 func (h *handlerDocument) DownloadDocumentById(c *fiber.Ctx) error {
 	data := c.Locals("institutionId")
-	institutionId, ok := data.(int32)
 	data_asesor := c.Locals("asesorId")
-	asesorID, ok_asesor := data_asesor.(int32)
 
-	if !ok && !ok_asesor {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
-	}
 	params := c.AllParams()
-	req := &ddto.GetDocumentReq{
-		InstitutionId: institutionId,
-		AsesorId:      asesorID,
-	}
+	queries := c.Queries()
+	institution := queries["institution"]
+
+	req := &ddto.GetDocumentReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if institution != "" {
+		institutionID, err := strconv.Atoi(institution)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+
+		req.InstitutionId = int32(institutionID)
+	}else{
+		institutionId, ok := data.(int32)
+		asesorID, ok_asesor := data_asesor.(int32)
+		if !ok && !ok_asesor {
+			return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+		}
+		req.InstitutionId = institutionId
+		req.AsesorId = asesorID
 	}
 
 	res, err := h.documentService.DownloadDocumentById(*req)
