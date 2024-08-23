@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/institution_client"
 	"optitech/internal/interfaces"
@@ -53,10 +52,7 @@ func (h *handlerInstitutionClient) GetClient(c *fiber.Ctx) error {
 		req.InstitutionId = int32(idInt)
 	}
 
-	log.Print(req)
-
 	res, err := h.institutionClientService.GetByInstitutionId(*req)
-	log.Print(res)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
