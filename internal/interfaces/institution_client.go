@@ -16,6 +16,7 @@ type IInstitutionClientService interface {
 	Update(req dto.UpdateInstitutionClientReq) (bool, error)
 	DeleteById(req *dto.GetInstitutionClientReq) error
 	DeleteByInstitution(InstitutionID int32) error
+	GetByInstitutionId(req dto.GetInstitutionClientReq) (*dto.GetInstitutionClientRes, error)
 }
 type IInstitutionClientRepository interface {
 	ListInstitutionClient(InstitutionID int32) (*[]dto_client.GetClientRes, error)
@@ -24,7 +25,9 @@ type IInstitutionClientRepository interface {
 	RecoverInstitutionClient(arg *models.RecoverInstitutionClientParams) error
 	DeleteInstitutionClientById(arg *models.DeleteInstitutionByClientParams) error
 	DeleteInstitutionClientByInstitution(arg *models.DeleteInstitutionClientParams) error
+	GetClientByInstitutionId(institutionID int32) (*dto.GetInstitutionClientRes, error)
 }
 type IInstitutionClientHandler interface {
 	Update(c *fiber.Ctx) error
+	GetClient(c *fiber.Ctx) error
 }
