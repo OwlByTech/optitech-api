@@ -32,5 +32,6 @@ func (s *Server) RoutesDocument() {
 	serviceRoute.Delete("/:id", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.DeleteDocument)
 	serviceRoute.Get("download/:id", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.DownloadDocumentById)
 	serviceRoute.Put("update", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.UpdateDocument)
+	serviceRoute.Put("status", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.UpdateStatusById)
 	serviceRoute.Post("version", clientMiddleware.ClientJWT, directoryMiddleware.DirectoryJWT, handler.CreateVersion)
 }

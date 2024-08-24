@@ -23,6 +23,11 @@ INSERT INTO document(directory_id, name, format_id, file_rute, status, created_a
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
+-- name: UpdateDocumentStatusById :exec
+UPDATE document
+SET  status = $2
+WHERE document_id = $1;
+
 -- name: UpdateDocumentById :exec
 UPDATE document
 SET  directory_id = $2, format_id = $3, file_rute = $4, status = $5, updated_at = $6

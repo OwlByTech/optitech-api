@@ -16,6 +16,7 @@ type IDocumentService interface {
 	DeleteDocument(req d.GetDocumentReq) (bool, error)
 	DownloadDocumentById(req d.GetDocumentReq) (*string, error)
 	UpdateDocument(req *d.UpdateDocumentReq) (bool, error)
+	UpdateStatusById(req *d.UpdateDocumentStatusByIdReq) error
 }
 
 type IDocumentRepository interface {
@@ -26,6 +27,7 @@ type IDocumentRepository interface {
 	DownloadDocumentById(documentID int64) (*d.GetDocumentDownloadRes, error)
 	UpdateDocument(arg *models.UpdateDocumentNameByIdParams) error
 	UpdateDocumentById(arg *models.UpdateDocumentByIdParams) error
+	UpdateDocumentStatusById(*models.UpdateDocumentStatusByIdParams) error
 	ExistsDocuments(documentID int64) (bool, error)
 	GetEndpointExists(fileRute string) (bool, error)
 	GetInstitutionByDocumentId(directoryId int64) (models.GetInstitutionNameByDirectoryIdRow, error)
@@ -37,5 +39,6 @@ type IDocumentHandler interface {
 	DeleteDocument(f *fiber.Ctx) error
 	DownloadDocumentById(f *fiber.Ctx) error
 	UpdateDocument(c *fiber.Ctx) error
+	UpdateStatusById(c *fiber.Ctx) error
 	CreateVersion(f *fiber.Ctx) error
 }

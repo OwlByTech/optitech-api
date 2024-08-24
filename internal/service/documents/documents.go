@@ -116,6 +116,14 @@ func (s *serviceDocument) UpdateDocument(req *dto.UpdateDocumentReq) (bool, erro
 	return true, nil
 }
 
+func (s *serviceDocument) UpdateStatusById(req *dto.UpdateDocumentStatusByIdReq) error {
+	repoReq := sq.UpdateDocumentStatusByIdParams{
+		DocumentID: req.Id,
+		Status: sq.NullStatus{Status: req.Status, Valid: true},
+	}
+	return s.documentRepository.UpdateDocumentStatusById(&repoReq)
+}
+
 func (s *serviceDocument) CreateVersion(req *dto.CreateDocumentVersionByteReq) (bool, error) {
 	repoRes, err := s.Get(dto.GetDocumentReq{Id: req.Id})
 	if err != nil {

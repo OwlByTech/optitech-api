@@ -113,6 +113,11 @@ func (r *repositoryDocument) DeleteDocument(arg *sq.DeleteDocumentByIdParams) er
 	return r.documentRepository.DeleteDocumentById(ctx, *arg)
 }
 
+func (r *repositoryDocument) UpdateDocumentStatusById(arg *sq.UpdateDocumentStatusByIdParams) error {
+	ctx := context.Background()
+	return r.documentRepository.UpdateDocumentStatusById(ctx, *arg)
+}
+
 func (r *repositoryDocument) UpdateDocumentById(arg *sq.UpdateDocumentByIdParams) error {
 	ctx := context.Background()
 	return r.documentRepository.UpdateDocumentById(ctx, *arg)

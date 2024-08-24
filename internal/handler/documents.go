@@ -131,7 +131,7 @@ func (h *handlerDocument) DownloadDocumentById(c *fiber.Ctx) error {
 		}
 
 		req.InstitutionId = int32(institutionID)
-	}else{
+	} else {
 		institutionId, ok := data.(int32)
 		asesorID, ok_asesor := data_asesor.(int32)
 		if !ok && !ok_asesor {
@@ -169,6 +169,23 @@ func (h *handlerDocument) UpdateDocument(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 
+}
+
+func (h *handlerDocument) UpdateStatusById(c *fiber.Ctx) error {
+	req := &ddto.UpdateDocumentStatusByIdReq{}
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := h.documentService.UpdateStatusById(req); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(true)
 }
 
 func (h *handlerDocument) CreateVersion(c *fiber.Ctx) error {
