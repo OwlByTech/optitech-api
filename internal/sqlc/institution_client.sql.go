@@ -73,6 +73,25 @@ func (q *Queries) ExistsInstitutionClient(ctx context.Context, arg ExistsInstitu
 	return i, err
 }
 
+const getClientByInstitutionId = `-- name: GetClientByInstitutionId :one
+SELECT client_id, institution_id, created_at, updated_at, deleted_at FROM institution_client
+WHERE institution_id = $1 AND deleted_at IS NULL
+LIMIT 1
+`
+
+func (q *Queries) GetClientByInstitutionId(ctx context.Context, institutionID int32) (InstitutionClient, error) {
+	row := q.db.QueryRow(ctx, getClientByInstitutionId, institutionID)
+	var i InstitutionClient
+	err := row.Scan(
+		&i.ClientID,
+		&i.InstitutionID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getInstitutionClient = `-- name: GetInstitutionClient :one
 SELECT client_id, institution_id, created_at, updated_at, deleted_at FROM institution_client
 WHERE client_id = $1 AND institution_id=$2 AND deleted_at IS NULL

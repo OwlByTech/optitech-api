@@ -33,3 +33,8 @@ WHERE institution_id= $1 AND client_id= $3 ;
 UPDATE institution_client
 SET deleted_at = $2
 WHERE institution_id = $1;
+
+-- name: GetClientByInstitutionId :one
+SELECT * FROM institution_client
+WHERE institution_id = $1 AND deleted_at IS NULL
+LIMIT 1;

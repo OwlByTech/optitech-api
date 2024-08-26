@@ -107,3 +107,12 @@ func FindMissing(list []int32, listTwo []int32) ([]int32, []int32) {
 
 	return missingInList, missingInListTwo
 }
+
+func (s *serviceInstitutionClient) GetByInstitutionId(req dto.GetInstitutionClientReq) (*dto.GetInstitutionClientRes, error) {
+	res, err := s.institutionClientRepository.GetClientByInstitutionId(req.InstitutionId)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
