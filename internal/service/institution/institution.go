@@ -198,6 +198,10 @@ func (s *serviceInstitution) Update(req *dto.UpdateInstitutionReq) (bool, error)
 		}
 	}
 
+	if institution.AsesorId == 0 {
+		repoReq.AsesorID = pgtype.Int4{Valid: false}
+	}
+
 	err = s.institutionRepository.UpdateInstitution(repoReq)
 	if err != nil {
 		return false, err
