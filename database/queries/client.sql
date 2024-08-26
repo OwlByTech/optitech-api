@@ -14,6 +14,10 @@ ORDER BY given_name;
 SELECT * FROM client
 WHERE email = $1;
 
+-- name: GetClientPhoto :one
+SELECT photo FROM client
+WHERE client_id = $1;
+
 -- name: CreateClient :one
 INSERT INTO client (given_name, surname, email, password, created_at)
 VALUES ($1, $2, $3, $4, $5)
@@ -26,12 +30,12 @@ WHERE client_id = $1;
 
 -- name: UpdateClientPhoto :exec
 UPDATE client
-SET  photo= $2, updated_at = $3
+SET  photo = $2, updated_at = $3
 WHERE client_id = $1;
 
 -- name: UpdateClientStatusById :exec
 UPDATE client
-SET status= $2, updated_at = $3
+SET status = $2, updated_at = $3
 WHERE client_id = $1;
 
 -- name: DeleteClientById :exec

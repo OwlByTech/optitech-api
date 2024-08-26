@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	dto "optitech/internal/dto"
 	ddto "optitech/internal/dto/directory_tree"
 	"optitech/internal/interfaces"
+	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type handlerDirectoryTree struct {
@@ -24,7 +26,7 @@ func (h *handlerDirectoryTree) Get(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.directoryTreeService.Get(*req)
+	res, err := h.directoryTreeService.Get(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -34,17 +36,35 @@ func (h *handlerDirectoryTree) Get(c *fiber.Ctx) error {
 
 func (h *handlerDirectoryTree) GetRoute(c *fiber.Ctx) error {
 	data := c.Locals("institutionId")
-	institutionId, ok := data.(int32)
-	if !ok {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
-	}
+	data_asesor := c.Locals("asesorId")
+
 	params := c.AllParams()
+	queries := c.Queries()
+	institution := queries["institution"]
+
 	req := &ddto.GetDirectoryTreeReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	req.InstitutionID = institutionId
-	_, res, err := h.directoryTreeService.GetRoute(*req)
+
+	if institution != "" {
+		institutionID, err := strconv.Atoi(institution)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+
+		req.InstitutionID = int32(institutionID)
+	}else{
+		institutionId, ok := data.(int32)
+		asesorID, ok_asesor := data_asesor.(int32)
+		if !ok && !ok_asesor {
+			return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+		}
+		req.InstitutionID = institutionId
+		req.AsesorID = asesorID
+	}
+
+	_, res, err := h.directoryTreeService.GetRoute(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -53,7 +73,18 @@ func (h *handlerDirectoryTree) GetRoute(c *fiber.Ctx) error {
 }
 
 func (h *handlerDirectoryTree) Create(c *fiber.Ctx) error {
-	req := &ddto.CreateDirectoryTreeReq{}
+	data := c.Locals("institutionId")
+	institutionId, ok := data.(int32)
+	data_asesor := c.Locals("asesorId")
+	asesorID, ok_asesor := data_asesor.(int32)
+
+	if !ok && !ok_asesor {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+	req := &ddto.CreateDirectoryTreeReq{
+		InstitutionID: institutionId,
+		AsesorID:      asesorID,
+	}
 
 	if err := c.BodyParser(req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Entrada inválida: "+err.Error())
@@ -81,19 +112,36 @@ func (h *handlerDirectoryTree) List(c *fiber.Ctx) error {
 }
 
 func (h *handlerDirectoryTree) ListByParent(c *fiber.Ctx) error {
-	data := c.Locals("institutionId")
-	institutionId, ok := data.(int32)
-	if !ok {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	params := c.AllParams()
+	queries := c.Queries()
+	institution := queries["institution"]
+
+	req := &ddto.GetDirectoryTreeReq{}
+	if institution == "" {
+		data := c.Locals("institutionId")
+		institutionId, ok := data.(int32)
+		data_asesor := c.Locals("asesorId")
+		asesorID, ok_asesor := data_asesor.(int32)
+		if !ok && !ok_asesor {
+			return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+		}
+
+		req.InstitutionID = institutionId
+		req.AsesorID = asesorID
+	} else {
+		institutionID, err := strconv.Atoi(institution)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+
+		req.InstitutionID = int32(institutionID)
 	}
 
-	params := c.AllParams()
-	req := &ddto.GetDirectoryTreeReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	req.InstitutionID = institutionId
-	res, err := h.directoryTreeService.ListByParent(*req)
+
+	res, err := h.directoryTreeService.ListByParent(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -102,18 +150,36 @@ func (h *handlerDirectoryTree) ListByParent(c *fiber.Ctx) error {
 }
 
 func (h *handlerDirectoryTree) ListByChild(c *fiber.Ctx) error {
-	data := c.Locals("institutionId")
-	institutionId, ok := data.(int32)
-	if !ok {
-		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
-	}
 	params := c.AllParams()
+	queries := c.Queries()
+	institution := queries["institution"]
+
 	req := &ddto.GetDirectoryTreeReq{}
+	if institution == "" {
+		data := c.Locals("institutionId")
+		institutionId, ok := data.(int32)
+		data_asesor := c.Locals("asesorId")
+		asesorID, ok_asesor := data_asesor.(int32)
+		if !ok && !ok_asesor {
+			return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+		}
+
+		req.InstitutionID = institutionId
+		req.AsesorID = asesorID
+	} else {
+		institutionID, err := strconv.Atoi(institution)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+
+		req.InstitutionID = int32(institutionID)
+	}
+
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	req.InstitutionID = institutionId
-	res, err := h.directoryTreeService.ListByChild(*req)
+
+	res, err := h.directoryTreeService.ListByChild(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -124,16 +190,23 @@ func (h *handlerDirectoryTree) ListByChild(c *fiber.Ctx) error {
 func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
 	data := c.Locals("institutionId")
 	institutionId, ok := data.(int32)
-	if !ok {
+	data_asesor := c.Locals("asesorId")
+	asesorID, ok_asesor := data_asesor.(int32)
+
+	if !ok && !ok_asesor {
 		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
 	}
+
 	params := c.AllParams()
-	req := &ddto.GetDirectoryTreeReq{}
+	req := &ddto.GetDirectoryTreeReq{
+		InstitutionID: institutionId,
+		AsesorID:      asesorID,
+	}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	req.InstitutionID = institutionId
-	res, err := h.directoryTreeService.Delete(*req)
+	res, err := h.directoryTreeService.Delete(req)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -145,11 +218,17 @@ func (h *handlerDirectoryTree) Delete(c *fiber.Ctx) error {
 func (h *handlerDirectoryTree) Update(c *fiber.Ctx) error {
 	data := c.Locals("institutionId")
 	institutionId, ok := data.(int32)
-	if !ok {
+	data_asesor := c.Locals("asesorId")
+	asesorID, ok_asesor := data_asesor.(int32)
+
+	if !ok && !ok_asesor {
 		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
 	}
 	params_id := c.AllParams()
-	req_id := &ddto.GetDirectoryTreeReq{}
+	req_id := &ddto.GetDirectoryTreeReq{
+		InstitutionID: institutionId,
+		AsesorID:      asesorID,
+	}
 
 	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

@@ -23,8 +23,10 @@ type UpdateClientRes struct {
 	Email     string `json:"email" validate:"required,email"`
 }
 type UpdateClientStatusReq struct {
-	ClientId int32        `json:"clientId" validate:"required"`
-	Status   StatusClient `json:"status" validate:"required"`
+	ClientId      int32        `json:"clientId" validate:"required"`
+	Status        StatusClient `json:"status" validate:"required"`
+	AsesorID      int32        `json:"asesorId"`
+	InstitutionId int32        `json:"institutionId"`
 }
 
 type UpdateClientPhotoReq struct {

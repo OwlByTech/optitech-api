@@ -4,7 +4,6 @@ import (
 	dto "optitech/internal/dto"
 	cdto "optitech/internal/dto/asesor"
 	"optitech/internal/interfaces"
-
 	"github.com/gofiber/fiber/v2"
 )
 

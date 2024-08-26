@@ -9,6 +9,7 @@ import (
 
 type IClientService interface {
 	Get(req dto.GetClientReq) (*dto.GetClientRes, error)
+	GetPhoto(req dto.GetClientReq) (string, error)
 	Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error)
 	Update(req *dto.UpdateClientReq) (bool, error)
 	UpdateStatus(req *dto.UpdateClientStatusReq) (bool, error)
@@ -22,6 +23,7 @@ type IClientService interface {
 }
 type IClientRepository interface {
 	GetClient(clientID int32) (*dto.GetClientRes, error)
+	GetClientPhoto(clientID int32) (string, error)
 	CreateClient(arg *models.CreateClientParams) (*dto.CreateClient, error)
 	UpdateClient(arg *models.UpdateClientByIdParams) error
 	UpdateStatusClient(arg *models.UpdateClientStatusByIdParams) error
@@ -34,6 +36,7 @@ type IClientRepository interface {
 type IClientHandler interface {
 	GetSecure(c *fiber.Ctx) error
 	Get(c *fiber.Ctx) error
+	GetPhoto(c *fiber.Ctx) error
 	Create(c *fiber.Ctx) error
 	Update(c *fiber.Ctx) error
 	UpdateStatus(c *fiber.Ctx) error

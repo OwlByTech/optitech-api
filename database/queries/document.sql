@@ -8,12 +8,10 @@ SELECT * FROM document
 WHERE deleted_at IS NULL
 ORDER BY document_id;
 
-
 -- name: ListDocumentsByDirectory :many
 SELECT * FROM document
 WHERE directory_id= $1 AND deleted_at IS NULL
 ORDER BY document_id;
-
 
 -- name: GetDocumentByName :one
 SELECT directory_id, format_id, file_rute, status
@@ -21,9 +19,14 @@ FROM document
 WHERE document_id = $1 AND deleted_at IS NULL;
 
 -- name: CreateDocument :one
-INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
+INSERT INTO document(directory_id, name, format_id, file_rute, status, created_at)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
+
+-- name: UpdateDocumentStatusById :exec
+UPDATE document
+SET  status = $2
+WHERE document_id = $1;
 
 -- name: UpdateDocumentById :exec
 UPDATE document

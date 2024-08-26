@@ -97,6 +97,49 @@ func (ns NullExtensions) Value() (driver.Value, error) {
 	return string(ns.Extensions), nil
 }
 
+type FromNotification string
+
+const (
+	FromNotificationInstitution FromNotification = "institution"
+	FromNotificationAsesor      FromNotification = "asesor"
+	FromNotificationSuperUser   FromNotification = "super_user"
+)
+
+func (e *FromNotification) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = FromNotification(s)
+	case string:
+		*e = FromNotification(s)
+	default:
+		return fmt.Errorf("unsupported scan type for FromNotification: %T", src)
+	}
+	return nil
+}
+
+type NullFromNotification struct {
+	FromNotification FromNotification `json:"from_notification"`
+	Valid            bool             `json:"valid"` // Valid is true if FromNotification is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullFromNotification) Scan(value interface{}) error {
+	if value == nil {
+		ns.FromNotification, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.FromNotification.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullFromNotification) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.FromNotification), nil
+}
+
 type Permissions string
 
 const (
@@ -147,9 +190,11 @@ func (ns NullPermissions) Value() (driver.Value, error) {
 type Status string
 
 const (
-	StatusAprobado   Status = "aprobado"
-	StatusEnrevision Status = "en revision"
-	StatusRechazado  Status = "rechazado"
+	StatusGenerated Status = "generated"
+	StatusUploaded  Status = "uploaded"
+	StatusInReview  Status = "in_review"
+	StatusRejected  Status = "rejected"
+	StatusApproved  Status = "approved"
 )
 
 func (e *Status) Scan(src interface{}) error {
@@ -229,9 +274,97 @@ func (ns NullStatusClient) Value() (driver.Value, error) {
 	return string(ns.StatusClient), nil
 }
 
+type ToNotification string
+
+const (
+	ToNotificationInstitution ToNotification = "institution"
+	ToNotificationAsesor      ToNotification = "asesor"
+	ToNotificationSuperUser   ToNotification = "super_user"
+	ToNotificationAll         ToNotification = "all"
+)
+
+func (e *ToNotification) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ToNotification(s)
+	case string:
+		*e = ToNotification(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ToNotification: %T", src)
+	}
+	return nil
+}
+
+type NullToNotification struct {
+	ToNotification ToNotification `json:"to_notification"`
+	Valid          bool           `json:"valid"` // Valid is true if ToNotification is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullToNotification) Scan(value interface{}) error {
+	if value == nil {
+		ns.ToNotification, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ToNotification.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullToNotification) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ToNotification), nil
+}
+
+type TypeNotification string
+
+const (
+	TypeNotificationInformation TypeNotification = "information"
+	TypeNotificationCorrection  TypeNotification = "correction"
+	TypeNotificationError       TypeNotification = "error"
+	TypeNotificationAproved     TypeNotification = "aproved"
+)
+
+func (e *TypeNotification) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TypeNotification(s)
+	case string:
+		*e = TypeNotification(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TypeNotification: %T", src)
+	}
+	return nil
+}
+
+type NullTypeNotification struct {
+	TypeNotification TypeNotification `json:"type_notification"`
+	Valid            bool             `json:"valid"` // Valid is true if TypeNotification is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTypeNotification) Scan(value interface{}) error {
+	if value == nil {
+		ns.TypeNotification, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TypeNotification.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTypeNotification) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TypeNotification), nil
+}
+
 type Asesor struct {
 	AsesorID  int32            `json:"asesor_id"`
-	About     string           `json:"about"`
+	About     pgtype.Text      `json:"about"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
@@ -273,6 +406,7 @@ type DirectoryTree struct {
 	ParentID      pgtype.Int8      `json:"parent_id"`
 	InstitutionID pgtype.Int4      `json:"institution_id"`
 	Name          pgtype.Text      `json:"name"`
+	AsesorID      pgtype.Int4      `json:"asesor_id"`
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
@@ -280,11 +414,11 @@ type DirectoryTree struct {
 
 type Document struct {
 	DocumentID  int64            `json:"document_id"`
-	DirectoryID int32            `json:"directory_id"`
+	DirectoryID int64            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
 	Name        string           `json:"name"`
 	FileRute    string           `json:"file_rute"`
-	Status      Status           `json:"status"`
+	Status      NullStatus       `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
@@ -304,6 +438,7 @@ type Format struct {
 	FormatID        int32            `json:"format_id"`
 	UpdatedFormatID pgtype.Int4      `json:"updated_format_id"`
 	AsesorID        int32            `json:"asesor_id"`
+	ServiceID       pgtype.Int4      `json:"service_id"`
 	FormatName      string           `json:"format_name"`
 	Description     string           `json:"description"`
 	Extension       Extensions       `json:"extension"`
@@ -338,6 +473,20 @@ type InstitutionService struct {
 	CreatedAt     pgtype.Timestamp `json:"created_at"`
 	UpdatedAt     pgtype.Timestamp `json:"updated_at"`
 	DeletedAt     pgtype.Timestamp `json:"deleted_at"`
+}
+
+type Notification struct {
+	NotificationID int64                `json:"notification_id"`
+	From           FromNotification     `json:"from"`
+	To             ToNotification       `json:"to"`
+	FromID         int32                `json:"from_id"`
+	ToID           int32                `json:"to_id"`
+	Message        string               `json:"message"`
+	Title          string               `json:"title"`
+	Visualized     pgtype.Bool          `json:"visualized"`
+	Payload        []byte               `json:"payload"`
+	Type           NullTypeNotification `json:"type"`
+	CreatedAt      pgtype.Timestamp     `json:"created_at"`
 }
 
 type Permission struct {

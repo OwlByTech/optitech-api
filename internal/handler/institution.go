@@ -19,6 +19,7 @@ func NewHandlerInstitution(r interfaces.IInstitutionService) interfaces.IInstitu
 		institutionService: r,
 	}
 }
+
 func (h *handlerInstitution) GetByClient(c *fiber.Ctx) error {
 	data := c.Locals("clientId")
 	clientId, ok := data.(int32)
@@ -55,6 +56,20 @@ func (h *handlerInstitution) Get(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
+func (h *handlerInstitution) GetLogo(c *fiber.Ctx) error {
+	params := c.AllParams()
+	req := &cdto.GetInstitutionReq{}
+	if err := dto.ValidateParamsToDTO(params, req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	res, err := h.institutionService.GetLogo(*req)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	return c.JSON(res)
+}
+
 func (h *handlerInstitution) List(c *fiber.Ctx) error {
 
 	res, err := h.institutionService.List()
@@ -88,6 +103,7 @@ func (h *handlerInstitution) Create(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 }
+
 func (h *handlerInstitution) UpdateAsesor(c *fiber.Ctx) error {
 	req := &cdto.UpdateAsesorInstitutionReq{}
 
@@ -112,17 +128,23 @@ func (h *handlerInstitution) UpdateAsesor(c *fiber.Ctx) error {
 
 func (h *handlerInstitution) Update(c *fiber.Ctx) error {
 	params_id := c.AllParams()
+
 	req_id := &cdto.GetInstitutionReq{}
+
 	if err := dto.ValidateParamsToDTO(params_id, req_id); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+
 	req := &cdto.UpdateInstitutionReq{
 		InstitutionID: req_id.Id,
 	}
-	params := c.FormValue("data")
-	if err := json.Unmarshal([]byte(params), &req); err != nil {
+
+	body := c.Body()
+
+	if err := json.Unmarshal(body, &req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
+
 	res, err := h.institutionService.Update(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -154,7 +176,6 @@ func (h *handlerInstitution) UpdateLogo(c *fiber.Ctx) error {
 }
 
 func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
-
 	params := c.AllParams()
 	req := &cdto.GetInstitutionReq{}
 	if err := dto.ValidateParamsToDTO(params, req); err != nil {
@@ -169,4 +190,40 @@ func (h *handlerInstitution) Delete(c *fiber.Ctx) error {
 
 	return c.JSON(res)
 
+}
+
+func (h *handlerInstitution) CreateAllFormat(c *fiber.Ctx) error {
+	req := &cdto.GetInstitutionReq{}
+
+	if err := c.BodyParser(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid input: "+err.Error())
+	}
+
+	if err := dto.ValidateDTO(req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	success, err := h.institutionService.CreateAllFormat(req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"success": success,
+	})
+}
+
+func (h *handlerInstitution) GetByAsesor(c *fiber.Ctx) error {
+	data := c.Locals("clientId")
+	clientId, ok := data.(int32)
+	if !ok {
+		return fiber.NewError(fiber.StatusBadRequest, "Cannot casting client id")
+	}
+
+	res, err := h.institutionService.GetByAsesor(clientDto.GetClientReq{Id: clientId})
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(res)
 }

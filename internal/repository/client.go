@@ -37,6 +37,15 @@ func (r *repositoryClient) GetClient(clientID int32) (*dto.GetClientRes, error) 
 	}, nil
 }
 
+func (r *repositoryClient) GetClientPhoto(clientID int32) (string, error) {
+	ctx := context.Background()
+	photo, err := r.clientRepository.GetClientPhoto(ctx, clientID)
+	if err != nil {
+		return "", err
+	}
+	return photo.String, nil
+}
+
 func (r *repositoryClient) CreateClient(arg *sq.CreateClientParams) (*dto.CreateClient, error) {
 	ctx := context.Background()
 
@@ -58,6 +67,7 @@ func (r *repositoryClient) UpdateClient(arg *sq.UpdateClientByIdParams) error {
 	ctx := context.Background()
 	return r.clientRepository.UpdateClientById(ctx, *arg)
 }
+
 func (r *repositoryClient) UpdateStatusClient(arg *sq.UpdateClientStatusByIdParams) error {
 	ctx := context.Background()
 	return r.clientRepository.UpdateClientStatusById(ctx, *arg)

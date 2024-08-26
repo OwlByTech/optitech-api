@@ -86,10 +86,45 @@ func (q *Queries) GetInstitution(ctx context.Context, institutionID int32) (Inst
 	return i, err
 }
 
+const getInstitutionByAsesor = `-- name: GetInstitutionByAsesor :many
+SELECT  institution_id, asesor_id, institution_name, logo, description, created_at, updated_at, deleted_at FROM institution
+WHERE asesor_id = $1
+AND deleted_at IS NULL
+`
+
+func (q *Queries) GetInstitutionByAsesor(ctx context.Context, asesorID pgtype.Int4) ([]Institution, error) {
+	rows, err := q.db.Query(ctx, getInstitutionByAsesor, asesorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Institution
+	for rows.Next() {
+		var i Institution
+		if err := rows.Scan(
+			&i.InstitutionID,
+			&i.AsesorID,
+			&i.InstitutionName,
+			&i.Logo,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getInstitutionByClient = `-- name: GetInstitutionByClient :one
 SELECT  i.institution_id FROM institution i
 INNER JOIN institution_client ON i.institution_id=institution_client.institution_id
-WHERE  institution_client.client_id= $1
+WHERE  institution_client.client_id = $1
 AND i.deleted_at IS NULL
 LIMIT 1
 `
@@ -117,6 +152,23 @@ func (q *Queries) GetInstitutionByName(ctx context.Context, institutionName stri
 	row := q.db.QueryRow(ctx, getInstitutionByName, institutionName)
 	var i GetInstitutionByNameRow
 	err := row.Scan(&i.InstitutionName, &i.Logo, &i.Description)
+	return i, err
+}
+
+const getInstitutionLogo = `-- name: GetInstitutionLogo :one
+SELECT logo,institution_name FROM institution
+WHERE institution_id = $1
+`
+
+type GetInstitutionLogoRow struct {
+	Logo            pgtype.Text `json:"logo"`
+	InstitutionName string      `json:"institution_name"`
+}
+
+func (q *Queries) GetInstitutionLogo(ctx context.Context, institutionID int32) (GetInstitutionLogoRow, error) {
+	row := q.db.QueryRow(ctx, getInstitutionLogo, institutionID)
+	var i GetInstitutionLogoRow
+	err := row.Scan(&i.Logo, &i.InstitutionName)
 	return i, err
 }
 
@@ -157,7 +209,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 
 const updateAsesorInstitution = `-- name: UpdateAsesorInstitution :exec
 UPDATE institution
-SET asesor_id= $2 ,updated_at=$3
+SET asesor_id = $2 ,updated_at = $3
 WHERE institution_id = $1
 `
 
@@ -174,7 +226,7 @@ func (q *Queries) UpdateAsesorInstitution(ctx context.Context, arg UpdateAsesorI
 
 const updateInstitution = `-- name: UpdateInstitution :exec
 UPDATE institution
-SET institution_name = $2, description = $3,  updated_at=$4,asesor_id= $5
+SET institution_name = $2, description = $3, updated_at = $4, asesor_id = $5
 WHERE institution_id = $1
 `
 
@@ -199,7 +251,7 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 
 const updateLogoInstitution = `-- name: UpdateLogoInstitution :exec
 UPDATE institution
-SET logo = $2 ,updated_at=$3 WHERE institution_id = $1
+SET logo = $2 ,updated_at = $3 WHERE institution_id = $1
 `
 
 type UpdateLogoInstitutionParams struct {

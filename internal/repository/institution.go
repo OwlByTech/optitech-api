@@ -5,6 +5,8 @@ import (
 	dto "optitech/internal/dto/institution"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type repositoryInstitution struct {
@@ -33,10 +35,24 @@ func (r *repositoryInstitution) GetInstitution(InstitutionID int32) (*dto.GetIns
 	}, nil
 }
 
+func (r *repositoryInstitution) GetInstitutionLogo(InstitutionID int32) (*dto.GetInstitutionRes, error) {
+
+	ctx := context.Background()
+	repoRes, err := r.institutionRepository.GetInstitutionLogo(ctx, InstitutionID)
+
+	if err != nil {
+		return nil, err
+	}
+	return &dto.GetInstitutionRes{
+		InstitutionName: repoRes.InstitutionName,
+		Logo:            repoRes.Logo.String,
+	}, nil
+
+}
+
 func (r *repositoryInstitution) GetInstitutionByClient(ClientID int32) (int32, error) {
 	ctx := context.Background()
 	return r.institutionRepository.GetInstitutionByClient(ctx, ClientID)
-
 }
 
 func (r *repositoryInstitution) ListInstitutions() (*[]dto.GetInstitutionRes, error) {
@@ -85,4 +101,30 @@ func (r *repositoryInstitution) DeleteInstitution(arg *sq.DeleteInstitutionParam
 	ctx := context.Background()
 	return r.institutionRepository.DeleteInstitution(ctx, *arg)
 
+}
+
+func (r *repositoryInstitution) GetInstitutionByAsesor(ClientID int32) (*[]dto.GetInstitutionRes, error) {
+	ctx := context.Background()
+	pgClientID := pgtype.Int4{
+		Int32: ClientID,
+		Valid: true,
+	}
+
+	repoRes, err := r.institutionRepository.GetInstitutionByAsesor(ctx, pgClientID)
+	if err != nil {
+		return nil, err
+	}
+
+	institutions := make([]dto.GetInstitutionRes, len(repoRes))
+	for i, inst := range repoRes {
+		institutions[i] = dto.GetInstitutionRes{
+			Id:              inst.InstitutionID,
+			InstitutionName: inst.InstitutionName,
+			Logo:            inst.Logo.String,
+			Description:     inst.Description,
+			AsesorId:        inst.AsesorID.Int32,
+		}
+	}
+
+	return &institutions, nil
 }

@@ -2,16 +2,9 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	cnf "optitech/internal/config"
 	dto "optitech/internal/dto/document"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
-	"time"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 type repositoryDocument struct {
@@ -39,52 +32,42 @@ func (r *repositoryDocument) GetDocument(documentID int64) (*dto.GetDocumentRes,
 		DirectoryId: repoRes.DirectoryID,
 		FormatId:    repoRes.FormatID.Int32,
 		FileRute:    repoRes.FileRute,
-		Status:      string(repoRes.Status),
+		Status:      string(repoRes.Status.Status),
 	}, nil
 }
 
-func DownloadDocument(route string, directory string) (string, error) {
-
-	s3Config := cnf.GetS3Config()
-
-	sess, err := session.NewSession(s3Config)
-	if err != nil {
-		return "", err
-	}
-
-	svc := s3.New(sess)
-
-	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(cnf.Env.DigitalOceanBucket),
-		Key:    aws.String(fmt.Sprintf("%s/%s", directory, route)),
-	})
-	urlStr, err := req.Presign(15 * time.Minute)
-	if err != nil {
-		return "", err
-	}
-
-	return urlStr, nil
-}
-
-func (r *repositoryDocument) DownloadDocumentById(documentID int64) (string, error) {
+func (r *repositoryDocument) DownloadDocumentById(documentID int64) (*dto.GetDocumentDownloadRes, error) {
 	ctx := context.Background()
 
 	repoRes, err := r.documentRepository.GetDocument(ctx, (documentID))
-
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+	res := &dto.GetDocumentDownloadRes{
+		FileRute: repoRes.FileRute,
+		Filename: repoRes.Name,
 	}
 
-	institutionName, err := r.documentRepository.GetInstitutionNameByDirectoryId(ctx, int64(repoRes.DirectoryID))
+	directory, err := r.documentRepository.GetDirectoryTreeById(ctx, repoRes.DirectoryID)
 
 	if err != nil {
-		return " ", err
+		return nil, err
 	}
 
-	return DownloadDocument(repoRes.FileRute, institutionName.Institution.InstitutionName)
+	if directory.InstitutionID.Int32 > 0 {
+		institution, err := r.documentRepository.GetInstitutionNameByDirectoryId(ctx, repoRes.DirectoryID)
+		if err != nil {
+			return nil, err
+		}
+		res.InstitutionName = institution.Institution.InstitutionName
+		res.InstitutionId = institution.Institution.InstitutionID
+	} else {
+		res.AsesorId = directory.AsesorID.Int32
+	}
+	return res, nil
 }
 
-func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.GetDocumentRes, error) {
+func (r *repositoryDocument) ListDocumentByDirectory(directoryID int64) (*[]dto.GetDocumentRes, error) {
 	ctx := context.Background()
 
 	repoRes, err := r.documentRepository.ListDocumentsByDirectory(ctx, directoryID)
@@ -100,7 +83,7 @@ func (r *repositoryDocument) ListDocumentByDirectory(directoryID int32) (*[]dto.
 			DirectoryId: inst.DirectoryID,
 			FormatId:    inst.FormatID.Int32,
 			FileRute:    inst.FileRute,
-			Status:      string(inst.Status),
+			Status:      string(inst.Status.Status),
 		}
 	}
 	return &documents, nil
@@ -121,13 +104,23 @@ func (r *repositoryDocument) CreateDocument(arg *sq.CreateDocumentParams) (*dto.
 		Name:        res.Name,
 		FormatId:    res.FormatID.Int32,
 		FileRute:    res.FileRute,
-		Status:      string(res.Status),
+		Status:      string(res.Status.Status),
 	}, nil
 
 }
 func (r *repositoryDocument) DeleteDocument(arg *sq.DeleteDocumentByIdParams) error {
 	ctx := context.Background()
 	return r.documentRepository.DeleteDocumentById(ctx, *arg)
+}
+
+func (r *repositoryDocument) UpdateDocumentStatusById(arg *sq.UpdateDocumentStatusByIdParams) error {
+	ctx := context.Background()
+	return r.documentRepository.UpdateDocumentStatusById(ctx, *arg)
+}
+
+func (r *repositoryDocument) UpdateDocumentById(arg *sq.UpdateDocumentByIdParams) error {
+	ctx := context.Background()
+	return r.documentRepository.UpdateDocumentById(ctx, *arg)
 }
 
 func (r *repositoryDocument) UpdateDocument(arg *sq.UpdateDocumentNameByIdParams) error {

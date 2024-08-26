@@ -1,49 +1,86 @@
 package service
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
 	dto "optitech/internal/dto/asesor"
+	ddto "optitech/internal/dto/directory_tree"
+	sdto "optitech/internal/dto/services"
 	"optitech/internal/interfaces"
 	sq "optitech/internal/sqlc"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type serviceAsesor struct {
-	clientRepository interfaces.IAsesorRepository
+	asesorRepository     interfaces.IAsesorRepository
+	directoryTreeService interfaces.IDirectoryService
+	servicesRepository   interfaces.IService
 }
 
-func NewServiceAsesor(r interfaces.IAsesorRepository) interfaces.IAsesorService {
+func NewServiceAsesor(r interfaces.IAsesorRepository, serviceDirectory interfaces.IDirectoryService, serviceServices interfaces.IService) interfaces.IAsesorService {
 	return &serviceAsesor{
-		clientRepository: r,
+		asesorRepository:     r,
+		directoryTreeService: serviceDirectory,
+		servicesRepository:   serviceServices,
 	}
 }
 
 func (s *serviceAsesor) Get(req dto.GetAsesorReq) (*dto.GetAsesorRes, error) {
-	return s.clientRepository.GetAsesor(req.Id)
+	return s.asesorRepository.GetAsesor(req.Id)
 }
 
 func (s *serviceAsesor) Create(req *dto.CreateAsesorReq) (*dto.CreateAsesorRes, error) {
 	repoReq := &sq.CreateAsesorParams{
 		AsesorID:  req.ClientId,
-		About:     req.About,
+		About:     pgtype.Text{String: req.About, Valid: true},
 		CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	r, err := s.clientRepository.CreateAsesor(repoReq)
+	r, err := s.asesorRepository.CreateAsesor(repoReq)
 	if err != nil {
 		return nil, err
 	}
+
+	directoryTreeRoot := &ddto.CreateDirectoryTreeReq{
+		AsesorID: r.Id,
+		Name:     "/",
+	}
+
+	rootDirectoryID, err := s.directoryTreeService.Create(directoryTreeRoot)
+	if err != nil {
+		return nil, err
+	}
+
+	var services *[]sdto.GetServiceRes
+	services, err = s.servicesRepository.List()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, service := range *services {
+
+		serviceDirectoryReq := &ddto.CreateDirectoryTreeReq{
+			ParentID: rootDirectoryID.DirectoryId,
+			Name:     service.Name,
+			AsesorID: r.Id,
+		}
+
+		_, err = s.directoryTreeService.Create(serviceDirectoryReq)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return r, nil
 }
 
 func (s *serviceAsesor) Update(req *dto.UpdateAsesorReq) (bool, error) {
 	repoReq := &sq.UpdateAsesorByIdParams{
 		AsesorID:  req.AsesorID,
-		About:     req.About,
+		About:     pgtype.Text{String: req.About, Valid: true},
 		UpdatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
-
-	err := s.clientRepository.UpdateAsesor(repoReq)
+	err := s.asesorRepository.UpdateAsesor(repoReq)
 
 	if err != nil {
 		return false, err
@@ -53,7 +90,7 @@ func (s *serviceAsesor) Update(req *dto.UpdateAsesorReq) (bool, error) {
 }
 
 func (s *serviceAsesor) List() (*[]dto.GetAsesorRes, error) {
-	repoRes, err := s.clientRepository.ListAsesor()
+	repoRes, err := s.asesorRepository.ListAsesor()
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +103,7 @@ func (s *serviceAsesor) Delete(req dto.GetAsesorReq) (bool, error) {
 		DeletedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 	}
 
-	if err := s.clientRepository.DeleteAsesor(repoReq); err != nil {
+	if err := s.asesorRepository.DeleteAsesor(repoReq); err != nil {
 		return false, pgtype.ErrScanTargetTypeChanged
 	}
 

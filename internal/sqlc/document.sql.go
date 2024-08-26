@@ -13,17 +13,17 @@ import (
 )
 
 const createDocument = `-- name: CreateDocument :one
-INSERT INTO document(directory_id,name, format_id, file_rute, status, created_at)
+INSERT INTO document(directory_id, name, format_id, file_rute, status, created_at)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING document_id, directory_id, format_id, name, file_rute, status, created_at, updated_at, deleted_at
 `
 
 type CreateDocumentParams struct {
-	DirectoryID int32            `json:"directory_id"`
+	DirectoryID int64            `json:"directory_id"`
 	Name        string           `json:"name"`
 	FormatID    pgtype.Int4      `json:"format_id"`
 	FileRute    string           `json:"file_rute"`
-	Status      Status           `json:"status"`
+	Status      NullStatus       `json:"status"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 }
 
@@ -135,10 +135,10 @@ WHERE document_id = $1 AND deleted_at IS NULL
 `
 
 type GetDocumentByNameRow struct {
-	DirectoryID int32       `json:"directory_id"`
+	DirectoryID int64       `json:"directory_id"`
 	FormatID    pgtype.Int4 `json:"format_id"`
 	FileRute    string      `json:"file_rute"`
-	Status      Status      `json:"status"`
+	Status      NullStatus  `json:"status"`
 }
 
 func (q *Queries) GetDocumentByName(ctx context.Context, documentID int64) (GetDocumentByNameRow, error) {
@@ -195,7 +195,7 @@ WHERE directory_id= $1 AND deleted_at IS NULL
 ORDER BY document_id
 `
 
-func (q *Queries) ListDocumentsByDirectory(ctx context.Context, directoryID int32) ([]Document, error) {
+func (q *Queries) ListDocumentsByDirectory(ctx context.Context, directoryID int64) ([]Document, error) {
 	rows, err := q.db.Query(ctx, listDocumentsByDirectory, directoryID)
 	if err != nil {
 		return nil, err
@@ -233,10 +233,10 @@ WHERE document_id = $1
 
 type UpdateDocumentByIdParams struct {
 	DocumentID  int64            `json:"document_id"`
-	DirectoryID int32            `json:"directory_id"`
+	DirectoryID int64            `json:"directory_id"`
 	FormatID    pgtype.Int4      `json:"format_id"`
 	FileRute    string           `json:"file_rute"`
-	Status      Status           `json:"status"`
+	Status      NullStatus       `json:"status"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 }
 
@@ -266,5 +266,21 @@ type UpdateDocumentNameByIdParams struct {
 
 func (q *Queries) UpdateDocumentNameById(ctx context.Context, arg UpdateDocumentNameByIdParams) error {
 	_, err := q.db.Exec(ctx, updateDocumentNameById, arg.DocumentID, arg.Name, arg.UpdatedAt)
+	return err
+}
+
+const updateDocumentStatusById = `-- name: UpdateDocumentStatusById :exec
+UPDATE document
+SET  status = $2
+WHERE document_id = $1
+`
+
+type UpdateDocumentStatusByIdParams struct {
+	DocumentID int64      `json:"document_id"`
+	Status     NullStatus `json:"status"`
+}
+
+func (q *Queries) UpdateDocumentStatusById(ctx context.Context, arg UpdateDocumentStatusByIdParams) error {
+	_, err := q.db.Exec(ctx, updateDocumentStatusById, arg.DocumentID, arg.Status)
 	return err
 }
