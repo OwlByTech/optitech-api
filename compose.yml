@@ -38,7 +38,13 @@ services:
     networks:
       app:
         ipv4_address: 10.19.0.3
-
+  docu-stream:
+    image: camilocamargo/docu-stream-office:v0.0.3
+    ports:
+      - 5000:3000
+    networks:
+      app:
+        ipv4_address: 10.19.0.4
 networks:
   app:
     name: optitech-api
