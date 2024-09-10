@@ -44,6 +44,7 @@ func (s *serviceClient) Get(req dto.GetClientReq) (*dto.GetClientRes, error) {
 
 	return res, nil
 }
+
 func (s *serviceClient) GetPhoto(req dto.GetClientReq) (string, error) {
 	photo, err := s.clientRepository.GetClientPhoto(req.Id)
 	if err != nil {
@@ -55,6 +56,7 @@ func (s *serviceClient) GetPhoto(req dto.GetClientReq) (string, error) {
 	}
 	return *url, nil
 }
+
 func (s *serviceClient) Create(req *dto.CreateClientReq) (*dto.CreateClientRes, error) {
 	hash, err := security.BcryptHashPassword(req.Password)
 	if err != nil {
@@ -178,7 +180,7 @@ func (s *serviceClient) UpdatePhoto(req *dto.UpdateClientPhotoReq) (bool, error)
 	filename := tools.NormalizeFilename(req.Photo.Filename)
 	filePath := filepath.Join(folder, filename)
 
-	if err := digitalOcean.UploadDocument(photo, filePath);  err != nil {
+	if err := digitalOcean.UploadDocument(photo, filePath); err != nil {
 		return false, err
 	}
 
